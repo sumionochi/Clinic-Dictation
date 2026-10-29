@@ -1,0 +1,10 @@
+# voice<TAB>speaker<TAB>text — rendered with macOS `say` by `clinic-eval synth`.
+# Synthetic smoke test only: it checks the pipeline, it does not stand in for real speech.
+Anna	arzt	Welche Vorerkrankungen sind bei Ihnen bekannt?
+Anna:low	patient	Ich habe Bluthochdruck und Diabetes mellitus, und vor zwei Jahren hatte ich einen Herzinfarkt.
+Anna	arzt	Nehmen Sie Blutverdünner, zum Beispiel ASS oder Apixaban?
+Anna:low	patient	Ich nehme ASS hundert Milligramm, aber kein Apixaban.
+Anna	arzt	Rauchen Sie?
+Anna:low	patient	Ich bin ehemaliger Raucher, etwa zwanzig Packungsjahre. Alkohol trinke ich nie.
+Anna	arzt	Wie ist Ihre Wohnsituation?
+Anna:low	patient	Ich lebe allein. Morgens kommt ein Pflegedienst, ich habe Pflegegrad zwei.

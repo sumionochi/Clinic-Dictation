@@ -15,7 +15,7 @@ nothing enters the record without the doctor's approval.
 ```
 app/        Electron + React + shadcn/ui desktop app
 sidecar/    Python FastAPI service for ASR, agents and FHIR (from step 2)
-eval/       Gold forms and evaluation scripts (from step 5)
+eval/       Speech recognition evaluation: WER, medical-term and negation recall (see eval/README.md)
 ```
 
 ## Run the app

@@ -1,0 +1,16 @@
+# Words that flip meaning. Losing one turns "keine Allergien" into "Allergien",
+# so they are scored on their own as a safety metric.
+nicht
+kein
+keine
+keinen
+keinem
+keiner
+keines
+nie
+niemals
+ohne
+nein
+# Not a negation, but it marks what a patient reacts to ("gegen Penicillin allergisch");
+# Whisper dropping it turned an allergy into a current medication in testing.
+gegen

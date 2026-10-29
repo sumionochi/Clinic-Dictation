@@ -13,3 +13,6 @@ __pycache__/
 *.wav
 *.sqlite
 *.db
+
+# Evaluation: synthetic cases are regenerated with `clinic-eval synth`
+eval/fixtures/synthetic-*/

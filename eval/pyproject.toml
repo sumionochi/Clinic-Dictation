@@ -1,0 +1,33 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "clinic-eval"
+version = "0.1.0"
+description = "Evaluation scripts for Clinic Dictation: speech recognition accuracy on role-play consultations"
+requires-python = ">=3.13,<3.14"
+license = "GPL-3.0-or-later"
+authors = [{ name = "Aaditya Srivastava" }]
+dependencies = [
+    "clinic-sidecar>=0.1.0",
+    "jiwer>=4.0.0",
+    "num2words>=0.5.14",
+]
+
+[project.scripts]
+clinic-eval = "clinic_eval.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/clinic_eval"]
+
+[tool.uv.sources]
+clinic-sidecar = { path = "../sidecar", editable = true }
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2.0",
+]

@@ -1,0 +1,10 @@
+# voice<TAB>speaker<TAB>text — rendered with macOS `say` by `clinic-eval synth`.
+# Synthetic smoke test only: it checks the pipeline, it does not stand in for real speech.
+Anna	arzt	Guten Tag, ich bin Doktor Weber. Was führt Sie heute zu uns?
+Anna:low	patient	Ich habe seit drei Tagen starke Brustschmerzen und Atemnot, vor allem beim Treppensteigen.
+Anna	arzt	Nehmen Sie regelmäßig Medikamente?
+Anna:low	patient	Ja, ich nehme Ramipril fünf Milligramm morgens und Metformin zweimal täglich.
+Anna	arzt	Haben Sie Allergien oder Unverträglichkeiten?
+Anna:low	patient	Gegen Penicillin bin ich allergisch. Andere Allergien habe ich keine.
+Anna	arzt	Haben Sie Fieber oder Husten?
+Anna:low	patient	Fieber habe ich nicht, aber etwas Husten ohne Auswurf.

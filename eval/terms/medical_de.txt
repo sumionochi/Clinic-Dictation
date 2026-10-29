@@ -1,0 +1,94 @@
+# Medical terms scored separately from overall WER: a transcript can have a low
+# word error rate and still get the one drug name or allergy wrong.
+# One term per line; multi-word terms are matched as a phrase. Lines starting
+# with # are comments. Extend this as the role-play scripts grow.
+
+# Symptoms
+Brustschmerzen
+Atemnot
+Dyspnoe
+Fieber
+Husten
+Auswurf
+Übelkeit
+Erbrechen
+Durchfall
+Schwindel
+Kopfschmerzen
+Bauchschmerzen
+Herzrasen
+Herzstolpern
+Ödeme
+Wassereinlagerungen
+Gewichtsverlust
+Nachtschweiß
+
+# Conditions
+Bluthochdruck
+Hypertonie
+Diabetes
+Diabetes mellitus
+Vorhofflimmern
+Herzinsuffizienz
+Herzinfarkt
+Schlaganfall
+COPD
+Asthma
+Niereninsuffizienz
+Schilddrüsenunterfunktion
+Thrombose
+Lungenembolie
+
+# Medications
+Ramipril
+Metformin
+Bisoprolol
+Metoprolol
+Amlodipin
+ASS
+Aspirin
+Clopidogrel
+Apixaban
+Rivaroxaban
+Marcumar
+Phenprocoumon
+Simvastatin
+Atorvastatin
+Pantoprazol
+Omeprazol
+L-Thyroxin
+Insulin
+Furosemid
+Torasemid
+Ibuprofen
+Metamizol
+Novaminsulfon
+Paracetamol
+Salbutamol
+Prednisolon
+
+# Allergies and intolerances
+Allergie
+allergisch
+Unverträglichkeit
+Penicillin
+Amoxicillin
+Jod
+Kontrastmittel
+Latex
+Pollen
+
+# Doses and units
+Milligramm
+Mikrogramm
+Einheiten
+morgens
+abends
+
+# Social history
+Raucher
+Packungsjahre
+Alkohol
+Pflegedienst
+Pflegegrad
+allein
