@@ -1,0 +1,38 @@
+# Clinic Dictation
+
+Local-first, consent-gated capture of doctor and patient conversations into
+evidence-linked, FHIR-structured clinical documentation.
+
+Course project for Frontier Systems 2026/27 (L3S, Leibniz Universität Hannover).
+
+Everything runs on one machine. Audio and transcripts never leave it. The app
+only structures what was said: every field links back to the words in the
+transcript that support it, or stays empty. It never suggests diagnoses, and
+nothing enters the record without the doctor's approval.
+
+## Layout
+
+```
+app/        Electron + React + shadcn/ui desktop app
+sidecar/    Python FastAPI service for ASR, agents and FHIR (from step 2)
+eval/       Gold forms and evaluation scripts (from step 5)
+```
+
+## Run the app
+
+Requires Node 22.12 or newer (see `.nvmrc`).
+
+```bash
+cd app
+nvm use
+npm install
+npm run dev
+```
+
+## License and credits
+
+GPL-3.0-or-later, see [LICENSE](LICENSE).
+
+Parts of this project are adapted from
+[TranscriptionSuite](https://github.com/homelab-00/TranscriptionSuite)
+(GPL-3.0-or-later). Every adapted file carries a comment naming its source.
