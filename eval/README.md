@@ -72,3 +72,53 @@ include most of these, because they are where transcription and extraction fail:
 - [ ] One contradiction (stopped a drug, later says still taking it)
 - [ ] A companion or interpreter speaking at least once
 - [ ] Some interruptions, overlapping speech or background noise
+
+## Extraction: agents vs. one prompt
+
+`uv run clinic-eval extract` compares two ways of turning a transcript into
+clinical facts, with the same local model:
+
+- **baseline**: one prompt, facts out, no evidence, no checking;
+- **agents**: extract with quoted evidence, check every quote is really on its
+  line, verify each fact in a separate call, send failures back once with the
+  reason (`sidecar/src/clinic_sidecar/agents/graph.py`).
+
+Cases live in `extraction/<case>/`: `transcript.tsv` (`speaker<TAB>text`) and
+`gold.json`, the facts a careful clinician would record. A fact counts when the
+category, name (or a listed synonym) and assertion (`present` / `absent` /
+`past`) agree.
+
+| Column | Meaning |
+|---|---|
+| **prec / recall** | Facts that are right / gold facts that were found. |
+| **flips** | Right fact, wrong assertion: a denied symptom recorded as present. The dangerous kind of error. |
+| **contra** | Expected contradictions that were flagged for the doctor. |
+| **calls** | Model calls used (the agents trade speed for checking). |
+
+Needs Ollama running locally (`ollama serve`) with the model pulled. Compare
+models with `--llm medgemma:4b --llm qwen3:8b`.
+
+Gold facts are written by hand from the transcript. Like `reference.tsv`, never
+fill them from a model's output.
+
+### Findings so far (30 Oct 2026, `results/20261030-0023-extraction.json`)
+
+Three short cases, 28 gold facts, perfect transcripts. Too small to be
+statistically meaningful; it shows direction, not proof.
+
+| qwen3:8b | Precision | Recall | Assertion flips | Contradictions flagged | Time |
+|---|---|---|---|---|---|
+| one prompt | 96.0% | 85.7% | 1 | 0/1 | 76 s |
+| agents | 100% | 85.7% | 0 | 1/1 | 305 s |
+
+- The agents never recorded a wrong present/absent/past, and caught the
+  Metoprolol contradiction; the one-prompt baseline recorded the patient's
+  mother's heart attack as the patient's.
+- They cost about 4x the time (one verification call per fact).
+- medgemma:4b is too weak as a verifier: it rejects correct facts and recall
+  falls to 43%. qwen3:8b is the default.
+- What made the difference while building it: correcting miscounted line numbers
+  when the quote is verbatim nearby, capping retries at one fact per rejected
+  fact, detecting contradictions before verification, letting the verifier write
+  its reason before its verdict, and verifying a plain sentence ("The patient does
+  NOT take: Apixaban") instead of a JSON field.

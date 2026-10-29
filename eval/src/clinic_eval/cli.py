@@ -5,6 +5,7 @@
     uv run clinic-eval add NAME --latest              add the latest recording made in the app
     uv run clinic-eval add NAME --session SESSION_ID  add a specific one recorded in the app
     uv run clinic-eval run [--model REPO] [CASE ...]  transcribe, score, save results
+    uv run clinic-eval extract [--llm MODEL]...       agents vs one-prompt baseline on gold facts
 """
 
 import argparse
@@ -179,6 +180,100 @@ def _save(model, language, rows, summary: Summary, audio_total, transcribe_total
     return path
 
 
+def cmd_extract(args: argparse.Namespace) -> None:
+    from clinic_eval.extraction import SPEAKER_NAMES, FactScore, load_cases, score_contradictions, score_facts
+    from clinic_sidecar.agents.baseline import baseline_facts
+    from clinic_sidecar.agents.graph import extract_facts
+    from clinic_sidecar.agents.llm import OllamaLLM
+    from clinic_sidecar.agents.schema import TranscriptLine
+
+    cases = load_cases(args.cases or None)
+    report: dict = {"run_at": datetime.now().isoformat(timespec="seconds"), "models": {}}
+    for model in args.llm or ["qwen3:8b"]:
+        print(f"\n=== {model} ===")
+        print(f"{'case':28s} {'system':9s} {'prec':>6s} {'recall':>6s} {'flips':>5s} {'contra':>6s} {'time':>6s} {'calls':>5s}")
+        totals = {"baseline": FactScore(), "agents": FactScore()}
+        contra = {"baseline": [0, 0], "agents": [0, 0]}
+        seconds = {"baseline": 0.0, "agents": 0.0}
+        rows = []
+        for case in cases:
+            lines = [
+                TranscriptLine(line=i + 1, speaker=SPEAKER_NAMES.get(spk, spk.title()), text=text)
+                for i, (spk, text) in enumerate(case.lines)
+            ]
+            llm = OllamaLLM(model)
+            plain, base_s = baseline_facts(lines, llm)
+            result = extract_facts(lines, llm)
+            outputs = {
+                "baseline": ([p.model_dump() for p in plain], [], base_s, 1),
+                "agents": (
+                    [x.model_dump() for x in result.facts],
+                    [c.name for c in result.contradictions],
+                    result.seconds,
+                    result.llm_calls,
+                ),
+            }
+            row = {"case": case.name}
+            for system, (facts, flagged, secs, calls) in outputs.items():
+                sc = score_facts(facts, case.gold)
+                found, expected = score_contradictions(flagged, case.contradictions)
+                totals[system].add(sc)
+                contra[system][0] += found
+                contra[system][1] += expected
+                seconds[system] += secs
+                print(
+                    f"{case.name:28s} {system:9s} {_pct(sc.precision)} {_pct(sc.recall)} {sc.assertion_errors:5d}"
+                    f" {f'{found}/{expected}' if expected else '-':>6s} {secs:5.1f}s {calls:5d}"
+                )
+                row[system] = {
+                    "facts": facts,
+                    "contradictions": flagged,
+                    "seconds": secs,
+                    "llm_calls": calls,
+                    "precision": sc.precision,
+                    "recall": sc.recall,
+                    "assertion_errors": sc.assertion_errors,
+                    "duplicates": sc.duplicates,
+                    "wrong": sc.wrong,
+                    "missed": sc.missed,
+                }
+            row["agents"]["rejected"] = [{"fact": r.fact.model_dump(), "reason": r.reason} for r in result.rejected]
+            row["agents"]["log"] = result.log
+            rows.append(row)
+        for system in ("baseline", "agents"):
+            t = totals[system]
+            c = contra[system]
+            print(
+                f"{'ALL':28s} {system:9s} {_pct(t.precision)} {_pct(t.recall)} {t.assertion_errors:5d}"
+                f" {f'{c[0]}/{c[1]}' if c[1] else '-':>6s} {seconds[system]:5.1f}s"
+            )
+        for system in ("baseline", "agents"):
+            if totals[system].wrong or totals[system].missed:
+                print(f"\n{system}:")
+                for w in totals[system].wrong:
+                    print(f"  extra   {w}")
+                for m in totals[system].missed:
+                    print(f"  missed  {m}")
+        report["models"][model] = {
+            "cases": rows,
+            "totals": {
+                s: {
+                    "precision": totals[s].precision,
+                    "recall": totals[s].recall,
+                    "assertion_errors": totals[s].assertion_errors,
+                    "contradictions_found": contra[s][0],
+                    "contradictions_expected": contra[s][1],
+                    "seconds": round(seconds[s], 1),
+                }
+                for s in totals
+            },
+        }
+    RESULTS_DIR.mkdir(exist_ok=True)
+    path = RESULTS_DIR / f"{datetime.now().strftime('%Y%m%d-%H%M')}-extraction.json"
+    path.write_text(json.dumps(report, ensure_ascii=False, indent=1), encoding="utf-8")
+    print(f"\nsaved {path.relative_to(EVAL_DIR)}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(prog="clinic-eval", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = parser.add_subparsers(required=True)
@@ -201,6 +296,11 @@ def main() -> None:
     run.add_argument("--allow-download", action="store_true", help="let the model be downloaded if missing")
     run.add_argument("--no-speakers", action="store_true", help="skip speaker diarization")
     run.set_defaults(func=cmd_run)
+
+    extract = sub.add_parser("extract", help="score the extraction agents against the one-prompt baseline")
+    extract.add_argument("cases", nargs="*", help="case names under eval/extraction (default: all)")
+    extract.add_argument("--llm", action="append", help="Ollama model; repeat to compare several (default: qwen3:8b)")
+    extract.set_defaults(func=cmd_extract)
 
     args = parser.parse_args()
     args.func(args)

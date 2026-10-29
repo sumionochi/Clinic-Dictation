@@ -37,6 +37,10 @@ notices within two seconds and exits on its own.
 
 Sidecar tests: `cd sidecar && uv run pytest`.
 
+The extraction agents (step 7) use a local model through [Ollama](https://ollama.com)
+on `127.0.0.1:11434`: `brew install ollama`, `ollama serve`, then
+`ollama pull qwen3:8b` (5.2 GB) and/or `ollama pull medgemma:4b` (3.3 GB).
+
 The first transcription downloads Whisper large-v3 for MLX (about 3 GB) and the
 Sortformer speaker model (about 0.5 GB) into
 `~/Library/Application Support/clinic-dictation/models/`. Once both are there,

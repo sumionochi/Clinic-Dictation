@@ -1,0 +1,15 @@
+{
+  "_note": "Each item: category plus the names and assertions that count as correct. complaint and symptom are interchangeable.",
+  "facts": [
+    {"category": "symptom", "names": ["Brustschmerzen"], "assertions": ["present"]},
+    {"category": "symptom", "names": ["Atemnot", "Dyspnoe"], "assertions": ["present"]},
+    {"category": "medication", "names": ["Ramipril"], "assertions": ["present"]},
+    {"category": "medication", "names": ["Metformin"], "assertions": ["present"]},
+    {"category": "allergy", "names": ["Penicillin"], "assertions": ["present"]},
+    {"category": "allergy", "names": ["weitere Allergien", "andere Allergien", "Allergien"], "assertions": ["absent"]},
+    {"category": "symptom", "names": ["Fieber"], "assertions": ["absent"]},
+    {"category": "symptom", "names": ["Husten"], "assertions": ["present"]},
+    {"category": "symptom", "names": ["Auswurf"], "assertions": ["absent"]}
+  ],
+  "contradictions": []
+}

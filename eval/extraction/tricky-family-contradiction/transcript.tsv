@@ -1,0 +1,19 @@
+# Written to trip up extraction: a denied symptom, a relative's illness that is not
+# the patient's, a drug mentioned by the daughter, and a drug "abgesetzt" that turns
+# out to be still taken sometimes (a contradiction the doctor must see).
+arzt	Guten Morgen, was führt Sie zu uns?
+patient	Mir ist seit gestern sehr schwindelig und ich habe Herzrasen.
+arzt	Haben Sie auch Brustschmerzen?
+patient	Nein, Brustschmerzen habe ich nicht.
+arzt	Hatten Sie schon einmal einen Herzinfarkt?
+patient	Ich nicht, aber meine Mutter hatte einen Herzinfarkt.
+arzt	Welche Medikamente nehmen Sie?
+patient	Bisoprolol morgens, und das Metoprolol habe ich letzten Monat abgesetzt.
+begleitung	Mama, du nimmst doch auch noch Pantoprazol.
+patient	Ach ja, Pantoprazol vierzig Milligramm.
+arzt	Haben Sie Allergien?
+patient	Nein, keine.
+arzt	Rauchen Sie?
+patient	Nein, nie geraucht.
+arzt	Und das Metoprolol nehmen Sie wirklich nicht mehr?
+patient	Doch, abends nehme ich es manchmal noch.

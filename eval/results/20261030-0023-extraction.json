@@ -1,0 +1,1324 @@
+{
+ "run_at": "2026-10-30T00:11:21",
+ "models": {
+  "qwen3:8b": {
+   "cases": [
+    {
+     "case": "allergy-meds",
+     "baseline": {
+      "facts": [
+       {
+        "category": "complaint",
+        "name": "Brustschmerzen",
+        "details": "seit drei Tagen, stark",
+        "assertion": "present"
+       },
+       {
+        "category": "complaint",
+        "name": "Atemnot",
+        "details": "vor allem beim Treppensteigen",
+        "assertion": "present"
+       },
+       {
+        "category": "medication",
+        "name": "Ramipril",
+        "details": "fünf Milligramm morgens",
+        "assertion": "present"
+       },
+       {
+        "category": "medication",
+        "name": "Metformin",
+        "details": "zweimal täglich",
+        "assertion": "present"
+       },
+       {
+        "category": "allergy",
+        "name": "Penicillin",
+        "details": null,
+        "assertion": "present"
+       },
+       {
+        "category": "symptom",
+        "name": "Husten",
+        "details": "ohne Auswurf",
+        "assertion": "present"
+       },
+       {
+        "category": "symptom",
+        "name": "Fieber",
+        "details": null,
+        "assertion": "absent"
+       }
+      ],
+      "contradictions": [],
+      "seconds": 18.58,
+      "llm_calls": 1,
+      "precision": 1.0,
+      "recall": 0.7777777777777778,
+      "assertion_errors": 0,
+      "duplicates": 0,
+      "wrong": [],
+      "missed": [
+       "allergy 'weitere Allergien' absent",
+       "symptom 'Auswurf' absent"
+      ]
+     },
+     "agents": {
+      "facts": [
+       {
+        "category": "complaint",
+        "name": "Brustschmerzen",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 2,
+          "quote": "Ich habe seit drei Tagen starke Brustschmerzen und Atemnot"
+         }
+        ]
+       },
+       {
+        "category": "complaint",
+        "name": "Atemnot",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 2,
+          "quote": "Ich habe seit drei Tagen starke Brustschmerzen und Atemnot"
+         }
+        ]
+       },
+       {
+        "category": "symptom",
+        "name": "Husten",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 8,
+          "quote": "Husten ohne Auswurf"
+         }
+        ]
+       },
+       {
+        "category": "medication",
+        "name": "Ramipril",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 4,
+          "quote": "ich nehme Ramipril fünf Milligramm morgens"
+         }
+        ]
+       },
+       {
+        "category": "medication",
+        "name": "Metformin",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 4,
+          "quote": "Metformin zweimal täglich"
+         }
+        ]
+       },
+       {
+        "category": "allergy",
+        "name": "Penicillin",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 6,
+          "quote": "Gegen Penicillin bin ich allergisch"
+         }
+        ]
+       },
+       {
+        "category": "allergy",
+        "name": "weitere Allergien",
+        "details": null,
+        "assertion": "absent",
+        "evidence": [
+         {
+          "line": 6,
+          "quote": "Andere Allergien habe ich keine"
+         }
+        ]
+       },
+       {
+        "category": "symptom",
+        "name": "Fieber",
+        "details": null,
+        "assertion": "absent",
+        "evidence": [
+         {
+          "line": 8,
+          "quote": "Fieber habe ich nicht"
+         }
+        ]
+       }
+      ],
+      "contradictions": [],
+      "seconds": 71.33,
+      "llm_calls": 9,
+      "precision": 1.0,
+      "recall": 0.8888888888888888,
+      "assertion_errors": 0,
+      "duplicates": 0,
+      "wrong": [],
+      "missed": [
+       "symptom 'Auswurf' absent"
+      ],
+      "rejected": [],
+      "log": [
+       "extract: 8 facts",
+       "check: 8 passed, 0 bad quotes, 2 line numbers corrected",
+       "verify: 8 supported, 0 rejected"
+      ]
+     }
+    },
+    {
+     "case": "history-social",
+     "baseline": {
+      "facts": [
+       {
+        "category": "condition",
+        "name": "Bluthochdruck",
+        "details": null,
+        "assertion": "present"
+       },
+       {
+        "category": "condition",
+        "name": "Diabetes mellitus",
+        "details": null,
+        "assertion": "present"
+       },
+       {
+        "category": "condition",
+        "name": "Herzinfarkt",
+        "details": "vor zwei Jahren",
+        "assertion": "past"
+       },
+       {
+        "category": "medication",
+        "name": "ASS",
+        "details": "hundert Milligramm",
+        "assertion": "present"
+       },
+       {
+        "category": "medication",
+        "name": "Apixaban",
+        "details": null,
+        "assertion": "absent"
+       },
+       {
+        "category": "social",
+        "name": "Rauchen",
+        "details": "etwa zwanzig Packungsjahre",
+        "assertion": "past"
+       },
+       {
+        "category": "social",
+        "name": "Alkohol",
+        "details": null,
+        "assertion": "absent"
+       },
+       {
+        "category": "social",
+        "name": "Wohnsituation",
+        "details": "allein",
+        "assertion": "present"
+       },
+       {
+        "category": "social",
+        "name": "Pflegegrad",
+        "details": "zwei",
+        "assertion": "present"
+       }
+      ],
+      "contradictions": [],
+      "seconds": 31.28,
+      "llm_calls": 1,
+      "precision": 1.0,
+      "recall": 0.9,
+      "assertion_errors": 0,
+      "duplicates": 0,
+      "wrong": [],
+      "missed": [
+       "social 'Pflegedienst' present"
+      ]
+     },
+     "agents": {
+      "facts": [
+       {
+        "category": "condition",
+        "name": "Bluthochdruck",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 2,
+          "quote": "Ich habe Bluthochdruck"
+         }
+        ]
+       },
+       {
+        "category": "condition",
+        "name": "Diabetes mellitus",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 2,
+          "quote": "Ich habe Bluthochdruck und Diabetes mellitus"
+         }
+        ]
+       },
+       {
+        "category": "medication",
+        "name": "ASS",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 4,
+          "quote": "Ich nehme ASS hundert Milligramm"
+         }
+        ]
+       },
+       {
+        "category": "medication",
+        "name": "Apixaban",
+        "details": null,
+        "assertion": "absent",
+        "evidence": [
+         {
+          "line": 4,
+          "quote": "kein Apixaban"
+         }
+        ]
+       },
+       {
+        "category": "social",
+        "name": "Rauchen",
+        "details": null,
+        "assertion": "past",
+        "evidence": [
+         {
+          "line": 6,
+          "quote": "Ich bin ehemaliger Raucher"
+         }
+        ]
+       },
+       {
+        "category": "social",
+        "name": "Alkohol",
+        "details": null,
+        "assertion": "absent",
+        "evidence": [
+         {
+          "line": 6,
+          "quote": "Alkohol trinke ich nie"
+         }
+        ]
+       },
+       {
+        "category": "social",
+        "name": "Wohnsituation",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 8,
+          "quote": "Ich lebe allein"
+         }
+        ]
+       },
+       {
+        "category": "social",
+        "name": "Pflegegrad",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 8,
+          "quote": "ich habe Pflegegrad zwei"
+         }
+        ]
+       }
+      ],
+      "contradictions": [],
+      "seconds": 97.6,
+      "llm_calls": 12,
+      "precision": 1.0,
+      "recall": 0.8,
+      "assertion_errors": 0,
+      "duplicates": 0,
+      "wrong": [],
+      "missed": [
+       "condition 'Herzinfarkt' past",
+       "social 'Pflegedienst' present"
+      ],
+      "rejected": [],
+      "log": [
+       "extract: 9 facts",
+       "check: 9 passed, 0 bad quotes, 1 line numbers corrected",
+       "verify: 8 supported, 1 rejected",
+       "  rejected condition 'Herzinfarkt' past (lines [2]): Verifier: unsupported: The transcript states that the patient had a Herzinfarkt (heart attack) two years ago, which supports the claim that they had it before. However, the claim says 'but no longer', implying they no longer have it, which is not addressed in the transcript. The patient's current status regarding the Herz",
+       "retry 1: 1 sent back, 1 returned",
+       "check: 1 passed, 0 bad quotes, 0 line numbers corrected",
+       "verify: 1 supported, 0 rejected"
+      ]
+     }
+    },
+    {
+     "case": "tricky-family-contradiction",
+     "baseline": {
+      "facts": [
+       {
+        "category": "complaint",
+        "name": "Schwindel",
+        "details": null,
+        "assertion": "present"
+       },
+       {
+        "category": "complaint",
+        "name": "Herzrasen",
+        "details": null,
+        "assertion": "present"
+       },
+       {
+        "category": "symptom",
+        "name": "Brustschmerzen",
+        "details": null,
+        "assertion": "absent"
+       },
+       {
+        "category": "condition",
+        "name": "Herzinfarkt",
+        "details": null,
+        "assertion": "past"
+       },
+       {
+        "category": "medication",
+        "name": "Bisoprolol",
+        "details": null,
+        "assertion": "present"
+       },
+       {
+        "category": "medication",
+        "name": "Metoprolol",
+        "details": null,
+        "assertion": "past"
+       },
+       {
+        "category": "medication",
+        "name": "Pantoprazol",
+        "details": "vierzig Milligramm",
+        "assertion": "present"
+       },
+       {
+        "category": "allergy",
+        "name": "weitere Allergien",
+        "details": null,
+        "assertion": "absent"
+       },
+       {
+        "category": "social",
+        "name": "Rauchen",
+        "details": null,
+        "assertion": "absent"
+       },
+       {
+        "category": "medication",
+        "name": "Metoprolol",
+        "details": "abends manchmal",
+        "assertion": "present"
+       }
+      ],
+      "contradictions": [],
+      "seconds": 26.58,
+      "llm_calls": 1,
+      "precision": 0.8888888888888888,
+      "recall": 0.8888888888888888,
+      "assertion_errors": 1,
+      "duplicates": 1,
+      "wrong": [
+       "condition 'Herzinfarkt' past  ← wrong assertion"
+      ],
+      "missed": [
+       "condition 'Herzinfarkt' absent"
+      ]
+     },
+     "agents": {
+      "facts": [
+       {
+        "category": "complaint",
+        "name": "Schwindel",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 2,
+          "quote": "Mir ist seit gestern sehr schwindelig"
+         }
+        ]
+       },
+       {
+        "category": "complaint",
+        "name": "Herzrasen",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 2,
+          "quote": "und ich habe Herzrasen"
+         }
+        ]
+       },
+       {
+        "category": "symptom",
+        "name": "Brustschmerzen",
+        "details": null,
+        "assertion": "absent",
+        "evidence": [
+         {
+          "line": 3,
+          "quote": "Haben Sie auch Brustschmerzen?"
+         },
+         {
+          "line": 4,
+          "quote": "Brustschmerzen habe ich nicht"
+         }
+        ]
+       },
+       {
+        "category": "medication",
+        "name": "Bisoprolol",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 7,
+          "quote": "Welche Medikamente nehmen Sie?"
+         },
+         {
+          "line": 8,
+          "quote": "Bisoprolol morgens"
+         }
+        ]
+       },
+       {
+        "category": "medication",
+        "name": "Metoprolol",
+        "details": null,
+        "assertion": "past",
+        "evidence": [
+         {
+          "line": 7,
+          "quote": "Welche Medikamente nehmen Sie?"
+         },
+         {
+          "line": 8,
+          "quote": "das Metoprolol habe ich letzten Monat abgesetzt"
+         }
+        ]
+       },
+       {
+        "category": "medication",
+        "name": "Pantoprazol",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 9,
+          "quote": "du nimmst doch auch noch Pantoprazol"
+         },
+         {
+          "line": 10,
+          "quote": "Pantoprazol vierzig Milligramm"
+         }
+        ]
+       },
+       {
+        "category": "allergy",
+        "name": "weitere Allergien",
+        "details": null,
+        "assertion": "absent",
+        "evidence": [
+         {
+          "line": 11,
+          "quote": "Haben Sie Allergien?"
+         },
+         {
+          "line": 12,
+          "quote": "Nein, keine"
+         }
+        ]
+       },
+       {
+        "category": "social",
+        "name": "Rauchen",
+        "details": null,
+        "assertion": "absent",
+        "evidence": [
+         {
+          "line": 13,
+          "quote": "Rauchen Sie?"
+         },
+         {
+          "line": 14,
+          "quote": "Nein, nie geraucht"
+         }
+        ]
+       },
+       {
+        "category": "medication",
+        "name": "Metoprolol",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 15,
+          "quote": "Und das Metoprolol nehmen Sie wirklich nicht mehr?"
+         },
+         {
+          "line": 16,
+          "quote": "abends nehme ich es manchmal noch"
+         }
+        ]
+       }
+      ],
+      "contradictions": [
+       "Metoprolol"
+      ],
+      "seconds": 135.98,
+      "llm_calls": 13,
+      "precision": 1.0,
+      "recall": 0.8888888888888888,
+      "assertion_errors": 0,
+      "duplicates": 1,
+      "wrong": [],
+      "missed": [
+       "condition 'Herzinfarkt' absent"
+      ],
+      "rejected": [],
+      "log": [
+       "extract: 10 facts",
+       "check: 10 passed, 0 bad quotes, 0 line numbers corrected",
+       "verify: 9 supported, 1 rejected",
+       "  rejected condition 'Herzinfarkt' past (lines [5, 6]): Verifier: wrong_assertion: The transcript shows the patient denied having a Herzinfarkt ('Ich nicht, aber meine Mutter hatte einen Herzinfarkt'), and there is no mention of them having had one before. The claim incorrectly states the patient had a Herzinfarkt before, which is not supported by the lines.",
+       "retry 1: 1 sent back, 1 returned",
+       "check: 1 passed, 0 bad quotes, 0 line numbers corrected",
+       "verify: 1 supported, 0 rejected"
+      ]
+     }
+    }
+   ],
+   "totals": {
+    "baseline": {
+     "precision": 0.96,
+     "recall": 0.8571428571428571,
+     "assertion_errors": 1,
+     "contradictions_found": 0,
+     "contradictions_expected": 1,
+     "seconds": 76.4
+    },
+    "agents": {
+     "precision": 1.0,
+     "recall": 0.8571428571428571,
+     "assertion_errors": 0,
+     "contradictions_found": 1,
+     "contradictions_expected": 1,
+     "seconds": 304.9
+    }
+   }
+  },
+  "medgemma:4b": {
+   "cases": [
+    {
+     "case": "allergy-meds",
+     "baseline": {
+      "facts": [
+       {
+        "category": "complaint",
+        "name": "Brustschmerzen",
+        "details": "starke Brustschmerzen",
+        "assertion": "present"
+       },
+       {
+        "category": "complaint",
+        "name": "Atemnot",
+        "details": "Atemnot, vor allem beim Treppensteigen",
+        "assertion": "present"
+       },
+       {
+        "category": "medication",
+        "name": "Ramipril",
+        "details": "5 Milligramm morgens",
+        "assertion": "present"
+       },
+       {
+        "category": "medication",
+        "name": "Metformin",
+        "details": "zweimal täglich",
+        "assertion": "present"
+       },
+       {
+        "category": "allergy",
+        "name": "Penicillin",
+        "details": "allergisch",
+        "assertion": "present"
+       },
+       {
+        "category": "symptom",
+        "name": "Husten",
+        "details": "Husten ohne Auswurf",
+        "assertion": "present"
+       },
+       {
+        "category": "symptom",
+        "name": "Fieber",
+        "details": null,
+        "assertion": "absent"
+       }
+      ],
+      "contradictions": [],
+      "seconds": 18.15,
+      "llm_calls": 1,
+      "precision": 1.0,
+      "recall": 0.7777777777777778,
+      "assertion_errors": 0,
+      "duplicates": 0,
+      "wrong": [],
+      "missed": [
+       "allergy 'weitere Allergien' absent",
+       "symptom 'Auswurf' absent"
+      ]
+     },
+     "agents": {
+      "facts": [
+       {
+        "category": "medication",
+        "name": "Ramipril",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 4,
+          "quote": "Ich nehme Ramipril fünf Milligramm morgens und Metformin zweimal täglich."
+         },
+         {
+          "line": 4,
+          "quote": "Ja, ich nehme Ramipril fünf Milligramm morgens und Metformin zweimal täglich."
+         }
+        ]
+       },
+       {
+        "category": "medication",
+        "name": "Metformin",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 4,
+          "quote": "Ich nehme Ramipril fünf Milligramm morgens und Metformin zweimal täglich."
+         },
+         {
+          "line": 4,
+          "quote": "Ja, ich nehme Ramipril fünf Milligramm morgens und Metformin zweimal täglich."
+         }
+        ]
+       }
+      ],
+      "contradictions": [],
+      "seconds": 97.71,
+      "llm_calls": 18,
+      "precision": 1.0,
+      "recall": 0.2222222222222222,
+      "assertion_errors": 0,
+      "duplicates": 0,
+      "wrong": [],
+      "missed": [
+       "symptom 'Brustschmerzen' present",
+       "symptom 'Atemnot' present",
+       "allergy 'Penicillin' present",
+       "allergy 'weitere Allergien' absent",
+       "symptom 'Fieber' absent",
+       "symptom 'Husten' present",
+       "symptom 'Auswurf' absent"
+      ],
+      "rejected": [
+       {
+        "fact": {
+         "category": "complaint",
+         "name": "Brustschmerzen",
+         "details": null,
+         "assertion": "present",
+         "evidence": [
+          {
+           "line": 2,
+           "quote": "Ich habe seit drei Tagen starke Brustschmerzen und Atemnot, vor allem beim Treppensteigen."
+          }
+         ]
+        },
+        "reason": "Verifier: unsupported: The patient reports chest pain, but the doctor asks if they take medication. The claim is about the patient's symptoms, not medication."
+       },
+       {
+        "fact": {
+         "category": "complaint",
+         "name": "Atemnot",
+         "details": null,
+         "assertion": "present",
+         "evidence": [
+          {
+           "line": 2,
+           "quote": "Ich habe seit drei Tagen starke Brustschmerzen und Atemnot, vor allem beim Treppensteigen."
+          }
+         ]
+        },
+        "reason": "Verifier: unsupported: The patient reports breathing difficulties (Atemnot), but the doctor is asking if the patient takes medication. The claim is about the patient's symptoms, not medication."
+       },
+       {
+        "fact": {
+         "category": "allergy",
+         "name": "Penicillin",
+         "details": null,
+         "assertion": "present",
+         "evidence": [
+          {
+           "line": 6,
+           "quote": "Gegen Penicillin bin ich allergisch."
+          }
+         ]
+        },
+        "reason": "Verifier: wrong_assertion: The patient states they are allergic to Penicillin. The claim says the patient has Penicillin. This is a wrong_assertion because the patient denies having Penicillin."
+       },
+       {
+        "fact": {
+         "category": "allergy",
+         "name": "weitere Allergien",
+         "details": null,
+         "assertion": "absent",
+         "evidence": [
+          {
+           "line": 6,
+           "quote": "Gegen Penicillin bin ich allergisch. Andere Allergien habe ich keine."
+          }
+         ]
+        },
+        "reason": "Verifier: wrong_assertion: The patient explicitly states they have no other allergies besides penicillin. The claim states the patient does NOT have other allergies, which is a contradiction."
+       },
+       {
+        "fact": {
+         "category": "symptom",
+         "name": "Husten",
+         "details": null,
+         "assertion": "present",
+         "evidence": [
+          {
+           "line": 8,
+           "quote": "Husten ohne Auswurf."
+          }
+         ]
+        },
+        "reason": "Verifier: wrong_assertion: The patient denies having fever, but reports some cough without sputum. The claim is about the patient having cough. The patient denies having cough, so the claim is wrong_assertion."
+       }
+      ],
+      "log": [
+       "extract: 9 facts",
+       "check: 9 passed, 0 bad quotes, 2 line numbers corrected",
+       "verify: 2 supported, 7 rejected",
+       "  rejected complaint 'Brustschmerzen' present (lines [2]): Verifier: unsupported: The patient reports chest pain, but the doctor asks if they take medication. The claim is about the patient's symptoms, not medication.",
+       "  rejected complaint 'Atemnot' present (lines [2]): Verifier: unsupported: The patient reports breathing difficulties (Atemnot), but the doctor is asking if the patient takes medication. The claim is about the patient's symptoms, not medication.",
+       "  rejected complaint 'Husten' present (lines [8]): Verifier: wrong_assertion: The patient denies having a cough, but mentions some cough without a cough. The claim is about the patient having a cough, which is a denial of the patient's statement.",
+       "  rejected allergy 'Penicillin' present (lines [6]): Verifier: wrong_assertion: The patient states they are allergic to Penicillin. The claim says the patient has Penicillin. This is a wrong_assertion because the patient denies having Penicillin.",
+       "  rejected allergy 'weitere Allergien' absent (lines [6]): Verifier: wrong_assertion: The patient explicitly states they have no other allergies besides penicillin. The claim states the patient does NOT have other allergies, which is a contradiction.",
+       "  rejected condition 'Rauchen' past (lines [2]): Verifier: unsupported: The claim states that the patient used to smoke, but no longer. The lines only ask about medication use, not smoking habits. Therefore, the claim is unsupported.",
+       "  rejected condition 'abgesetzt' past (lines [2]): Verifier: unsupported: The claim states that the patient had/took abgesetzt before, but no longer. The patient mentions chest pain and shortness of breath, but does not mention any medications they have stopped taking. The doctor asks if the patient takes medications regularly, but the patient does not answer. Therefore, ",
+       "retry 1: 7 sent back, 7 returned",
+       "check: 7 passed, 0 bad quotes, 0 line numbers corrected",
+       "verify: 2 supported, 5 rejected",
+       "  rejected complaint 'Brustschmerzen' present (lines [2]): Verifier: unsupported: The patient reports chest pain, but the doctor asks if they take medication. The claim is about the patient's symptoms, not medication.",
+       "  rejected complaint 'Atemnot' present (lines [2]): Verifier: unsupported: The patient reports breathing difficulties (Atemnot), but the doctor is asking if the patient takes medication. The claim is about the patient's symptoms, not medication.",
+       "  rejected allergy 'Penicillin' present (lines [6]): Verifier: wrong_assertion: The patient states they are allergic to Penicillin. The claim says the patient has Penicillin. This is a wrong_assertion because the patient denies having Penicillin.",
+       "  rejected allergy 'weitere Allergien' absent (lines [6]): Verifier: wrong_assertion: The patient explicitly states they have no other allergies besides penicillin. The claim states the patient does NOT have other allergies, which is a contradiction.",
+       "  rejected symptom 'Husten' present (lines [8]): Verifier: wrong_assertion: The patient denies having fever, but reports some cough without sputum. The claim is about the patient having cough. The patient denies having cough, so the claim is wrong_assertion."
+      ]
+     }
+    },
+    {
+     "case": "history-social",
+     "baseline": {
+      "facts": [
+       {
+        "category": "condition",
+        "name": "Bluthochdruck",
+        "details": null,
+        "assertion": "present"
+       },
+       {
+        "category": "condition",
+        "name": "Diabetes mellitus",
+        "details": null,
+        "assertion": "present"
+       },
+       {
+        "category": "condition",
+        "name": "Herzinfarkt",
+        "details": null,
+        "assertion": "past"
+       },
+       {
+        "category": "medication",
+        "name": "ASS",
+        "details": "100 mg",
+        "assertion": "present"
+       },
+       {
+        "category": "social",
+        "name": "Rauchen",
+        "details": null,
+        "assertion": "absent"
+       },
+       {
+        "category": "social",
+        "name": "Alkohol",
+        "details": null,
+        "assertion": "absent"
+       },
+       {
+        "category": "social",
+        "name": "Wohnsituation",
+        "details": null,
+        "assertion": "present"
+       },
+       {
+        "category": "social",
+        "name": "Pflegegrad",
+        "details": "2",
+        "assertion": "present"
+       }
+      ],
+      "contradictions": [],
+      "seconds": 14.08,
+      "llm_calls": 1,
+      "precision": 0.875,
+      "recall": 0.7,
+      "assertion_errors": 1,
+      "duplicates": 0,
+      "wrong": [
+       "social 'Rauchen' absent  ← wrong assertion"
+      ],
+      "missed": [
+       "medication 'Apixaban' absent",
+       "social 'Rauchen' past",
+       "social 'Pflegedienst' present"
+      ]
+     },
+     "agents": {
+      "facts": [
+       {
+        "category": "condition",
+        "name": "Bluthochdruck",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 1,
+          "quote": "Welche Vorerkrankungen sind bei Ihnen bekannt?"
+         },
+         {
+          "line": 2,
+          "quote": "Ich habe Bluthochdruck und Diabetes mellitus, und vor zwei Jahren hatte ich einen Herzinfarkt."
+         }
+        ]
+       },
+       {
+        "category": "condition",
+        "name": "Diabetes mellitus",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 2,
+          "quote": "Ich habe Bluthochdruck und Diabetes mellitus, und vor zwei Jahren hatte ich einen Herzinfarkt."
+         }
+        ]
+       },
+       {
+        "category": "medication",
+        "name": "Apixaban",
+        "details": null,
+        "assertion": "absent",
+        "evidence": [
+         {
+          "line": 4,
+          "quote": "Ich nehme ASS hundert Milligramm, aber kein Apixaban."
+         }
+        ]
+       },
+       {
+        "category": "social",
+        "name": "Rauchen",
+        "details": null,
+        "assertion": "absent",
+        "evidence": [
+         {
+          "line": 5,
+          "quote": "Rauchen Sie?"
+         }
+        ]
+       },
+       {
+        "category": "social",
+        "name": "Alkohol",
+        "details": null,
+        "assertion": "absent",
+        "evidence": [
+         {
+          "line": 6,
+          "quote": "Alkohol trinke ich nie."
+         }
+        ]
+       }
+      ],
+      "contradictions": [],
+      "seconds": 85.84,
+      "llm_calls": 15,
+      "precision": 0.8,
+      "recall": 0.4,
+      "assertion_errors": 1,
+      "duplicates": 0,
+      "wrong": [
+       "social 'Rauchen' absent  ← wrong assertion"
+      ],
+      "missed": [
+       "condition 'Herzinfarkt' past",
+       "medication 'ASS' present",
+       "social 'Rauchen' past",
+       "social 'lebt allein' present",
+       "social 'Pflegedienst' present",
+       "social 'Pflegegrad' present"
+      ],
+      "rejected": [
+       {
+        "fact": {
+         "category": "condition",
+         "name": "Herzinfarkt",
+         "details": null,
+         "assertion": "past",
+         "evidence": [
+          {
+           "line": 2,
+           "quote": "Ich habe Bluthochdruck und Diabetes mellitus, und vor zwei Jahren hatte ich einen Herzinfarkt."
+          }
+         ]
+        },
+        "reason": "Verifier: wrong_assertion: The claim states the patient had a heart attack before, but no longer. The transcript lines mention the patient had a heart attack two years ago, but the claim implies the patient no longer has it. This is a wrong assertion, as the patient still has the condition."
+       },
+       {
+        "fact": {
+         "category": "medication",
+         "name": "ASS",
+         "details": null,
+         "assertion": "present",
+         "evidence": [
+          {
+           "line": 4,
+           "quote": "Ich nehme ASS hundert Milligramm, aber kein Apixaban."
+          }
+         ]
+        },
+        "reason": "Verifier: wrong_assertion: The patient states that they take ASS, but not Apixaban. The claim says the patient has ASS. This is a wrong assertion, as the patient does not take Apixaban."
+       }
+      ],
+      "log": [
+       "extract: 9 facts",
+       "check: 9 passed, 0 bad quotes, 0 line numbers corrected",
+       "verify: 5 supported, 4 rejected",
+       "  rejected condition 'Herzinfarkt' past (lines [2]): Verifier: wrong_assertion: The claim states the patient had a heart attack before, but no longer. The transcript lines mention the patient had a heart attack two years ago, but the claim implies the patient no longer has it. This is a wrong assertion, as the patient still has the condition.",
+       "  rejected medication 'ASS' present (lines [4]): Verifier: wrong_assertion: The patient states that they take ASS, but not Apixaban. The claim says the patient has ASS. This is a wrong assertion, as the patient does not take Apixaban.",
+       "  rejected social 'Wohnsituation' present (lines [7]): Verifier: unsupported: The patient states they live alone and have a care level of 2. This implies they have a living situation, but it doesn't explicitly state they *take* or *report* it. The claim is about the patient's living situation, but the lines don't provide enough information to determine if the patient has a 'W",
+       "  rejected social 'Pflegegrad' present (lines [8]): Verifier: unsupported: The lines describe the patient's living situation and the presence of a nursing service. They do not mention the patient's 'Pflegegrad' (care level).",
+       "retry 1: 4 sent back, 4 returned",
+       "check: 4 passed, 0 bad quotes, 0 line numbers corrected",
+       "verify: 2 supported, 2 rejected",
+       "  rejected condition 'Herzinfarkt' past (lines [2]): Verifier: wrong_assertion: The claim states the patient had a heart attack before, but no longer. The transcript lines mention the patient had a heart attack two years ago, but the claim implies the patient no longer has it. This is a wrong assertion, as the patient still has the condition.",
+       "  rejected medication 'ASS' present (lines [4]): Verifier: wrong_assertion: The patient states that they take ASS, but not Apixaban. The claim says the patient has ASS. This is a wrong assertion, as the patient does not take Apixaban."
+      ]
+     }
+    },
+    {
+     "case": "tricky-family-contradiction",
+     "baseline": {
+      "facts": [
+       {
+        "category": "complaint",
+        "name": "schwindelig",
+        "details": null,
+        "assertion": "present"
+       },
+       {
+        "category": "symptom",
+        "name": "Herzrasen",
+        "details": null,
+        "assertion": "present"
+       },
+       {
+        "category": "symptom",
+        "name": "Brustschmerzen",
+        "details": null,
+        "assertion": "absent"
+       },
+       {
+        "category": "condition",
+        "name": "Herzinfarkt",
+        "details": null,
+        "assertion": "past"
+       },
+       {
+        "category": "medication",
+        "name": "Bisoprolol",
+        "details": null,
+        "assertion": "present"
+       },
+       {
+        "category": "medication",
+        "name": "Metoprolol",
+        "details": null,
+        "assertion": "absent"
+       },
+       {
+        "category": "medication",
+        "name": "Pantoprazol",
+        "details": null,
+        "assertion": "present"
+       },
+       {
+        "category": "allergy",
+        "name": "weitere Allergien",
+        "details": null,
+        "assertion": "absent"
+       },
+       {
+        "category": "social",
+        "name": "Rauchen",
+        "details": null,
+        "assertion": "absent"
+       },
+       {
+        "category": "medication",
+        "name": "Metoprolol",
+        "details": null,
+        "assertion": "present"
+       }
+      ],
+      "contradictions": [],
+      "seconds": 14.69,
+      "llm_calls": 1,
+      "precision": 0.8,
+      "recall": 0.8888888888888888,
+      "assertion_errors": 2,
+      "duplicates": 0,
+      "wrong": [
+       "condition 'Herzinfarkt' past  ← wrong assertion",
+       "medication 'Metoprolol' absent  ← wrong assertion"
+      ],
+      "missed": [
+       "condition 'Herzinfarkt' absent"
+      ]
+     },
+     "agents": {
+      "facts": [
+       {
+        "category": "complaint",
+        "name": "schwindelig",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 2,
+          "quote": "Mir ist seit gestern sehr schwindelig"
+         }
+        ]
+       },
+       {
+        "category": "symptom",
+        "name": "Herzrasen",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 2,
+          "quote": "und ich habe Herzrasen"
+         }
+        ]
+       },
+       {
+        "category": "complaint",
+        "name": "Brustschmerzen",
+        "details": null,
+        "assertion": "absent",
+        "evidence": [
+         {
+          "line": 3,
+          "quote": "Haben Sie auch Brustschmerzen?"
+         },
+         {
+          "line": 4,
+          "quote": "Nein, Brustschmerzen habe ich nicht"
+         }
+        ]
+       },
+       {
+        "category": "social",
+        "name": "Rauchen",
+        "details": null,
+        "assertion": "absent",
+        "evidence": [
+         {
+          "line": 13,
+          "quote": "Rauchen Sie?"
+         },
+         {
+          "line": 14,
+          "quote": "Nein, nie geraucht"
+         }
+        ]
+       },
+       {
+        "category": "medication",
+        "name": "Metoprolol",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 16,
+          "quote": "Doch, abends nehme ich es manchmal noch"
+         }
+        ]
+       },
+       {
+        "category": "complaint",
+        "name": "Herzrasen",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 2,
+          "quote": "und ich habe Herzrasen"
+         }
+        ]
+       },
+       {
+        "category": "medication",
+        "name": "Bisoprolol",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 8,
+          "quote": "Bisoprolol morgens"
+         }
+        ]
+       }
+      ],
+      "contradictions": [
+       "Metoprolol"
+      ],
+      "seconds": 102.05,
+      "llm_calls": 17,
+      "precision": 1.0,
+      "recall": 0.6666666666666666,
+      "assertion_errors": 0,
+      "duplicates": 1,
+      "wrong": [],
+      "missed": [
+       "condition 'Herzinfarkt' absent",
+       "medication 'Pantoprazol' present",
+       "allergy 'Allergien' absent"
+      ],
+      "rejected": [
+       {
+        "fact": {
+         "category": "medication",
+         "name": "Metoprolol",
+         "details": null,
+         "assertion": "absent",
+         "evidence": [
+          {
+           "line": 8,
+           "quote": "und das Metoprolol habe ich letzten Monat abgesetzt"
+          },
+          {
+           "line": 16,
+           "quote": "Doch, abends nehme ich es manchmal noch"
+          }
+         ]
+        },
+        "reason": "Verifier: wrong_assertion: The patient denies taking Metoprolol, but the lines indicate they sometimes take it in the evening. This is a wrong_assertion because the patient denies taking it, but the lines suggest they do."
+       },
+       {
+        "fact": {
+         "category": "medication",
+         "name": "Pantoprazol",
+         "details": null,
+         "assertion": "present",
+         "evidence": [
+          {
+           "line": 10,
+           "quote": "Pantoprazol vierzig Milligramm"
+          },
+          {
+           "line": 9,
+           "quote": "Mama, du nimmst doch auch noch Pantoprazol"
+          }
+         ]
+        },
+        "reason": "Verifier: wrong_assertion: The patient states they take Pantoprazol, but the doctor asks about allergies. The claim is about medication, but the lines don't provide enough information to determine if the patient takes Pantoprazol. The lines only mention the patient taking Pantoprazol, but the doctor asks about allergies, so I"
+       }
+      ],
+      "log": [
+       "extract: 10 facts",
+       "check: 10 passed, 0 bad quotes, 2 line numbers corrected",
+       "verify: 5 supported, 5 rejected",
+       "  rejected condition 'Herzinfarkt' past (lines [5, 6]): Verifier: wrong_assertion: The patient denies having had a heart attack (Herzinfarkt). The doctor asks about a history of heart attack. The patient's mother had a heart attack. The patient denies having had a heart attack. The doctor asks about medications. The claim says the patient had a heart attack before, but no longer. ",
+       "  rejected medication 'Bisoprolol' present (lines [7, 8]): Verifier: wrong_assertion: The patient states they take Bisoprolol, but the doctor asks about medications the patient is currently taking. The patient states they stopped Metoprolol last month. Bisoprolol is mentioned, but the patient is not currently taking it.",
+       "  rejected medication 'Metoprolol' absent (lines [8, 16]): Verifier: wrong_assertion: The patient denies taking Metoprolol, but the lines indicate they sometimes take it in the evening. This is a wrong_assertion because the patient denies taking it, but the lines suggest they do.",
+       "  rejected medication 'Pantoprazol' present (lines [10, 9]): Verifier: wrong_assertion: The patient states they take Pantoprazol, but the doctor asks about allergies. The claim is about medication, but the lines don't provide enough information to determine if the patient takes Pantoprazol. The lines only mention the patient taking Pantoprazol, but the doctor asks about allergies, so I",
+       "  rejected allergy 'weitere Allergien' absent (lines [11, 12]): Verifier: wrong_assertion: The patient explicitly states they have no allergies. The claim states the patient has allergies, which is the opposite of what was said. Therefore, the claim is a wrong assertion.",
+       "retry 1: 5 sent back, 5 returned",
+       "check: 5 passed, 0 bad quotes, 2 line numbers corrected",
+       "verify: 3 supported, 2 rejected",
+       "  rejected medication 'Metoprolol' absent (lines [8, 16]): Verifier: wrong_assertion: The patient denies taking Metoprolol, but the lines indicate they sometimes take it in the evening. This is a wrong_assertion because the patient denies taking it, but the lines suggest they do.",
+       "  rejected medication 'Pantoprazol' present (lines [10, 9]): Verifier: wrong_assertion: The patient states they take Pantoprazol, but the doctor asks about allergies. The claim is about medication, but the lines don't provide enough information to determine if the patient takes Pantoprazol. The lines only mention the patient taking Pantoprazol, but the doctor asks about allergies, so I"
+      ]
+     }
+    }
+   ],
+   "totals": {
+    "baseline": {
+     "precision": 0.88,
+     "recall": 0.7857142857142857,
+     "assertion_errors": 3,
+     "contradictions_found": 0,
+     "contradictions_expected": 1,
+     "seconds": 46.9
+    },
+    "agents": {
+     "precision": 0.9230769230769231,
+     "recall": 0.42857142857142855,
+     "assertion_errors": 1,
+     "contradictions_found": 1,
+     "contradictions_expected": 1,
+     "seconds": 285.6
+    }
+   }
+  }
+ }
+}

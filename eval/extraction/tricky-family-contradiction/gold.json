@@ -1,0 +1,15 @@
+{
+  "_note": "The mother's Herzinfarkt must NOT appear as the patient's. Metoprolol is both stopped and still taken: either assertion matches, but a contradiction must be flagged.",
+  "facts": [
+    {"category": "symptom", "names": ["Schwindel", "schwindelig"], "assertions": ["present"]},
+    {"category": "symptom", "names": ["Herzrasen", "Tachykardie"], "assertions": ["present"]},
+    {"category": "symptom", "names": ["Brustschmerzen"], "assertions": ["absent"]},
+    {"category": "condition", "names": ["Herzinfarkt", "Myokardinfarkt"], "assertions": ["absent"]},
+    {"category": "medication", "names": ["Bisoprolol"], "assertions": ["present"]},
+    {"category": "medication", "names": ["Metoprolol"], "assertions": ["past", "present"]},
+    {"category": "medication", "names": ["Pantoprazol"], "assertions": ["present"]},
+    {"category": "allergy", "names": ["Allergien", "weitere Allergien", "keine Allergien"], "assertions": ["absent"]},
+    {"category": "social", "match": [["Rauchen", "absent"], ["Raucher", "absent"], ["Nichtraucher", "present"], ["nie geraucht", "present"]]}
+  ],
+  "contradictions": ["Metoprolol"]
+}

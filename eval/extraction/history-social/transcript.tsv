@@ -1,0 +1,9 @@
+# Same conversation as eval/synthetic/history-social.tsv, as a perfect transcript (speaker<TAB>text).
+arzt	Welche Vorerkrankungen sind bei Ihnen bekannt?
+patient	Ich habe Bluthochdruck und Diabetes mellitus, und vor zwei Jahren hatte ich einen Herzinfarkt.
+arzt	Nehmen Sie Blutverdünner, zum Beispiel ASS oder Apixaban?
+patient	Ich nehme ASS hundert Milligramm, aber kein Apixaban.
+arzt	Rauchen Sie?
+patient	Ich bin ehemaliger Raucher, etwa zwanzig Packungsjahre. Alkohol trinke ich nie.
+arzt	Wie ist Ihre Wohnsituation?
+patient	Ich lebe allein. Morgens kommt ein Pflegedienst, ich habe Pflegegrad zwei.

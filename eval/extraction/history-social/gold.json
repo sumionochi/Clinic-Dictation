@@ -1,0 +1,16 @@
+{
+  "_note": "Each item: category plus the names and assertions that count as correct. 'match' lists explicit [name, assertion] pairs instead.",
+  "facts": [
+    {"category": "condition", "names": ["Bluthochdruck", "Hypertonie", "arterielle Hypertonie"], "assertions": ["present"]},
+    {"category": "condition", "names": ["Diabetes mellitus", "Diabetes"], "assertions": ["present"]},
+    {"category": "condition", "names": ["Herzinfarkt", "Myokardinfarkt"], "assertions": ["past", "present"]},
+    {"category": "medication", "names": ["ASS", "Aspirin", "Acetylsalicylsäure"], "assertions": ["present"]},
+    {"category": "medication", "names": ["Apixaban"], "assertions": ["absent"]},
+    {"category": "social", "match": [["Rauchen", "past"], ["Raucher", "past"], ["ehemaliger Raucher", "present"], ["ehemaliger Raucher", "past"], ["Nikotin", "past"]]},
+    {"category": "social", "names": ["Alkohol", "Alkoholkonsum"], "assertions": ["absent"]},
+    {"category": "social", "names": ["lebt allein", "allein lebend", "alleinlebend", "Wohnsituation", "allein"], "assertions": ["present"]},
+    {"category": "social", "names": ["Pflegedienst"], "assertions": ["present"]},
+    {"category": "social", "names": ["Pflegegrad", "Pflegegrad 2"], "assertions": ["present"]}
+  ],
+  "contradictions": []
+}
