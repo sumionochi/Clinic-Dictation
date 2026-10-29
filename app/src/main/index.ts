@@ -1,7 +1,23 @@
-import { app, shell, BrowserWindow } from 'electron'
+import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+
+import { getMicStatus, requestMicAccess, restrictWebPermissions } from './microphone'
+import { SidecarManager } from './sidecarManager'
+
+const sidecar = new SidecarManager((state) => {
+  for (const win of BrowserWindow.getAllWindows()) {
+    if (!win.isDestroyed()) win.webContents.send('sidecar:state', state)
+  }
+})
+
+function registerIpc(): void {
+  ipcMain.handle('sidecar:getState', () => sidecar.getState())
+  ipcMain.handle('sidecar:restart', () => sidecar.restart())
+  ipcMain.handle('mic:getStatus', () => getMicStatus())
+  ipcMain.handle('mic:request', () => requestMicAccess())
+}
 
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
@@ -51,7 +67,10 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
+  restrictWebPermissions()
+  registerIpc()
   createWindow()
+  void sidecar.start()
 
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
@@ -64,4 +83,13 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
   }
+})
+
+// Stop the Python process before quitting so it never outlives the app.
+let quitting = false
+app.on('before-quit', (event) => {
+  if (quitting) return
+  quitting = true
+  event.preventDefault()
+  void sidecar.stop().finally(() => app.quit())
 })

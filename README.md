@@ -20,14 +20,22 @@ eval/       Gold forms and evaluation scripts (from step 5)
 
 ## Run the app
 
-Requires Node 22.12 or newer (see `.nvmrc`).
+Requires Node 22.12 or newer (see `.nvmrc`) and [uv](https://docs.astral.sh/uv/)
+for the Python sidecar (Python 3.13).
 
 ```bash
+cd sidecar && uv sync && cd ..
 cd app
 nvm use
 npm install
 npm run dev
 ```
+
+The app starts the sidecar itself on `127.0.0.1` with a random port and a
+per-launch token, and stops it on quit. If the app is killed, the sidecar
+notices within two seconds and exits on its own.
+
+Sidecar tests: `cd sidecar && uv run pytest`.
 
 ## License and credits
 

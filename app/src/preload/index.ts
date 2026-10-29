@@ -1,8 +1,26 @@
-import { contextBridge } from 'electron'
+import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 
-// Custom APIs for renderer
-const api = {}
+import type { Api } from '../shared/api'
+import type { SidecarState } from '../shared/sidecar'
+
+// The renderer never sees the sidecar's auth token; it only gets status and
+// asks the main process to act.
+const api: Api = {
+  sidecar: {
+    getState: () => ipcRenderer.invoke('sidecar:getState'),
+    restart: () => ipcRenderer.invoke('sidecar:restart'),
+    onState: (callback) => {
+      const listener = (_event: IpcRendererEvent, state: SidecarState): void => callback(state)
+      ipcRenderer.on('sidecar:state', listener)
+      return () => ipcRenderer.removeListener('sidecar:state', listener)
+    }
+  },
+  mic: {
+    getStatus: () => ipcRenderer.invoke('mic:getStatus'),
+    request: () => ipcRenderer.invoke('mic:request')
+  }
+}
 
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise

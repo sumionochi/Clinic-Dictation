@@ -2,6 +2,7 @@ import { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
+import { SystemStatus } from '@/components/SystemStatus'
 import { SCREENS, type ScreenId } from '@/screens/screens'
 
 function App(): React.JSX.Element {
@@ -32,6 +33,10 @@ function App(): React.JSX.Element {
             </Button>
           ))}
         </nav>
+        <div className="mt-auto">
+          <Separator />
+          <SystemStatus />
+        </div>
       </aside>
 
       <main className="flex-1 overflow-y-auto">
