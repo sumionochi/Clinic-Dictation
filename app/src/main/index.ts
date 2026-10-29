@@ -18,6 +18,11 @@ function registerIpc(): void {
   ipcMain.handle('sidecar:call', (_event, method: unknown, route: unknown, body: unknown) =>
     sidecar.callJson(method, route, body)
   )
+  ipcMain.handle(
+    'recording:audio',
+    (_event, sessionId: unknown, recordingId: unknown, pcm: unknown) =>
+      sidecar.postAudio(sessionId, recordingId, pcm)
+  )
   ipcMain.handle('mic:getStatus', () => getMicStatus())
   ipcMain.handle('mic:request', () => requestMicAccess())
 }

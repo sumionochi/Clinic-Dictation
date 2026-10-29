@@ -10,6 +10,14 @@ export interface Api {
     /** Subscribes to status changes; returns an unsubscribe function. */
     onState: (callback: (state: SidecarState) => void) => () => void
   }
+  recording: {
+    /** Appends 16 kHz 16-bit mono PCM to a recording; the sidecar saves it before answering. */
+    sendAudio: (
+      sessionId: string,
+      recordingId: string,
+      pcm: ArrayBuffer
+    ) => Promise<SidecarResponse>
+  }
   mic: {
     getStatus: () => Promise<MicStatus>
     /** Shows the macOS microphone prompt the first time it is called. */

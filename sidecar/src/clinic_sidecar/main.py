@@ -13,7 +13,6 @@ import signal
 import time
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-
 from pathlib import Path
 
 from fastapi import FastAPI, Request
@@ -22,7 +21,10 @@ from fastapi.responses import JSONResponse
 from clinic_sidecar import __version__
 from clinic_sidecar.consent import Conflict, ConsentService, NotFound
 from clinic_sidecar.db import Database
+from clinic_sidecar.recording import RecordingService
 from clinic_sidecar.routes_consent import router as consent_router
+from clinic_sidecar.routes_recording import router as recording_router
+from clinic_sidecar.transcriber import Transcriber, TranscriptionWorker, WhisperTranscriber
 
 TOKEN_ENV = "SIDECAR_TOKEN"
 DATA_DIR_ENV = "CLINIC_DATA_DIR"
@@ -40,13 +42,18 @@ async def _exit_when_orphaned(parent_pid: int) -> None:
 
 
 @asynccontextmanager
-async def _lifespan(_app: FastAPI) -> AsyncIterator[None]:
+async def _lifespan(app: FastAPI) -> AsyncIterator[None]:
     watcher = asyncio.create_task(_exit_when_orphaned(os.getppid()))
     yield
     watcher.cancel()
+    app.state.worker.shutdown()
 
 
-def create_app(token: str | None = None, data_dir: Path | None = None) -> FastAPI:
+def create_app(
+    token: str | None = None,
+    data_dir: Path | None = None,
+    transcriber: Transcriber | None = None,
+) -> FastAPI:
     token = token if token is not None else os.environ.get(TOKEN_ENV, "")
     if not token:
         raise RuntimeError(f"{TOKEN_ENV} must be set; the sidecar never runs without auth")
@@ -63,8 +70,14 @@ def create_app(token: str | None = None, data_dir: Path | None = None) -> FastAP
         lifespan=_lifespan,
     )
     started_at = time.monotonic()
-    app.state.consent = ConsentService(Database(data_dir))
+    db = Database(data_dir)
+    app.state.consent = ConsentService(db)
+    app.state.worker = TranscriptionWorker()
+    app.state.recordings = RecordingService(
+        db, data_dir, app.state.consent, transcriber or WhisperTranscriber(), app.state.worker
+    )
     app.include_router(consent_router)
+    app.include_router(recording_router)
 
     @app.exception_handler(NotFound)
     async def not_found(_request: Request, exc: NotFound) -> JSONResponse:

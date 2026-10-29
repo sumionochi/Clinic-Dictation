@@ -18,6 +18,8 @@ const STARTUP_TIMEOUT_MS = 30_000
 const HEALTH_POLL_MS = 250
 const STOP_TIMEOUT_MS = 5_000
 const MAX_LOG_LINES = 300
+// Hugging Face cache folder for sidecar/src/clinic_sidecar/transcriber.py FINAL_MODEL.
+const FINAL_MODEL_CACHE_DIR = 'models--mlx-community--whisper-large-v3-mlx'
 
 export class SidecarManager {
   private process: ChildProcess | null = null
@@ -46,6 +48,8 @@ export class SidecarManager {
       return
     }
 
+    const modelsDir = path.join(app.getPath('userData'), 'models')
+    const modelCached = isModelDownloaded(path.join(modelsDir, 'hub', FINAL_MODEL_CACHE_DIR))
     const port = await findFreePort()
     this.token = randomBytes(32).toString('hex')
     this.setState({ status: 'starting', port, version: null, error: null })
@@ -77,6 +81,12 @@ export class SidecarManager {
           PATH: spawnPath,
           SIDECAR_TOKEN: this.token,
           CLINIC_DATA_DIR: path.join(app.getPath('userData'), 'data'),
+          // Speech models are downloaded here on first use (Hugging Face cache layout).
+          HF_HOME: modelsDir,
+          HF_HUB_DISABLE_TELEMETRY: '1',
+          // Once the model is on disk, stop Hugging Face from checking for updates,
+          // so a consultation never causes network traffic.
+          ...(modelCached ? { HF_HUB_OFFLINE: '1' } : {}),
           // Without this, output sits in an 8 KB pipe buffer instead of reaching us.
           PYTHONUNBUFFERED: '1'
         },
@@ -151,14 +161,36 @@ export class SidecarManager {
       headers: body === undefined ? undefined : { 'Content-Type': 'application/json' },
       body: body === undefined ? undefined : JSON.stringify(body)
     })
-    const text = await res.text()
-    let parsed: unknown
-    try {
-      parsed = text ? JSON.parse(text) : null
-    } catch {
-      parsed = { detail: text }
-    }
-    return { ok: res.ok, status: res.status, body: parsed }
+    return { ok: res.ok, status: res.status, body: await parseBody(res) }
+  }
+
+  /** Raw PCM upload for a recording; ids and payload are checked like callJson's inputs. */
+  async postAudio(
+    sessionId: unknown,
+    recordingId: unknown,
+    pcm: unknown
+  ): Promise<SidecarResponse> {
+    const isId = (v: unknown): v is string => typeof v === 'string' && /^[0-9a-f]{32}$/.test(v)
+    if (!isId(sessionId) || !isId(recordingId)) throw new Error('Invalid recording id')
+    if (!(pcm instanceof ArrayBuffer)) throw new Error('Audio must be an ArrayBuffer')
+    return this.callRaw(
+      `/sessions/${sessionId}/recordings/${recordingId}/audio`,
+      Buffer.from(pcm),
+      'application/octet-stream'
+    )
+  }
+
+  private async callRaw(
+    route: string,
+    body: Buffer,
+    contentType: string
+  ): Promise<SidecarResponse> {
+    const res = await this.request(route, {
+      method: 'POST',
+      headers: { 'Content-Type': contentType },
+      body: new Uint8Array(body)
+    })
+    return { ok: res.ok, status: res.status, body: await parseBody(res) }
   }
 
   private async waitUntilHealthy(child: ChildProcess): Promise<void> {
@@ -209,6 +241,24 @@ export class SidecarManager {
     this.logs.push(line)
     if (this.logs.length > MAX_LOG_LINES) this.logs = this.logs.slice(-MAX_LOG_LINES)
     console.log(line)
+  }
+}
+
+/** True once a snapshot with the weights file exists, so a half-finished download doesn't count. */
+function isModelDownloaded(cacheDir: string): boolean {
+  const snapshots = path.join(cacheDir, 'snapshots')
+  if (!fs.existsSync(snapshots)) return false
+  return fs
+    .readdirSync(snapshots)
+    .some((rev) => fs.existsSync(path.join(snapshots, rev, 'weights.npz')))
+}
+
+async function parseBody(res: Response): Promise<unknown> {
+  const text = await res.text()
+  try {
+    return text ? JSON.parse(text) : null
+  } catch {
+    return { detail: text }
   }
 }
 

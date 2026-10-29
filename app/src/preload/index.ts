@@ -17,6 +17,10 @@ const api: Api = {
       return () => ipcRenderer.removeListener('sidecar:state', listener)
     }
   },
+  recording: {
+    sendAudio: (sessionId, recordingId, pcm) =>
+      ipcRenderer.invoke('recording:audio', sessionId, recordingId, pcm)
+  },
   mic: {
     getStatus: () => ipcRenderer.invoke('mic:getStatus'),
     request: () => ipcRenderer.invoke('mic:request')

@@ -46,6 +46,36 @@ MIGRATIONS: list[str] = [
     CREATE TRIGGER consent_events_no_delete BEFORE DELETE ON consent_events
     BEGIN SELECT RAISE(ABORT, 'consent_events is append-only'); END;
     """,
+    # 2: one recording per consultation, and the transcript made from it
+    """
+    CREATE TABLE recordings (
+        id                  TEXT PRIMARY KEY,
+        session_id          TEXT NOT NULL UNIQUE REFERENCES sessions(id),
+        status              TEXT NOT NULL CHECK (status IN (
+                                'recording', 'recorded', 'transcribing', 'transcribed',
+                                'failed', 'interrupted')),
+        language            TEXT,
+        sample_rate         INTEGER NOT NULL,
+        samples             INTEGER NOT NULL DEFAULT 0,
+        started_at          TEXT NOT NULL,
+        stopped_at          TEXT,
+        model               TEXT,
+        transcribe_seconds  REAL,
+        error               TEXT
+    );
+
+    CREATE TABLE transcript_segments (
+        recording_id    TEXT NOT NULL REFERENCES recordings(id) ON DELETE CASCADE,
+        idx             INTEGER NOT NULL,
+        start_s         REAL NOT NULL,
+        end_s           REAL NOT NULL,
+        text            TEXT NOT NULL,
+        words           TEXT NOT NULL,   -- JSON list of {word, start, end, probability}
+        avg_logprob     REAL,
+        no_speech_prob  REAL,
+        PRIMARY KEY (recording_id, idx)
+    );
+    """,
 ]
 
 
