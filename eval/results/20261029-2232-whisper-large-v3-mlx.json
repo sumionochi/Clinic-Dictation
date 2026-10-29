@@ -1,0 +1,77 @@
+{
+ "model": "mlx-community/whisper-large-v3-mlx",
+ "language": null,
+ "run_at": "2026-10-29T22:32:48",
+ "model_load_s": 5.75,
+ "audio_s": 66.46,
+ "transcribe_s": 16.78,
+ "summary": {
+  "cases": 2,
+  "words": 133,
+  "wer": 0.007518796992481203,
+  "cer": 0.0011299435028248588,
+  "term_recall": 0.9642857142857143,
+  "negation_recall": 1.0
+ },
+ "cases": [
+  {
+   "score": {
+    "case": "synthetic-allergy-meds",
+    "words": 69,
+    "wer": 0.014492753623188406,
+    "cer": 0.0022172949002217295,
+    "substitutions": 1,
+    "deletions": 0,
+    "insertions": 0,
+    "terms": {
+     "expected": 13,
+     "found": 12,
+     "misses": [
+      {
+       "term": "metformin",
+       "heard": "medformin"
+      }
+     ]
+    },
+    "negations": {
+     "expected": 4,
+     "found": 4,
+     "misses": []
+    }
+   },
+   "audio_s": 33.29,
+   "transcribe_s": 8.65,
+   "diarize_s": null,
+   "speakers": null,
+   "reference": "Guten Tag, ich bin Doktor Weber. Was führt Sie heute zu uns? Ich habe seit drei Tagen starke Brustschmerzen und Atemnot, vor allem beim Treppensteigen. Nehmen Sie regelmäßig Medikamente? Ja, ich nehme Ramipril fünf Milligramm morgens und Metformin zweimal täglich. Haben Sie Allergien oder Unverträglichkeiten? Gegen Penicillin bin ich allergisch. Andere Allergien habe ich keine. Haben Sie Fieber oder Husten? Fieber habe ich nicht, aber etwas Husten ohne Auswurf.",
+   "hypothesis": "Guten Tag, ich bin Dr. Weber. Was führt Sie heute zu uns? Ich habe seit drei Tagen starke Brustschmerzen und Atemnot, vor allem beim Treppensteigen. Nehmen Sie regelmäßig Medikamente? Ja, ich nehme Ramipril 5 mg morgens und Medformin zweimal täglich. Haben Sie Allergien oder Unverträglichkeiten? Gegen Penicillin bin ich allergisch, andere Allergien habe ich keine. Haben Sie Fieber oder Husten? Fieber habe ich nicht, aber etwas Husten ohne Auswurf."
+  },
+  {
+   "score": {
+    "case": "synthetic-history-social",
+    "words": 64,
+    "wer": 0.0,
+    "cer": 0.0,
+    "substitutions": 0,
+    "deletions": 0,
+    "insertions": 0,
+    "terms": {
+     "expected": 15,
+     "found": 15,
+     "misses": []
+    },
+    "negations": {
+     "expected": 2,
+     "found": 2,
+     "misses": []
+    }
+   },
+   "audio_s": 33.17,
+   "transcribe_s": 8.13,
+   "diarize_s": null,
+   "speakers": null,
+   "reference": "Welche Vorerkrankungen sind bei Ihnen bekannt? Ich habe Bluthochdruck und Diabetes mellitus, und vor zwei Jahren hatte ich einen Herzinfarkt. Nehmen Sie Blutverdünner, zum Beispiel ASS oder Apixaban? Ich nehme ASS hundert Milligramm, aber kein Apixaban. Rauchen Sie? Ich bin ehemaliger Raucher, etwa zwanzig Packungsjahre. Alkohol trinke ich nie. Wie ist Ihre Wohnsituation? Ich lebe allein. Morgens kommt ein Pflegedienst, ich habe Pflegegrad zwei.",
+   "hypothesis": "Welche Vorerkrankungen sind bei Ihnen bekannt? Ich habe Bluthochdruck und Diabetes mellitus, und vor zwei Jahren hatte ich einen Herzinfarkt. Nehmen Sie Blutverdünner, zum Beispiel Ass oder Apixaban? Ich nehme Ass 100 Milligramm, aber kein Apixaban. Rauchen Sie? Ich bin ehemaliger Raucher, etwa 20 Packungsjahre, Alkohol trinke ich nie. Wie ist Ihre Wohnsituation? Ich lebe allein. Morgens kommt ein Pflegedienst, ich habe Pflegegrad 2."
+  }
+ ]
+}

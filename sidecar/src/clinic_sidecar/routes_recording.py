@@ -16,6 +16,10 @@ class StartBody(BaseModel):
     language: Language | None = "de"
 
 
+class MatchSpeakerBody(BaseModel):
+    participant_id: str | None
+
+
 def _service(request: Request) -> RecordingService:
     return request.app.state.recordings
 
@@ -48,3 +52,10 @@ def stop_recording(session_id: str, recording_id: str, request: Request) -> Reco
 @router.post("/recordings/{recording_id}/transcribe")
 def transcribe(session_id: str, recording_id: str, request: Request) -> RecordingView:
     return _service(request).transcribe(session_id, recording_id)
+
+
+@router.post("/recordings/{recording_id}/speakers/{speaker}")
+def match_speaker(
+    session_id: str, recording_id: str, speaker: str, body: MatchSpeakerBody, request: Request
+) -> RecordingView:
+    return _service(request).match_speaker(session_id, recording_id, speaker, body.participant_id)

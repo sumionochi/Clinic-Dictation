@@ -6,8 +6,10 @@ returns, so a crash loses at most the chunk in flight. Every chunk is checked
 against the consent gate: if someone joins the room or changes their mind,
 the next chunk is refused.
 
-After the recording stops, the transcript is made on the transcription worker
-and saved to the database in one transaction before its status says it is done.
+After the recording stops, the transcript is made on the transcription worker,
+split by speaker, and saved to the database in one transaction before its status
+says it is done. If telling speakers apart fails, the transcript is still saved,
+just without speakers.
 """
 
 import json
@@ -21,6 +23,8 @@ from typing import Literal
 
 from clinic_sidecar.consent import Conflict, ConsentService, NotFound
 from clinic_sidecar.db import Database
+from clinic_sidecar.diarizer import Diarizer
+from clinic_sidecar.speaker_merge import split_by_speaker
 from clinic_sidecar.transcriber import (
     SAMPLE_RATE,
     Segment,
@@ -43,6 +47,17 @@ class SegmentView:
     end: float
     text: str
     words: list[dict]
+    speaker: str | None
+    language: str | None
+
+
+@dataclass
+class SpeakerView:
+    speaker: str  # "S1".."S4", in order of first appearance
+    participant_id: str | None  # the person present this voice was matched to
+    name: str  # their display name, or "Speaker 1" until matched
+    seconds: float  # how long this voice spoke
+    first_words: str  # helps the doctor tell voices apart
 
 
 @dataclass
@@ -57,6 +72,10 @@ class RecordingView:
     model: str | None
     transcribe_seconds: float | None
     error: str | None
+    diarization_model: str | None
+    diarize_seconds: float | None
+    diarization_error: str | None
+    speakers: list[SpeakerView]
     segments: list[SegmentView]
 
 
@@ -71,6 +90,7 @@ class RecordingService:
         data_dir: Path,
         consent: ConsentService,
         transcriber: Transcriber,
+        diarizer: Diarizer,
         worker: TranscriptionWorker,
     ) -> None:
         self.db = db
@@ -78,6 +98,7 @@ class RecordingService:
         self.audio_dir.mkdir(parents=True, exist_ok=True)
         self.consent = consent
         self.transcriber = transcriber
+        self.diarizer = diarizer
         self.worker = worker
         self._recover_interrupted()
 
@@ -153,7 +174,15 @@ class RecordingService:
             began = time.monotonic()
             segments = self.transcriber.transcribe(audio, language)
             elapsed = round(time.monotonic() - began, 2)
-            self._save_transcript(recording_id, segments, elapsed)
+            # Speakers are a refinement: if this fails, keep the transcript without them.
+            began = time.monotonic()
+            try:
+                turns = self.diarizer.diarize(audio)
+                labelled, diarization_error = split_by_speaker(segments, turns), None
+            except Exception as exc:  # noqa: BLE001
+                labelled, diarization_error = [(s, None) for s in segments], f"{type(exc).__name__}: {exc}"
+            diarize_s = round(time.monotonic() - began, 2)
+            self._save_transcript(recording_id, labelled, elapsed, diarize_s, diarization_error)
         except Exception as exc:  # noqa: BLE001 - any failure must reach the user
             with self.db.connect() as conn:
                 conn.execute(
@@ -161,15 +190,22 @@ class RecordingService:
                     (f"{type(exc).__name__}: {exc}", recording_id),
                 )
 
-    def _save_transcript(self, recording_id: str, segments: list[Segment], elapsed: float) -> None:
+    def _save_transcript(
+        self,
+        recording_id: str,
+        segments: list[tuple[Segment, str | None]],
+        elapsed: float,
+        diarize_s: float,
+        diarization_error: str | None,
+    ) -> None:
         # Segments and the 'transcribed' status land in one transaction: the
         # transcript is complete on disk before anyone is told it is ready.
         with self.db.connect() as conn:
             conn.execute("DELETE FROM transcript_segments WHERE recording_id = ?", (recording_id,))
             conn.executemany(
                 "INSERT INTO transcript_segments"
-                " (recording_id, idx, start_s, end_s, text, words, avg_logprob, no_speech_prob)"
-                " VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                " (recording_id, idx, start_s, end_s, text, words, avg_logprob, no_speech_prob, speaker, language)"
+                " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 [
                     (
                         recording_id,
@@ -180,15 +216,55 @@ class RecordingService:
                         json.dumps([asdict(w) for w in s.words], ensure_ascii=False),
                         s.avg_logprob,
                         s.no_speech_prob,
+                        speaker,
+                        s.language,
                     )
-                    for i, s in enumerate(segments)
+                    for i, (s, speaker) in enumerate(segments)
                 ],
             )
-            conn.execute(
-                "UPDATE recordings SET status = 'transcribed', model = ?, transcribe_seconds = ?"
-                " WHERE id = ?",
-                (self.transcriber.model_name, elapsed, recording_id),
+            # A new transcript may find different voices; earlier matches no longer apply.
+            conn.execute("DELETE FROM recording_speakers WHERE recording_id = ?", (recording_id,))
+            conn.executemany(
+                "INSERT INTO recording_speakers (recording_id, speaker) VALUES (?, ?)",
+                [(recording_id, spk) for spk in sorted({spk for _, spk in segments if spk})],
             )
+            conn.execute(
+                "UPDATE recordings SET status = 'transcribed', model = ?, transcribe_seconds = ?,"
+                " diarization_model = ?, diarize_seconds = ?, diarization_error = ? WHERE id = ?",
+                (
+                    self.transcriber.model_name,
+                    elapsed,
+                    None if diarization_error else self.diarizer.model_name,
+                    diarize_s,
+                    diarization_error,
+                    recording_id,
+                ),
+            )
+
+    # ── Speakers ─────────────────────────────────────────────────────────────
+
+    def match_speaker(
+        self, session_id: str, recording_id: str, speaker: str, participant_id: str | None
+    ) -> RecordingView:
+        """Say which person present a detected voice belongs to. Two voices may map to
+        the same person: the diarizer sometimes splits one speaker in two."""
+        self._require(session_id, recording_id)
+        with self.db.connect() as conn:
+            known = conn.execute(
+                "SELECT 1 FROM recording_speakers WHERE recording_id = ? AND speaker = ?",
+                (recording_id, speaker),
+            ).fetchone()
+            if known is None:
+                raise NotFound(f"No voice {speaker} in this recording")
+            if participant_id is not None and conn.execute(
+                "SELECT 1 FROM participants WHERE id = ? AND session_id = ?", (participant_id, session_id)
+            ).fetchone() is None:
+                raise NotFound(f"Participant {participant_id} not found in this session")
+            conn.execute(
+                "UPDATE recording_speakers SET participant_id = ? WHERE recording_id = ? AND speaker = ?",
+                (participant_id, recording_id, speaker),
+            )
+        return self.get(session_id)  # type: ignore[return-value]
 
     # ── Reading ──────────────────────────────────────────────────────────────
 
@@ -201,6 +277,13 @@ class RecordingService:
             segs = conn.execute(
                 "SELECT * FROM transcript_segments WHERE recording_id = ? ORDER BY idx", (row["id"],)
             ).fetchall()
+            matches = {
+                r["speaker"]: r["participant_id"]
+                for r in conn.execute(
+                    "SELECT speaker, participant_id FROM recording_speakers WHERE recording_id = ?", (row["id"],)
+                )
+            }
+        names = {p.id: p.display_name for p in self.consent.get_session(session_id).participants}
         return RecordingView(
             id=row["id"],
             session_id=row["session_id"],
@@ -212,9 +295,28 @@ class RecordingService:
             model=row["model"],
             transcribe_seconds=row["transcribe_seconds"],
             error=row["error"],
+            diarization_model=row["diarization_model"],
+            diarize_seconds=row["diarize_seconds"],
+            diarization_error=row["diarization_error"],
+            speakers=[
+                SpeakerView(
+                    speaker=spk,
+                    participant_id=pid,
+                    name=names.get(pid, f"Speaker {spk[1:]}") if pid else f"Speaker {spk[1:]}",
+                    seconds=round(sum(s["end_s"] - s["start_s"] for s in segs if s["speaker"] == spk), 1),
+                    first_words=next((s["text"] for s in segs if s["speaker"] == spk), ""),
+                )
+                for spk, pid in sorted(matches.items())
+            ],
             segments=[
                 SegmentView(
-                    idx=s["idx"], start=s["start_s"], end=s["end_s"], text=s["text"], words=json.loads(s["words"])
+                    idx=s["idx"],
+                    start=s["start_s"],
+                    end=s["end_s"],
+                    text=s["text"],
+                    words=json.loads(s["words"]),
+                    speaker=s["speaker"],
+                    language=s["language"],
                 )
                 for s in segs
             ],

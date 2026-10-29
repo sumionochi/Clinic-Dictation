@@ -21,6 +21,7 @@ from fastapi.responses import JSONResponse
 from clinic_sidecar import __version__
 from clinic_sidecar.consent import Conflict, ConsentService, NotFound
 from clinic_sidecar.db import Database
+from clinic_sidecar.diarizer import Diarizer, SortformerDiarizer
 from clinic_sidecar.recording import RecordingService
 from clinic_sidecar.routes_consent import router as consent_router
 from clinic_sidecar.routes_recording import router as recording_router
@@ -53,6 +54,7 @@ def create_app(
     token: str | None = None,
     data_dir: Path | None = None,
     transcriber: Transcriber | None = None,
+    diarizer: Diarizer | None = None,
 ) -> FastAPI:
     token = token if token is not None else os.environ.get(TOKEN_ENV, "")
     if not token:
@@ -74,7 +76,12 @@ def create_app(
     app.state.consent = ConsentService(db)
     app.state.worker = TranscriptionWorker()
     app.state.recordings = RecordingService(
-        db, data_dir, app.state.consent, transcriber or WhisperTranscriber(), app.state.worker
+        db,
+        data_dir,
+        app.state.consent,
+        transcriber or WhisperTranscriber(),
+        diarizer or SortformerDiarizer(),
+        app.state.worker,
     )
     app.include_router(consent_router)
     app.include_router(recording_router)

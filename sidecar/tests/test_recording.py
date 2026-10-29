@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 from fastapi.testclient import TestClient
 
+from clinic_sidecar.diarizer import SpeakerTurn
 from clinic_sidecar.main import create_app
 from clinic_sidecar.transcriber import Segment, Word
 
@@ -23,14 +24,27 @@ class FakeTranscriber:
         if self.fail:
             raise RuntimeError("model exploded")
         return [
-            Segment(0.0, 1.2, "Haben Sie Allergien?", [Word("Haben", 0.0, 0.3, 0.9)]),
-            Segment(1.5, 2.0, "Nein.", []),
+            Segment(0.0, 1.2, "Haben Sie Allergien?", [Word("Haben", 0.0, 0.3, 0.9)], language="de"),
+            Segment(1.5, 2.0, "No.", [], language="en"),
         ]
 
 
-def make_client(tmp_path, transcriber=None) -> tuple[TestClient, FakeTranscriber]:
+class FakeDiarizer:
+    model_name = "fake-sortformer"
+
+    def __init__(self, fail: bool = False) -> None:
+        self.fail = fail
+
+    def diarize(self, audio: np.ndarray) -> list[SpeakerTurn]:
+        if self.fail:
+            raise RuntimeError("diarizer exploded")
+        # Doctor asks (0-1.3 s), patient answers (1.4-2.1 s).
+        return [SpeakerTurn(0.0, 1.3, "S1"), SpeakerTurn(1.4, 2.1, "S2")]
+
+
+def make_client(tmp_path, transcriber=None, diarizer=None) -> tuple[TestClient, FakeTranscriber]:
     transcriber = transcriber or FakeTranscriber()
-    app = create_app(token="t", data_dir=tmp_path, transcriber=transcriber)
+    app = create_app(token="t", data_dir=tmp_path, transcriber=transcriber, diarizer=diarizer or FakeDiarizer())
     return TestClient(app, headers=AUTH), transcriber
 
 
@@ -78,7 +92,8 @@ def test_record_stop_transcribe(tmp_path) -> None:
     body = wait_for(client, sid, "transcribed")
     assert body["duration_s"] == 2.0
     assert body["model"] == "fake-whisper"
-    assert [s["text"] for s in body["segments"]] == ["Haben Sie Allergien?", "Nein."]
+    assert [s["text"] for s in body["segments"]] == ["Haben Sie Allergien?", "No."]
+    assert [s["language"] for s in body["segments"]] == ["de", "en"]
     assert body["segments"][0]["words"][0]["word"] == "Haben"
     assert fake.calls == [(32_000, "de")]
 
@@ -173,3 +188,55 @@ def test_cannot_retranscribe_while_busy_or_done(tmp_path, status: str) -> None:
         with app.state.consent.db.connect() as conn:
             conn.execute("UPDATE recordings SET status = 'transcribing'")
     assert client.post(f"/sessions/{sid}/recordings/{rid}/transcribe").status_code == 409
+
+
+def finished_recording(client: TestClient) -> tuple[str, str, dict]:
+    sid = consented_session(client)
+    rid = client.post(f"/sessions/{sid}/recordings", json={"language": "de"}).json()["id"]
+    post_audio(client, sid, rid, ONE_SECOND)
+    client.post(f"/sessions/{sid}/recordings/{rid}/stop")
+    return sid, rid, wait_for(client, sid, "transcribed")
+
+
+def test_segments_get_speakers(tmp_path) -> None:
+    client, _ = make_client(tmp_path)
+    _, _, body = finished_recording(client)
+    assert [s["speaker"] for s in body["segments"]] == ["S1", "S2"]
+    assert body["diarization_model"] == "fake-sortformer"
+    assert [(v["speaker"], v["name"], v["participant_id"]) for v in body["speakers"]] == [
+        ("S1", "Speaker 1", None),
+        ("S2", "Speaker 2", None),
+    ]
+    assert body["speakers"][0]["first_words"] == "Haben Sie Allergien?"
+
+
+def test_match_voice_to_person(tmp_path) -> None:
+    client, _ = make_client(tmp_path)
+    sid, rid, _ = finished_recording(client)
+    people = {p["role"]: p["id"] for p in client.get(f"/sessions/{sid}").json()["participants"]}
+    res = client.post(f"/sessions/{sid}/recordings/{rid}/speakers/S1", json={"participant_id": people["doctor"]})
+    assert res.status_code == 200
+    names = {v["speaker"]: v["name"] for v in res.json()["speakers"]}
+    assert names == {"S1": "Doctor", "S2": "Speaker 2"}
+    # Undo
+    res = client.post(f"/sessions/{sid}/recordings/{rid}/speakers/S1", json={"participant_id": None})
+    assert res.json()["speakers"][0]["name"] == "Speaker 1"
+
+
+def test_match_rejects_unknown_voice_or_other_sessions_person(tmp_path) -> None:
+    client, _ = make_client(tmp_path)
+    sid, rid, _ = finished_recording(client)
+    other = consented_session(client)
+    stranger = client.get(f"/sessions/{other}").json()["participants"][0]["id"]
+    assert client.post(f"/sessions/{sid}/recordings/{rid}/speakers/S9", json={"participant_id": None}).status_code == 404
+    res = client.post(f"/sessions/{sid}/recordings/{rid}/speakers/S1", json={"participant_id": stranger})
+    assert res.status_code == 404
+
+
+def test_transcript_survives_diarization_failure(tmp_path) -> None:
+    client, _ = make_client(tmp_path, diarizer=FakeDiarizer(fail=True))
+    _, _, body = finished_recording(client)
+    assert [s["text"] for s in body["segments"]] == ["Haben Sie Allergien?", "No."]
+    assert all(s["speaker"] is None for s in body["segments"])
+    assert "diarizer exploded" in body["diarization_error"]
+    assert body["speakers"] == []

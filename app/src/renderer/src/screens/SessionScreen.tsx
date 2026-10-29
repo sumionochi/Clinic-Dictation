@@ -2,6 +2,7 @@ import { CircleX, LoaderCircle, Lock, Mic, Pause, Play, Square } from 'lucide-re
 import { useEffect, useState } from 'react'
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
@@ -26,7 +27,7 @@ import { sessionsApi, type Session } from '@/lib/sessions'
 const LANGUAGES: { value: string; title: string }[] = [
   { value: 'de', title: 'German' },
   { value: 'en', title: 'English' },
-  { value: 'auto', title: 'Detect automatically' }
+  { value: 'auto', title: 'Several / detect' }
 ]
 
 /** Keeps the session and its recording in sync with the sidecar, polling while it works. */
@@ -111,7 +112,7 @@ export function SessionScreen(): React.JSX.Element {
       ) : !session ? null : live ? (
         <RecorderCard />
       ) : recording ? (
-        <RecordingResult recording={recording} sessionId={sessionId} onChange={refresh} />
+        <RecordingResult recording={recording} session={session} onChange={refresh} />
       ) : !session.recording_allowed ? (
         <LockedCard
           title="Recording is locked"
@@ -123,7 +124,9 @@ export function SessionScreen(): React.JSX.Element {
           <CardHeader>
             <CardTitle>Ready to record</CardTitle>
             <CardDescription>
-              Everyone present has agreed. Pause at any time; paused audio is never recorded.
+              Everyone present has agreed. Pause at any time; paused audio is never recorded. If
+              more than one language will be spoken, choose “Several / detect”: a fixed language
+              makes Whisper translate everything into it.
             </CardDescription>
           </CardHeader>
           <CardContent className="flex items-end gap-3">
@@ -247,13 +250,14 @@ function RecorderCard(): React.JSX.Element {
 
 function RecordingResult({
   recording,
-  sessionId,
+  session,
   onChange
 }: {
   recording: Recording
-  sessionId: string
+  session: Session
   onChange: () => void
 }): React.JSX.Element {
+  const sessionId = session.id
   const [actionError, setActionError] = useState<string | null>(null)
   const act = (fn: () => Promise<unknown>): void => {
     setActionError(null)
@@ -282,7 +286,8 @@ function RecordingResult({
         icon={<LoaderCircle className="size-4 animate-spin" />}
       >
         <p className="text-sm text-muted-foreground">
-          This runs on this Mac. The first time, the speech model (about 3 GB) is downloaded once.
+          Transcribing and telling the speakers apart, on this Mac. The first time, the speech
+          models (about 3.5 GB) are downloaded once.
         </p>
       </StatusCard>
     )
@@ -304,30 +309,138 @@ function RecordingResult({
     )
   }
 
+  const names = new Map(recording.speakers.map((v) => [v.speaker, v.name]))
+  // Mark lines in a language other than the one most of the consultation was in.
+  const counts = new Map<string, number>()
+  for (const s of recording.segments) {
+    if (s.language) counts.set(s.language, (counts.get(s.language) ?? 0) + 1)
+  }
+  const mainLanguage = [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0]
+  return (
+    <>
+      {recording.speakers.length > 0 && (
+        <SpeakersCard recording={recording} session={session} onChange={onChange} />
+      )}
+      <Card>
+        <CardHeader>
+          <CardTitle>Transcript</CardTitle>
+          <CardDescription>
+            {formatClock(recording.duration_s)} of audio, transcribed in{' '}
+            {Math.round(recording.transcribe_seconds ?? 0)} s with{' '}
+            {recording.model?.split('/').pop()}
+            {recording.diarization_model &&
+              `, speakers told apart in ${Math.round(recording.diarize_seconds ?? 0)} s`}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-3">
+          {recording.diarization_error && (
+            <p className="text-sm text-muted-foreground">
+              Speakers could not be told apart, so lines are not labelled. (
+              {recording.diarization_error})
+            </p>
+          )}
+          {recording.segments.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No speech was recognised.</p>
+          ) : (
+            <ol className="flex flex-col gap-3">
+              {recording.segments.map((s, i) => {
+                // Name the speaker only where it changes, like a script.
+                const newSpeaker = s.speaker !== recording.segments[i - 1]?.speaker
+                return (
+                  <li key={s.idx} className="flex gap-4 text-sm">
+                    <span className="w-12 shrink-0 text-muted-foreground tabular-nums">
+                      {formatClock(s.start)}
+                    </span>
+                    <span className="w-28 shrink-0 truncate font-medium">
+                      {!newSpeaker || recording.speakers.length === 0 ? (
+                        ''
+                      ) : s.speaker ? (
+                        names.get(s.speaker)
+                      ) : (
+                        <span className="font-normal text-muted-foreground">Unknown</span>
+                      )}
+                    </span>
+                    <span>
+                      {s.language && s.language !== mainLanguage && (
+                        <Badge variant="outline" className="mr-2 uppercase">
+                          {s.language}
+                        </Badge>
+                      )}
+                      {s.text}
+                    </span>
+                  </li>
+                )
+              })}
+            </ol>
+          )}
+        </CardContent>
+      </Card>
+    </>
+  )
+}
+
+const UNMATCHED = 'none'
+
+function SpeakersCard({
+  recording,
+  session,
+  onChange
+}: {
+  recording: Recording
+  session: Session
+  onChange: () => void
+}): React.JSX.Element {
+  const [error, setError] = useState<string | null>(null)
+  const unmatched = recording.speakers.filter((v) => !v.participant_id).length
+  const match = (speaker: string, value: string): void => {
+    setError(null)
+    recordingsApi
+      .matchSpeaker(session.id, recording.id, speaker, value === UNMATCHED ? null : value)
+      .then(onChange, (e: Error) => setError(e.message))
+  }
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Transcript</CardTitle>
+        <CardTitle>Who is speaking</CardTitle>
         <CardDescription>
-          {formatClock(recording.duration_s)} of audio, transcribed in{' '}
-          {Math.round(recording.transcribe_seconds ?? 0)} s with {recording.model?.split('/').pop()}
+          {unmatched > 0
+            ? `${recording.speakers.length} voices detected. Match each one to a person present.`
+            : 'Every voice is matched to a person present.'}
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        {recording.segments.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No speech was recognised.</p>
-        ) : (
-          <ol className="flex flex-col gap-3">
-            {recording.segments.map((s) => (
-              <li key={s.idx} className="flex gap-4 text-sm">
-                <span className="w-12 shrink-0 text-muted-foreground tabular-nums">
-                  {formatClock(s.start)}
+      <CardContent className="flex flex-col gap-3">
+        {recording.speakers.map((v) => (
+          <div key={v.speaker} className="flex items-center gap-4">
+            <div className="flex min-w-0 flex-1 flex-col">
+              <span className="text-sm font-medium">
+                Voice {v.speaker.slice(1)}{' '}
+                <span className="font-normal text-muted-foreground">
+                  · {formatClock(v.seconds)} spoken
                 </span>
-                <span>{s.text}</span>
-              </li>
-            ))}
-          </ol>
-        )}
+              </span>
+              <span className="truncate text-xs text-muted-foreground">
+                First said: “{v.first_words}”
+              </span>
+            </div>
+            <Select
+              value={v.participant_id ?? UNMATCHED}
+              onValueChange={(value) => match(v.speaker, value)}
+            >
+              <SelectTrigger className="w-44" aria-label={`Person for voice ${v.speaker.slice(1)}`}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={UNMATCHED}>Not matched</SelectItem>
+                {session.participants.map((p) => (
+                  <SelectItem key={p.id} value={p.id}>
+                    {p.display_name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        ))}
+        {error && <p className="text-sm text-muted-foreground">{error}</p>}
       </CardContent>
     </Card>
   )

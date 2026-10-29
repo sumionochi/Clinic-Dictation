@@ -16,7 +16,7 @@ from datetime import datetime
 from pathlib import Path
 
 from clinic_eval.fixtures import EVAL_DIR, add_case, list_cases, make_synthetic, pcm_from_app, to_pcm16
-from clinic_eval.metrics import CaseScore, Summary, score_case, summarize
+from clinic_eval.metrics import CaseScore, Summary, score_case, score_speakers, summarize
 from clinic_eval.normalize import load_terms
 
 RESULTS_DIR = EVAL_DIR / "results"
@@ -50,6 +50,8 @@ def cmd_run(args: argparse.Namespace) -> None:
         os.environ.setdefault("HF_HUB_OFFLINE", "1")
 
     import numpy as np
+    from clinic_sidecar.diarizer import SortformerDiarizer
+    from clinic_sidecar.speaker_merge import split_by_speaker
     from clinic_sidecar.transcriber import FINAL_MODEL, TranscriptionWorker, WhisperTranscriber
 
     cases = list_cases(args.cases)
@@ -59,12 +61,16 @@ def cmd_run(args: argparse.Namespace) -> None:
     negations = load_terms(EVAL_DIR / "terms" / "negation_de.txt")
     model = args.model or FINAL_MODEL
     transcriber = WhisperTranscriber(model)
+    diarizer = None if args.no_speakers else SortformerDiarizer()
     worker = TranscriptionWorker()
     language = None if args.language == "auto" else args.language
 
     # Load the model first so the first case's timing measures transcription, not loading.
     load_start = time.monotonic()
-    worker.submit(lambda: transcriber.transcribe(np.zeros(16_000, dtype=np.float32), language)).result()
+    silence = np.zeros(16_000, dtype=np.float32)
+    worker.submit(lambda: transcriber.transcribe(silence, language)).result()
+    if diarizer:
+        worker.submit(lambda: diarizer.diarize(silence)).result()
     load_s = time.monotonic() - load_start
 
     scores: list[CaseScore] = []
@@ -79,6 +85,15 @@ def cmd_run(args: argparse.Namespace) -> None:
         hypothesis = " ".join(s.text for s in segments)
         reference = case.reference_text()
         score = score_case(case.name, reference, hypothesis, terms, negations)
+        speakers = diarize_s = None
+        if diarizer:
+            start = time.monotonic()
+            turns = worker.submit(lambda a=audio: diarizer.diarize(a)).result()
+            diarize_s = round(time.monotonic() - start, 2)
+            labelled = split_by_speaker(segments, turns)
+            speakers = score_speakers(
+                [(t.speaker, t.text) for t in case.turns()], [(spk, s.text) for s, spk in labelled]
+            )
         scores.append(score)
         refs.append(reference)
         hyps.append(hypothesis)
@@ -87,6 +102,8 @@ def cmd_run(args: argparse.Namespace) -> None:
                 "score": asdict(score),
                 "audio_s": round(audio.size / 16_000, 2),
                 "transcribe_s": round(elapsed, 2),
+                "diarize_s": diarize_s,
+                "speakers": asdict(speakers) if speakers else None,
                 "reference": reference,
                 "hypothesis": hypothesis,
             }
@@ -103,17 +120,30 @@ def cmd_run(args: argparse.Namespace) -> None:
 
 def _print_report(model, rows, scores, summary: Summary, audio_total, transcribe_total, load_s) -> None:
     print(f"\nModel: {model}   (load {load_s:.1f} s)\n")
-    print(f"{'case':28s} {'audio':>6s} {'time':>6s} {'WER':>6s} {'CER':>6s} {'terms':>7s} {'negations':>9s}")
+    print(
+        f"{'case':28s} {'audio':>6s} {'time':>6s} {'WER':>6s} {'CER':>6s} {'terms':>7s} {'negations':>9s}"
+        f" {'speakers':>9s} {'voices':>6s}"
+    )
     for row, s in zip(rows, scores):
+        spk = row["speakers"]
         print(
             f"{s.case:28s} {row['audio_s']:5.1f}s {row['transcribe_s']:5.1f}s {_pct(s.wer)} {_pct(s.cer)}"
             f" {_recall(s.terms.found, s.terms.expected):>7s} {_recall(s.negations.found, s.negations.expected):>9s}"
+            f" {_pct(spk['accuracy']) if spk else '   -':>9s}"
+            f" {str(spk['voices_detected']) + '/' + str(spk['speakers_in_reference']) if spk else '-':>6s}"
         )
+    compared = [r["speakers"] for r in rows if r["speakers"] and r["speakers"]["accuracy"] is not None]
+    pooled_speakers = (
+        sum(c["accuracy"] * c["words"] for c in compared) / sum(c["words"] for c in compared) if compared else None
+    )
     print(
         f"{'ALL (' + str(summary.cases) + ' cases, ' + str(summary.words) + ' words)':28s}"
         f" {audio_total:5.1f}s {transcribe_total:5.1f}s {_pct(summary.wer)} {_pct(summary.cer)}"
-        f" {_pct(summary.term_recall):>7s} {_pct(summary.negation_recall):>9s}"
+        f" {_pct(summary.term_recall):>7s} {_pct(summary.negation_recall):>9s} {_pct(pooled_speakers):>9s}"
     )
+    diarize_total = sum(r["diarize_s"] or 0 for r in rows)
+    if diarize_total:
+        print(f"\nTelling speakers apart took {diarize_total:.1f} s in total.")
     if transcribe_total:
         print(f"\nSpeed: {audio_total / transcribe_total:.1f}x real time")
     misses = [(s.case, "term", m) for s in scores for m in s.terms.misses] + [
@@ -169,6 +199,7 @@ def main() -> None:
     run.add_argument("--model", help="Hugging Face repo of an MLX Whisper model (default: the app's final model)")
     run.add_argument("--language", default="de", choices=["de", "en", "auto"])
     run.add_argument("--allow-download", action="store_true", help="let the model be downloaded if missing")
+    run.add_argument("--no-speakers", action="store_true", help="skip speaker diarization")
     run.set_defaults(func=cmd_run)
 
     args = parser.parse_args()

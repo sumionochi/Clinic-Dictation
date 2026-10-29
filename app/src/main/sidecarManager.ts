@@ -18,8 +18,12 @@ const STARTUP_TIMEOUT_MS = 30_000
 const HEALTH_POLL_MS = 250
 const STOP_TIMEOUT_MS = 5_000
 const MAX_LOG_LINES = 300
-// Hugging Face cache folder for sidecar/src/clinic_sidecar/transcriber.py FINAL_MODEL.
-const FINAL_MODEL_CACHE_DIR = 'models--mlx-community--whisper-large-v3-mlx'
+// Hugging Face cache folders and weight files of the models the sidecar uses:
+// transcriber.py FINAL_MODEL and diarizer.py DIARIZATION_MODEL.
+const REQUIRED_MODELS: [cacheDir: string, weights: string][] = [
+  ['models--mlx-community--whisper-large-v3-mlx', 'weights.npz'],
+  ['models--mlx-community--diar_sortformer_4spk-v1-fp32', 'model.safetensors']
+]
 
 export class SidecarManager {
   private process: ChildProcess | null = null
@@ -49,7 +53,9 @@ export class SidecarManager {
     }
 
     const modelsDir = path.join(app.getPath('userData'), 'models')
-    const modelCached = isModelDownloaded(path.join(modelsDir, 'hub', FINAL_MODEL_CACHE_DIR))
+    const modelCached = REQUIRED_MODELS.every(([dir, weights]) =>
+      isModelDownloaded(path.join(modelsDir, 'hub', dir), weights)
+    )
     const port = await findFreePort()
     this.token = randomBytes(32).toString('hex')
     this.setState({ status: 'starting', port, version: null, error: null })
@@ -84,7 +90,7 @@ export class SidecarManager {
           // Speech models are downloaded here on first use (Hugging Face cache layout).
           HF_HOME: modelsDir,
           HF_HUB_DISABLE_TELEMETRY: '1',
-          // Once the model is on disk, stop Hugging Face from checking for updates,
+          // Once the models are on disk, stop Hugging Face from checking for updates,
           // so a consultation never causes network traffic.
           ...(modelCached ? { HF_HUB_OFFLINE: '1' } : {}),
           // Without this, output sits in an 8 KB pipe buffer instead of reaching us.
@@ -245,12 +251,10 @@ export class SidecarManager {
 }
 
 /** True once a snapshot with the weights file exists, so a half-finished download doesn't count. */
-function isModelDownloaded(cacheDir: string): boolean {
+function isModelDownloaded(cacheDir: string, weights: string): boolean {
   const snapshots = path.join(cacheDir, 'snapshots')
   if (!fs.existsSync(snapshots)) return false
-  return fs
-    .readdirSync(snapshots)
-    .some((rev) => fs.existsSync(path.join(snapshots, rev, 'weights.npz')))
+  return fs.readdirSync(snapshots).some((rev) => fs.existsSync(path.join(snapshots, rev, weights)))
 }
 
 async function parseBody(res: Response): Promise<unknown> {

@@ -76,6 +76,24 @@ MIGRATIONS: list[str] = [
         PRIMARY KEY (recording_id, idx)
     );
     """,
+    # 3: who said each line, and which person present each detected voice belongs to
+    """
+    ALTER TABLE transcript_segments ADD COLUMN speaker TEXT;
+    ALTER TABLE recordings ADD COLUMN diarization_model TEXT;
+    ALTER TABLE recordings ADD COLUMN diarize_seconds REAL;
+    ALTER TABLE recordings ADD COLUMN diarization_error TEXT;
+
+    CREATE TABLE recording_speakers (
+        recording_id    TEXT NOT NULL REFERENCES recordings(id) ON DELETE CASCADE,
+        speaker         TEXT NOT NULL,
+        participant_id  TEXT REFERENCES participants(id),
+        PRIMARY KEY (recording_id, speaker)
+    );
+    """,
+    # 4: the language each line was transcribed in (mixed-language consultations)
+    """
+    ALTER TABLE transcript_segments ADD COLUMN language TEXT;
+    """,
 ]
 
 

@@ -20,6 +20,19 @@ export interface TranscriptSegment {
   end: number
   text: string
   words: Word[]
+  /** "S1".."S4", or null when speakers could not be told apart. */
+  speaker: string | null
+  /** Language this line was transcribed in, e.g. "de". */
+  language: string | null
+}
+
+export interface Speaker {
+  speaker: string
+  /** The person from the consent list this voice was matched to. */
+  participant_id: string | null
+  name: string
+  seconds: number
+  first_words: string
 }
 
 export interface Recording {
@@ -33,6 +46,10 @@ export interface Recording {
   model: string | null
   transcribe_seconds: number | null
   error: string | null
+  diarization_model: string | null
+  diarize_seconds: number | null
+  diarization_error: string | null
+  speakers: Speaker[]
   segments: TranscriptSegment[]
 }
 
@@ -52,7 +69,20 @@ export const recordingsApi = {
   stop: (sessionId: string, recordingId: string) =>
     call<Recording>('POST', `/sessions/${sessionId}/recordings/${recordingId}/stop`),
   transcribe: (sessionId: string, recordingId: string) =>
-    call<Recording>('POST', `/sessions/${sessionId}/recordings/${recordingId}/transcribe`)
+    call<Recording>('POST', `/sessions/${sessionId}/recordings/${recordingId}/transcribe`),
+  matchSpeaker: (
+    sessionId: string,
+    recordingId: string,
+    speaker: string,
+    participantId: string | null
+  ) =>
+    call<Recording>(
+      'POST',
+      `/sessions/${sessionId}/recordings/${recordingId}/speakers/${speaker}`,
+      {
+        participant_id: participantId
+      }
+    )
 }
 
 export function formatClock(seconds: number): string {

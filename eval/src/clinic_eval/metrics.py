@@ -6,6 +6,8 @@
   correctly somewhere else in the transcript does not hide a miss.
 - Negation recall: the same for words like "kein" and "nicht", whose loss inverts
   a statement.
+- Speaker accuracy: of the words recognised in the right place, how many are
+  attributed to the right person.
 """
 
 from dataclasses import dataclass, field
@@ -141,4 +143,49 @@ def summarize(scores: list[CaseScore], references: list[str], hypotheses: list[s
         cer=jiwer.cer(refs, hyps),
         term_recall=pooled(lambda s: s.terms),
         negation_recall=pooled(lambda s: s.negations),
+    )
+
+
+@dataclass
+class SpeakerScore:
+    accuracy: float | None  # share of aligned words given to the right speaker
+    words: int  # aligned words that were compared
+    voices_detected: int
+    speakers_in_reference: int
+    mapping: dict[str, str]  # detected voice -> reference speaker
+
+
+def score_speakers(
+    reference_turns: list[tuple[str, str]], hypothesis_turns: list[tuple[str | None, str]]
+) -> SpeakerScore:
+    """Turns are (speaker, text). Each detected voice is mapped to the reference
+    speaker it overlaps with most; several voices may map to one person, as the
+    doctor can do in the app when the diarizer splits someone in two."""
+    ref_tokens: list[tuple[str, str]] = [(spk, w) for spk, text in reference_turns for w in normalize(text).split()]
+    hyp_tokens: list[tuple[str | None, str]] = [
+        (spk, w) for spk, text in hypothesis_turns for w in normalize(text).split()
+    ]
+    voices = {spk for spk, _ in hyp_tokens if spk}
+    ref_speakers = {spk for spk, _ in ref_tokens}
+    if not ref_tokens or not hyp_tokens:
+        return SpeakerScore(None, 0, len(voices), len(ref_speakers), {})
+    out = jiwer.process_words(" ".join(w for _, w in ref_tokens), " ".join(w for _, w in hyp_tokens))
+    pairs: list[tuple[str, str | None]] = []
+    for chunk in out.alignments[0]:
+        if chunk.type in ("equal", "substitute"):
+            for k in range(chunk.ref_end_idx - chunk.ref_start_idx):
+                pairs.append((ref_tokens[chunk.ref_start_idx + k][0], hyp_tokens[chunk.hyp_start_idx + k][0]))
+    counts: dict[str, dict[str, int]] = {}
+    for ref_spk, hyp_spk in pairs:
+        if hyp_spk:
+            counts.setdefault(hyp_spk, {}).setdefault(ref_spk, 0)
+            counts[hyp_spk][ref_spk] += 1
+    mapping = {voice: max(c, key=c.get) for voice, c in counts.items()}
+    right = sum(1 for ref_spk, hyp_spk in pairs if hyp_spk and mapping.get(hyp_spk) == ref_spk)
+    return SpeakerScore(
+        accuracy=right / len(pairs) if pairs else None,
+        words=len(pairs),
+        voices_detected=len(voices),
+        speakers_in_reference=len(ref_speakers),
+        mapping=dict(sorted(mapping.items())),
     )

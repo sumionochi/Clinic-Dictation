@@ -8,6 +8,7 @@ consultations. Milestone 1 reports these numbers on our own role-play recordings
 | **WER / CER** | Word and character error rate over the whole transcript, after normalisation (case, punctuation, `5` = `fünf`, `mg` = `Milligramm`). |
 | **Term recall** | Of the medical terms in `terms/medical_de.txt` that were said, how many were recognised exactly, *at the place they were said*. |
 | **Negation recall** | The same for `kein`, `nicht`, `gegen` and similar. Losing one inverts a statement, so it is a safety metric of its own. |
+| **Speaker accuracy** | Of the words recognised in the right place, how many are attributed to the right person. Each detected voice is mapped to the person it overlaps most (several voices may map to one person, as in the app). |
 | **Speed** | Audio length ÷ transcription time on this machine (model already loaded). |
 
 Every run is saved to `results/<date>-<model>.json` with both transcripts, so
@@ -33,6 +34,12 @@ Tests: `uv run pytest`.
 The synthetic cases only check that the pipeline works: a clear computer voice
 reading a script is far easier than two people talking. The numbers that matter
 come from role-plays.
+
+They are especially useless for speaker accuracy. The patient is the doctor's
+voice pitched down, and Sortformer hears them as largely one person (about 65%
+speaker accuracy). With a genuinely different system voice it reaches about 96%,
+but those voices are too unclear for Whisper. Only two real people give a fair
+measure.
 
 1. **Write a script** in German (see the checklist below) and save it, e.g.
    `scripts/roleplay-03.md`.

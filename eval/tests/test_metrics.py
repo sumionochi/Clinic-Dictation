@@ -1,6 +1,6 @@
 import pytest
 
-from clinic_eval.metrics import score_case, summarize
+from clinic_eval.metrics import score_case, score_speakers, summarize
 from clinic_eval.normalize import normalize
 
 TERMS = [normalize(t) for t in ["Penicillin", "Ramipril", "Metformin", "Milligramm", "Diabetes", "Diabetes mellitus", "L-Thyroxin"]]
@@ -101,3 +101,31 @@ def test_negation_form_change_is_not_a_lost_negation() -> None:
 def test_drug_names_are_not_interchangeable() -> None:
     s = score_case("c", "Ich nehme Ramipril.", "Ich nehme Metformin.", TERMS, NEGATIONS)
     assert (s.terms.expected, s.terms.found) == (1, 0)
+
+
+def test_speakers_all_right() -> None:
+    ref = [("arzt", "Haben Sie Allergien?"), ("patient", "Nein, keine.")]
+    hyp = [("S1", "Haben Sie Allergien?"), ("S2", "Nein, keine.")]
+    sc = score_speakers(ref, hyp)
+    assert sc.accuracy == 1.0
+    assert sc.mapping == {"S1": "arzt", "S2": "patient"}
+
+
+def test_speakers_answer_given_to_doctor() -> None:
+    ref = [("arzt", "Haben Sie Allergien?"), ("patient", "Nein keine")]
+    hyp = [("S1", "Haben Sie Allergien? Nein keine")]
+    sc = score_speakers(ref, hyp)
+    assert sc.accuracy == pytest.approx(3 / 5)
+    assert sc.voices_detected == 1
+
+
+def test_one_person_split_into_two_voices_is_fine() -> None:
+    ref = [("patient", "eins zwei drei vier")]
+    hyp = [("S1", "eins zwei"), ("S2", "drei vier")]
+    assert score_speakers(ref, hyp).accuracy == 1.0
+
+
+def test_unlabelled_words_count_as_wrong() -> None:
+    ref = [("arzt", "eins zwei")]
+    hyp = [(None, "eins zwei")]
+    assert score_speakers(ref, hyp).accuracy == 0.0

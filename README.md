@@ -37,9 +37,10 @@ notices within two seconds and exits on its own.
 
 Sidecar tests: `cd sidecar && uv run pytest`.
 
-The first transcription downloads Whisper large-v3 for MLX (about 3 GB) into
-`~/Library/Application Support/clinic-dictation/models/`. Once it is there, the
-sidecar runs with `HF_HUB_OFFLINE=1` and makes no network requests.
+The first transcription downloads Whisper large-v3 for MLX (about 3 GB) and the
+Sortformer speaker model (about 0.5 GB) into
+`~/Library/Application Support/clinic-dictation/models/`. Once both are there,
+the sidecar runs with `HF_HUB_OFFLINE=1` and makes no network requests.
 
 Local data lives in `~/Library/Application Support/clinic-dictation/data/`
 (`clinic.sqlite`). The consent log in it is append-only: a change of mind is a
