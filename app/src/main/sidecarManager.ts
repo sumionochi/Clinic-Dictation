@@ -11,7 +11,7 @@ import * as fs from 'fs'
 import { createServer } from 'net'
 import * as path from 'path'
 
-import type { SidecarState } from '../shared/sidecar'
+import type { SidecarResponse, SidecarState } from '../shared/sidecar'
 
 const HOST = '127.0.0.1'
 const STARTUP_TIMEOUT_MS = 30_000
@@ -133,6 +133,32 @@ export class SidecarManager {
     const headers = new Headers(init.headers)
     headers.set('Authorization', `Bearer ${this.token}`)
     return fetch(`http://${HOST}:${this.state.port}${route}`, { ...init, headers })
+  }
+
+  /**
+   * JSON request on behalf of the renderer. Inputs come over IPC, so they are
+   * checked here rather than trusted: known methods only, and a plain path.
+   */
+  async callJson(method: unknown, route: unknown, body: unknown): Promise<SidecarResponse> {
+    if (method !== 'GET' && method !== 'POST' && method !== 'DELETE') {
+      throw new Error(`Method not allowed: ${String(method)}`)
+    }
+    if (typeof route !== 'string' || !/^\/[A-Za-z0-9/_-]*$/.test(route)) {
+      throw new Error(`Invalid route: ${String(route)}`)
+    }
+    const res = await this.request(route, {
+      method,
+      headers: body === undefined ? undefined : { 'Content-Type': 'application/json' },
+      body: body === undefined ? undefined : JSON.stringify(body)
+    })
+    const text = await res.text()
+    let parsed: unknown
+    try {
+      parsed = text ? JSON.parse(text) : null
+    } catch {
+      parsed = { detail: text }
+    }
+    return { ok: res.ok, status: res.status, body: parsed }
   }
 
   private async waitUntilHealthy(child: ChildProcess): Promise<void> {

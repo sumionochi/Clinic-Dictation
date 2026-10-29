@@ -14,12 +14,18 @@ import time
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
+from pathlib import Path
+
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from clinic_sidecar import __version__
+from clinic_sidecar.consent import Conflict, ConsentService, NotFound
+from clinic_sidecar.db import Database
+from clinic_sidecar.routes_consent import router as consent_router
 
 TOKEN_ENV = "SIDECAR_TOKEN"
+DATA_DIR_ENV = "CLINIC_DATA_DIR"
 PARENT_CHECK_S = 2.0
 
 
@@ -40,10 +46,14 @@ async def _lifespan(_app: FastAPI) -> AsyncIterator[None]:
     watcher.cancel()
 
 
-def create_app(token: str | None = None) -> FastAPI:
+def create_app(token: str | None = None, data_dir: Path | None = None) -> FastAPI:
     token = token if token is not None else os.environ.get(TOKEN_ENV, "")
     if not token:
         raise RuntimeError(f"{TOKEN_ENV} must be set; the sidecar never runs without auth")
+    if data_dir is None:
+        if not os.environ.get(DATA_DIR_ENV):
+            raise RuntimeError(f"{DATA_DIR_ENV} must be set to the folder for local data")
+        data_dir = Path(os.environ[DATA_DIR_ENV])
 
     app = FastAPI(
         title="Clinic Dictation sidecar",
@@ -53,6 +63,16 @@ def create_app(token: str | None = None) -> FastAPI:
         lifespan=_lifespan,
     )
     started_at = time.monotonic()
+    app.state.consent = ConsentService(Database(data_dir))
+    app.include_router(consent_router)
+
+    @app.exception_handler(NotFound)
+    async def not_found(_request: Request, exc: NotFound) -> JSONResponse:
+        return JSONResponse({"detail": str(exc)}, status_code=404)
+
+    @app.exception_handler(Conflict)
+    async def conflict(_request: Request, exc: Conflict) -> JSONResponse:
+        return JSONResponse({"detail": str(exc)}, status_code=409)
 
     @app.middleware("http")
     async def require_token(request: Request, call_next):

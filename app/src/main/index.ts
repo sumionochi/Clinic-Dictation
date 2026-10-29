@@ -15,6 +15,9 @@ const sidecar = new SidecarManager((state) => {
 function registerIpc(): void {
   ipcMain.handle('sidecar:getState', () => sidecar.getState())
   ipcMain.handle('sidecar:restart', () => sidecar.restart())
+  ipcMain.handle('sidecar:call', (_event, method: unknown, route: unknown, body: unknown) =>
+    sidecar.callJson(method, route, body)
+  )
   ipcMain.handle('mic:getStatus', () => getMicStatus())
   ipcMain.handle('mic:request', () => requestMicAccess())
 }

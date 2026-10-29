@@ -10,6 +10,7 @@ const api: Api = {
   sidecar: {
     getState: () => ipcRenderer.invoke('sidecar:getState'),
     restart: () => ipcRenderer.invoke('sidecar:restart'),
+    call: (method, route, body) => ipcRenderer.invoke('sidecar:call', method, route, body),
     onState: (callback) => {
       const listener = (_event: IpcRendererEvent, state: SidecarState): void => callback(state)
       ipcRenderer.on('sidecar:state', listener)

@@ -37,6 +37,10 @@ notices within two seconds and exits on its own.
 
 Sidecar tests: `cd sidecar && uv run pytest`.
 
+Local data lives in `~/Library/Application Support/clinic-dictation/data/`
+(`clinic.sqlite`). The consent log in it is append-only: a change of mind is a
+new entry, never an edit.
+
 ## License and credits
 
 GPL-3.0-or-later, see [LICENSE](LICENSE).

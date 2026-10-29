@@ -7,8 +7,8 @@ TOKEN = "test-token"
 
 
 @pytest.fixture
-def client() -> TestClient:
-    return TestClient(create_app(token=TOKEN))
+def client(tmp_path) -> TestClient:
+    return TestClient(create_app(token=TOKEN, data_dir=tmp_path))
 
 
 def test_health_with_token(client: TestClient) -> None:
@@ -32,7 +32,13 @@ def test_unknown_route_still_needs_token(client: TestClient) -> None:
     assert client.get("/nope").status_code == 401
 
 
-def test_refuses_to_start_without_token(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_refuses_to_start_without_token(monkeypatch: pytest.MonkeyPatch, tmp_path) -> None:
     monkeypatch.delenv("SIDECAR_TOKEN", raising=False)
     with pytest.raises(RuntimeError):
-        create_app()
+        create_app(data_dir=tmp_path)
+
+
+def test_refuses_to_start_without_data_dir(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("CLINIC_DATA_DIR", raising=False)
+    with pytest.raises(RuntimeError):
+        create_app(token=TOKEN)
