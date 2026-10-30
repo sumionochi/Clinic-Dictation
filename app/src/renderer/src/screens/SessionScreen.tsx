@@ -330,6 +330,7 @@ function RecordingResult({
             {recording.model?.split('/').pop()}
             {recording.diarization_model &&
               `, speakers told apart in ${Math.round(recording.diarize_seconds ?? 0)} s`}
+            {recording.audio_deleted_at && '. The audio was deleted when the record was approved.'}
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-3">

@@ -11,7 +11,7 @@ import os
 import secrets
 import signal
 import time
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Callable
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -19,11 +19,15 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from clinic_sidecar import __version__
+from clinic_sidecar.agents.llm import LLM, OllamaLLM
 from clinic_sidecar.consent import Conflict, ConsentService, NotFound
 from clinic_sidecar.db import Database
 from clinic_sidecar.diarizer import Diarizer, SortformerDiarizer
+from clinic_sidecar.fhir.validator import ValidationReport, validate
+from clinic_sidecar.record import RecordService
 from clinic_sidecar.recording import RecordingService
 from clinic_sidecar.routes_consent import router as consent_router
+from clinic_sidecar.routes_record import router as record_router
 from clinic_sidecar.routes_recording import router as recording_router
 from clinic_sidecar.transcriber import Transcriber, TranscriptionWorker, WhisperTranscriber
 
@@ -55,6 +59,8 @@ def create_app(
     data_dir: Path | None = None,
     transcriber: Transcriber | None = None,
     diarizer: Diarizer | None = None,
+    llm_factory: Callable[[], LLM] | None = None,
+    validator: Callable[[dict], ValidationReport] | None = None,
 ) -> FastAPI:
     token = token if token is not None else os.environ.get(TOKEN_ENV, "")
     if not token:
@@ -83,8 +89,12 @@ def create_app(
         diarizer or SortformerDiarizer(),
         app.state.worker,
     )
+    app.state.records = RecordService(
+        db, app.state.consent, app.state.recordings, llm_factory or OllamaLLM, validator or validate
+    )
     app.include_router(consent_router)
     app.include_router(recording_router)
+    app.include_router(record_router)
 
     @app.exception_handler(NotFound)
     async def not_found(_request: Request, exc: NotFound) -> JSONResponse:

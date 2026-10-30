@@ -1,4 +1,5 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, dialog, ipcMain } from 'electron'
+import { writeFile } from 'fs/promises'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
@@ -23,8 +24,35 @@ function registerIpc(): void {
     (_event, sessionId: unknown, recordingId: unknown, pcm: unknown) =>
       sidecar.postAudio(sessionId, recordingId, pcm)
   )
+  ipcMain.handle('export:saveFhir', (event, sessionId: unknown) =>
+    saveFhir(event.sender, sessionId)
+  )
   ipcMain.handle('mic:getStatus', () => getMicStatus())
   ipcMain.handle('mic:request', () => requestMicAccess())
+}
+
+/** Fetches the approved document from the sidecar and writes it where the doctor chooses. */
+async function saveFhir(sender: Electron.WebContents, sessionId: unknown): Promise<string | null> {
+  if (typeof sessionId !== 'string' || !/^[0-9a-f]{32}$/.test(sessionId)) {
+    throw new Error('Invalid session id')
+  }
+  const res = await sidecar.callJson('GET', `/sessions/${sessionId}/record/fhir`, undefined)
+  if (!res.ok) {
+    throw new Error((res.body as { detail?: string } | null)?.detail ?? 'Export failed')
+  }
+  const window = BrowserWindow.fromWebContents(sender)
+  const date = new Date().toISOString().slice(0, 10)
+  const options = {
+    title: 'Save FHIR document',
+    defaultPath: `aufnahmegespraech-${date}.fhir.json`,
+    filters: [{ name: 'FHIR JSON', extensions: ['json'] }]
+  }
+  const choice = window
+    ? await dialog.showSaveDialog(window, options)
+    : await dialog.showSaveDialog(options)
+  if (choice.canceled || !choice.filePath) return null
+  await writeFile(choice.filePath, JSON.stringify(res.body, null, 2), 'utf-8')
+  return choice.filePath
 }
 
 function createWindow(): void {

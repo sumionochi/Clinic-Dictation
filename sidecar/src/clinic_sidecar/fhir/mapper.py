@@ -20,8 +20,9 @@ How present / absent / past is expressed:
     Procedure            status completed | not-done
     Observation          value "ja" | "nein" | "früher"
 
-Everything is "unconfirmed" / "preliminary": nothing here is a diagnosis, and the
-doctor approves the record before it is final. Names are kept as free text
+Facts stay "unconfirmed" even after approval: the doctor confirms that this is
+what was said, not that any of it is a diagnosis. Approval makes the Composition
+"final" with a legal attestation; before that the document is a "preliminary" draft. Names are kept as free text
 (code.text). Coding with ICD-10-GM, ATC or SNOMED is deliberately left out: proposing
 codes is where a scribe starts to become a medical device.
 """
@@ -58,6 +59,7 @@ class DocumentInput:
     ended_at: str | None = None
     extraction_model: str = ""
     app_version: str = "0.1.0"
+    approved_at: str | None = None  # set when the doctor approved the record
     generated_at: str = field(default_factory=lambda: datetime.now(UTC).isoformat(timespec="seconds"))
 
 
@@ -299,20 +301,22 @@ def build_document(doc: DocumentInput) -> dict:
                 ),
             }
         )
+    approved = doc.approved_at is not None
     composition_sections.append(
         {
             "title": "Hinweis",
             "text": _narrative(
-                "Automatisch aus dem aufgezeichneten Gespräch erstellter Entwurf. Jede Angabe verweist auf die "
-                "wörtliche Stelle im Transkript (Provenance). Keine Diagnosen; nicht ärztlich freigegeben."
+                "Automatisch aus dem aufgezeichneten Gespräch erstellt. Jede Angabe verweist auf die "
+                "wörtliche Stelle im Transkript (Provenance). Keine Diagnosen.",
+                f"Ärztlich geprüft und freigegeben am {doc.approved_at}." if approved else "Nicht ärztlich freigegeben.",
             ),
         }
     )
     composition = {
         "resourceType": "Composition",
         "id": _id(sid, "composition"),
-        "text": _narrative("Aufnahmegespräch (Entwurf, nicht freigegeben)"),
-        "status": "preliminary",
+        "text": _narrative("Aufnahmegespräch" + ("" if approved else " (Entwurf, nicht freigegeben)")),
+        "status": "final" if approved else "preliminary",
         "type": {
             "coding": [{"system": "http://loinc.org", "code": "34117-2", "display": "History and physical note"}],
             "text": "Aufnahmegespräch",
@@ -321,9 +325,13 @@ def build_document(doc: DocumentInput) -> dict:
         "encounter": _ref(encounter),
         "date": doc.generated_at,
         "author": [_ref(device)],
-        "title": "Aufnahmegespräch (Entwurf)",
+        "title": "Aufnahmegespräch" if approved else "Aufnahmegespräch (Entwurf)",
         "section": composition_sections,
     }
+    if approved:
+        # The approving doctor is not identified in this app; the receiving system
+        # links the attestation to its own user.
+        composition["attester"] = [{"mode": "legal", "time": doc.approved_at}]
 
     resources = [composition, patient, encounter, device] + [r for _, r in fact_resources] + provenances
     return {

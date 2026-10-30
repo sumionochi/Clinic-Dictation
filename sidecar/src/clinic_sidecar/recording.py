@@ -75,6 +75,7 @@ class RecordingView:
     diarization_model: str | None
     diarize_seconds: float | None
     diarization_error: str | None
+    audio_deleted_at: str | None
     speakers: list[SpeakerView]
     segments: list[SegmentView]
 
@@ -159,6 +160,8 @@ class RecordingService:
         row = self._require(session_id, recording_id)
         if row["status"] not in TRANSCRIBABLE:
             raise Conflict(f"Recording is {row['status']}; it cannot be transcribed now.")
+        if row["audio_deleted_at"]:
+            raise Conflict("The audio was deleted after the record was approved.")
         with self.db.connect() as conn:
             conn.execute(
                 "UPDATE recordings SET status = 'transcribing', error = NULL WHERE id = ?", (recording_id,)
@@ -241,6 +244,16 @@ class RecordingService:
                 ),
             )
 
+    def delete_audio(self, session_id: str) -> None:
+        """Called once the doctor has approved the record: the recording itself is no
+        longer needed, and keeping it would only be a privacy risk."""
+        rec = self.get(session_id)
+        if rec is None:
+            return
+        self.audio_path(rec.id).unlink(missing_ok=True)
+        with self.db.connect() as conn:
+            conn.execute("UPDATE recordings SET audio_deleted_at = ? WHERE id = ?", (_now(), rec.id))
+
     # ── Speakers ─────────────────────────────────────────────────────────────
 
     def match_speaker(
@@ -298,6 +311,7 @@ class RecordingService:
             diarization_model=row["diarization_model"],
             diarize_seconds=row["diarize_seconds"],
             diarization_error=row["diarization_error"],
+            audio_deleted_at=row["audio_deleted_at"],
             speakers=[
                 SpeakerView(
                     speaker=spk,

@@ -49,6 +49,8 @@ export interface Recording {
   diarization_model: string | null
   diarize_seconds: number | null
   diarization_error: string | null
+  /** Set once the record was approved and the audio file removed. */
+  audio_deleted_at: string | null
   speakers: Speaker[]
   segments: TranscriptSegment[]
 }

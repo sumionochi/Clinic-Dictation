@@ -18,6 +18,10 @@ export interface Api {
       pcm: ArrayBuffer
     ) => Promise<SidecarResponse>
   }
+  export: {
+    /** Asks where to save, then writes the approved FHIR document. Null if cancelled. */
+    saveFhir: (sessionId: string) => Promise<string | null>
+  }
   mic: {
     getStatus: () => Promise<MicStatus>
     /** Shows the macOS microphone prompt the first time it is called. */

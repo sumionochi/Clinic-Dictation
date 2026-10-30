@@ -94,6 +94,27 @@ MIGRATIONS: list[str] = [
     """
     ALTER TABLE transcript_segments ADD COLUMN language TEXT;
     """,
+    # 5: the structured record the agents draft and the doctor reviews and approves
+    """
+    ALTER TABLE recordings ADD COLUMN audio_deleted_at TEXT;
+
+    CREATE TABLE records (
+        session_id      TEXT PRIMARY KEY REFERENCES sessions(id),
+        recording_id    TEXT NOT NULL REFERENCES recordings(id),
+        status          TEXT NOT NULL CHECK (status IN ('extracting', 'ready', 'failed', 'approved')),
+        model           TEXT,
+        lines           TEXT,   -- JSON: the numbered transcript the facts cite
+        facts           TEXT,   -- JSON: [{id, fact, state, origin}], state: kept | removed
+        rejected        TEXT,   -- JSON: facts the verifier rejected, with reasons
+        contradictions  TEXT,   -- JSON
+        log             TEXT,   -- JSON: what the agents did
+        error           TEXT,
+        extract_seconds REAL,
+        created_at      TEXT NOT NULL,
+        approved_at     TEXT,
+        fhir_bundle     TEXT    -- JSON, written once on approval
+    );
+    """,
 ]
 
 
