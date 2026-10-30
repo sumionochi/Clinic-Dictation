@@ -47,24 +47,35 @@ class ExtractionCase:
     contradictions: list[str]
 
 
+def _sources() -> list[tuple[str, Path, Path]]:
+    """(name, transcript, gold): the extraction cases, plus every role-play script
+    with gold facts, since a script is a perfect transcript of its consultation."""
+    found = [(d.name, d / "transcript.tsv", d / "gold.json") for d in sorted(EXTRACTION_DIR.iterdir()) if (d / "gold.json").exists()]
+    for script in sorted((EVAL_DIR / "scripts").glob("*.tsv")):
+        gold = script.with_name(script.stem + ".gold.json")
+        if gold.exists():
+            found.append((script.stem, script, gold))
+    return found
+
+
 def load_cases(names: list[str] | None = None) -> list[ExtractionCase]:
     cases = []
-    for d in sorted(p for p in EXTRACTION_DIR.iterdir() if (p / "gold.json").exists()):
-        if names and d.name not in names:
+    for name, transcript, gold_file in _sources():
+        if names and name not in names:
             continue
         lines = []
-        for raw in (d / "transcript.tsv").read_text(encoding="utf-8").splitlines():
+        for raw in transcript.read_text(encoding="utf-8").splitlines():
             if raw.strip() and not raw.startswith("#"):
                 speaker, _, text = raw.partition("\t")
                 lines.append((speaker.strip(), text.strip()))
-        data = json.loads((d / "gold.json").read_text(encoding="utf-8"))
+        data = json.loads(gold_file.read_text(encoding="utf-8"))
         gold = []
         for item in data["facts"]:
             options = [tuple(p) for p in item["match"]] if "match" in item else [
                 (n, a) for n in item["names"] for a in item["assertions"]
             ]
             gold.append(GoldFact(item["category"], options))
-        cases.append(ExtractionCase(d.name, lines, gold, data.get("contradictions", [])))
+        cases.append(ExtractionCase(name, lines, gold, data.get("contradictions", [])))
     return cases
 
 
@@ -154,3 +165,45 @@ def score_contradictions(flagged: list[str], expected: list[str]) -> tuple[int, 
     """(found, expected)"""
     found = sum(1 for e in expected if any(names_match(f, e) for f in flagged))
     return found, len(expected)
+
+
+@dataclass
+class VerifierScore:
+    """How good the verifier's rejections are. A proposed fact is "wrong" if it
+    matches no gold fact (duplicates of a matched fact are not counted either way).
+
+    precision: of the facts it rejected, the share that really were wrong;
+    recall:    of the wrong facts the extractor proposed, the share it rejected.
+    """
+
+    rejected: int = 0
+    rejected_wrong: int = 0
+    proposed_wrong: int = 0
+
+    @property
+    def precision(self) -> float | None:
+        return self.rejected_wrong / self.rejected if self.rejected else None
+
+    @property
+    def recall(self) -> float | None:
+        return self.rejected_wrong / self.proposed_wrong if self.proposed_wrong else None
+
+    def add(self, other: "VerifierScore") -> None:
+        self.rejected += other.rejected
+        self.rejected_wrong += other.rejected_wrong
+        self.proposed_wrong += other.proposed_wrong
+
+
+def score_verifier(kept: list[dict], rejected: list[dict], gold: list[GoldFact]) -> VerifierScore:
+    def is_right(fact: dict) -> bool:
+        return any(
+            _same_category(fact["category"], g.category)
+            and any(names_match(fact["name"], n) and fact["assertion"] == a for n, a in g.options)
+            for g in gold
+        )
+
+    wrong_rejected = sum(1 for f in rejected if not is_right(f))
+    wrong_kept = sum(1 for f in kept if not is_right(f))
+    return VerifierScore(
+        rejected=len(rejected), rejected_wrong=wrong_rejected, proposed_wrong=wrong_rejected + wrong_kept
+    )

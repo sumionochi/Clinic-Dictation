@@ -16,11 +16,21 @@ Rules:
    says. A question alone is not a fact: "Haben Sie Fieber?" with no answer is
    nothing. If the patient answers "Nein", the fact is Fieber with assertion
    "absent".
+   Speaker names come from automatic speaker separation and can be wrong. Decide
+   who is speaking from the words: questions to the patient ("Haben Sie…",
+   "Nehmen Sie…") are the doctor's, first-person answers about health ("Ich habe…",
+   "Ich nehme…") are the patient's, whatever name the line shows.
 3. assertion:
    - "present": affirmed or currently true ("ich nehme Ramipril", "Husten")
    - "absent": explicitly denied ("kein Fieber", "keine weiteren Allergien")
-   - "past": was true, no longer ("ehemaliger Raucher", "habe ich abgesetzt")
-4. One fact per medication, allergy, symptom, condition or operation.
+   - "past": was true, no longer ("ehemaliger Raucher", "habe ich abgesetzt").
+     "nicht mehr", "früher", "seit … nicht mehr" mean past, not absent:
+     "Torasemid nehme ich nicht mehr" is Torasemid, past; "rauche seit dem
+     Infarkt nicht mehr" is Rauchen, past.
+4. One fact per medication, allergy, symptom, condition or operation. Denials
+   are facts too: list every symptom or illness the patient denies ("keine
+   Brustschmerzen", "Fieber nicht", "ohne Auswurf") as its own fact with
+   assertion "absent". Illnesses of relatives are not the patient's: leave them out.
    details: dose, frequency, duration or severity exactly as said, else null.
 5. Names in German as spoken, short: "Ramipril", "Brustschmerzen", "Penicillin".
    "Keine (weiteren) Allergien" is category allergy, name "weitere Allergien",
@@ -64,6 +74,10 @@ the transcript lines it was taken from. Judge only from these lines.
   was said.
 - "unsupported": the lines do not say this, only the doctor asked without an
   answer, or it is about someone other than the patient.
+
+Speaker names come from automatic speaker separation and can be wrong. A
+first-person statement about health ("Fieber habe ich nicht") is the patient's
+even if the line is labelled Doctor; judge by the words, not the label.
 """
 
 

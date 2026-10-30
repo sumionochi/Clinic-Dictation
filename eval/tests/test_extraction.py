@@ -1,4 +1,11 @@
-from clinic_eval.extraction import GoldFact, load_cases, names_match, score_contradictions, score_facts
+from clinic_eval.extraction import (
+    GoldFact,
+    load_cases,
+    names_match,
+    score_contradictions,
+    score_facts,
+    score_verifier,
+)
 
 GOLD = [
     GoldFact("symptom", [("Brustschmerzen", "absent")]),
@@ -54,3 +61,25 @@ def test_cases_load() -> None:
     tricky = cases["tricky-family-contradiction"]
     assert tricky.contradictions == ["Metoprolol"]
     assert tricky.lines[8][0] == "begleitung"
+
+
+def test_verifier_score() -> None:
+    kept = [f("medication", "Ramipril", "present"), f("condition", "Herzinfarkt", "present")]  # 1 right, 1 wrong
+    rejected = [f("symptom", "Brustschmerzen", "present"), f("social", "Rauchen", "absent")]  # wrong, right
+    v = score_verifier(kept, rejected, GOLD)
+    assert (v.rejected, v.rejected_wrong, v.proposed_wrong) == (2, 1, 2)
+    assert v.precision == 0.5  # one of its two rejections threw away a correct fact
+    assert v.recall == 0.5  # it caught one of the two wrong facts
+
+
+def test_roleplay_kit_is_well_formed() -> None:
+    import json
+
+    from clinic_eval.fixtures import EVAL_DIR
+
+    script = EVAL_DIR / "scripts" / "roleplay-01-atemnot.tsv"
+    rows = [ln.split("\t") for ln in script.read_text(encoding="utf-8").splitlines() if ln and not ln.startswith("#")]
+    assert all(len(r) == 2 for r in rows)
+    assert {r[0] for r in rows} == {"arzt", "patient", "begleitung"}
+    gold = json.loads(script.with_name("roleplay-01-atemnot.gold.json").read_text(encoding="utf-8"))
+    assert len(gold["facts"]) >= 20 and gold["contradictions"] == ["Torasemid"]

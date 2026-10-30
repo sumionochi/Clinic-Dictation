@@ -42,18 +42,24 @@ speaker accuracy). With a genuinely different system voice it reaches about 96%,
 but those voices are too unclear for Whisper. Only two real people give a fair
 measure.
 
-1. **Write a script** in German (see the checklist below) and save it, e.g.
-   `scripts/roleplay-03.md`.
+A ready-made script is in `scripts/roleplay-01-atemnot.tsv` (doctor, patient and
+his wife; about 8 to 10 minutes; gold facts in `roleplay-01-atemnot.gold.json`).
+
+1. **Write a script** in German as `scripts/<name>.tsv` (`speaker<TAB>text`, see
+   the checklist below) and its gold facts as `scripts/<name>.gold.json`. Scripts
+   with gold facts also count as text-only extraction cases straight away.
 2. **Record it in the app**: Consent → New consultation → everyone agrees →
    Session → Start recording. Speak naturally; small deviations from the script
    are fine.
-3. **Import it**: `uv run clinic-eval add roleplay-03 --latest`
-   (or `--audio some-file.m4a` for a recording made elsewhere).
-4. **Write `fixtures/roleplay-03/reference.tsv`**: one turn per line,
-   `speaker<TAB>text`, from the script, corrected by listening for anything said
-   differently. Never paste the app's transcript in: a reference made from the
-   model's output hides exactly the errors we want to count.
-5. **Run** `uv run clinic-eval run`.
+3. **Import it**: `uv run clinic-eval add roleplay-01 --latest --script scripts/roleplay-01-atemnot.tsv`
+   (or `--audio some-file.m4a` for a recording made elsewhere). This copies the
+   script into `reference.tsv` and the gold facts next to the audio.
+4. **Correct `fixtures/<name>/reference.tsv`** by listening: every line said
+   differently from the script must be fixed. Never paste the app's transcript
+   in: a reference made from the model's output hides exactly the errors we want
+   to count.
+5. **Run** `uv run clinic-eval run` (speech only) or `uv run clinic-eval e2e`
+   (everything).
 
 The audio stays local (`*.wav` is gitignored); only `reference.tsv` is committed.
 Only use voices of people who agreed to it, and no real patient data.
@@ -102,27 +108,56 @@ models with `--llm medgemma:4b --llm qwen3:8b`.
 Gold facts are written by hand from the transcript. Like `reference.tsv`, never
 fill them from a model's output.
 
-### Findings so far (30 Oct 2026, `results/20261030-0023-extraction.json`)
+### Findings so far (30 Oct 2026, `results/20261030-1050-extraction.json`)
 
-Three short cases, 28 gold facts, perfect transcripts. Too small to be
-statistically meaningful; it shows direction, not proof.
+Four cases with perfect transcripts, 52 gold facts: three short constructed ones
+and the 41-line role-play script. qwen3:8b for both systems.
 
-| qwen3:8b | Precision | Recall | Assertion flips | Contradictions flagged | Time |
+| | Precision | Recall | Assertion flips | Contradictions flagged | Time |
 |---|---|---|---|---|---|
-| one prompt | 96.0% | 85.7% | 1 | 0/1 | 76 s |
-| agents | 100% | 85.7% | 0 | 1/1 | 305 s |
+| one prompt | 86.3% | 84.6% | 0 | 0/2 | 127 s |
+| agents | 91.1% | 78.8% | 0 | 1/2 | 537 s |
 
-- The agents never recorded a wrong present/absent/past, and caught the
-  Metoprolol contradiction; the one-prompt baseline recorded the patient's
-  mother's heart attack as the patient's.
-- They cost about 4x the time (one verification call per fact).
-- medgemma:4b is too weak as a verifier: it rejects correct facts and recall
-  falls to 43%. qwen3:8b is the default.
-- What made the difference while building it: correcting miscounted line numbers
-  when the quote is verbatim nearby, capping retries at one fact per rejected
-  fact, detecting contradictions before verification, letting the verifier write
-  its reason before its verdict, and verifying a plain sentence ("The patient does
-  NOT take: Apixaban") instead of a JSON field.
+- On a realistic consultation the agents trade recall for precision: they keep
+  fewer facts, and the ones they keep are more often right, at about 4x the time.
+  On the short cases alone they looked strictly better; the long role-play is what
+  showed the trade-off.
+- Both systems got assertion flips to zero only after two general prompt rules:
+  "nicht mehr" means past, not denied; every denied symptom is its own fact.
+- The agents flag contradictions; the one-prompt baseline never does. Both still
+  record a relative's illness ("Herzkrankheiten in der Familie") as the patient's.
+- medgemma:4b is too weak as a verifier (recall 43% in an earlier run); qwen3:8b
+  is the default.
+- Runs are not bit-for-bit reproducible even at temperature 0 (Ollama on the GPU),
+  so differences of a few points on a handful of cases are noise. Repeat runs and
+  more role-plays are needed before drawing firm conclusions.
+- Name matching is fuzzy but literal: a fact named "Schwellung der Beine seit
+  fünf Tagen" (details folded into the name) counts as wrong. A clinician rating a
+  sample would settle such cases.
+
+What made the difference while building it: correcting miscounted line numbers
+when the quote is verbatim nearby, capping retries at one fact per rejected
+fact, detecting contradictions before verification, letting the verifier write
+its reason before its verdict, verifying a plain sentence ("The patient does NOT
+take: Apixaban") instead of a JSON field, and telling both agents that automatic
+speaker labels can be wrong.
+
+## End to end
+
+`uv run clinic-eval e2e` runs every case that has audio, a reference and gold
+facts through the whole pipeline: Whisper → Sortformer → agents, plus the
+one-prompt baseline on the same transcript and the agents on the perfect
+reference transcript. The gap between the last two shows how many facts are lost
+to speech and speaker errors rather than to extraction. It reports WER, term and
+negation recall, speaker accuracy, fact precision and recall (omission rate =
+1 − recall, unsupported-claim rate = 1 − precision), assertion flips,
+contradictions, the verifier's own precision and recall, and the time from the
+end of the recording to a drafted record. Results go to
+`results/<date>-e2e.json` and a Markdown report `results/<date>-e2e.md`.
+
+On the synthetic cases this mostly measures how badly near-identical computer
+voices confuse speaker separation (every line ended up labelled as the patient in
+one run). The end-to-end numbers that matter need role-plays with real voices.
 
 ## FHIR export
 

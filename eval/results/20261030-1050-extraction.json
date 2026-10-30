@@ -1,0 +1,1260 @@
+{
+ "run_at": "2026-10-30T10:39:54",
+ "models": {
+  "qwen3:8b": {
+   "cases": [
+    {
+     "case": "allergy-meds",
+     "baseline": {
+      "facts": [
+       {
+        "category": "complaint",
+        "name": "Brustschmerzen",
+        "details": "seit drei Tagen, stark",
+        "assertion": "present"
+       },
+       {
+        "category": "complaint",
+        "name": "Atemnot",
+        "details": "vor allem beim Treppensteigen",
+        "assertion": "present"
+       },
+       {
+        "category": "medication",
+        "name": "Ramipril",
+        "details": "fünf Milligramm morgens",
+        "assertion": "present"
+       },
+       {
+        "category": "medication",
+        "name": "Metformin",
+        "details": "zweimal täglich",
+        "assertion": "present"
+       },
+       {
+        "category": "allergy",
+        "name": "Penicillin",
+        "details": null,
+        "assertion": "present"
+       },
+       {
+        "category": "symptom",
+        "name": "Fieber",
+        "details": null,
+        "assertion": "absent"
+       },
+       {
+        "category": "symptom",
+        "name": "Husten",
+        "details": "ohne Auswurf",
+        "assertion": "present"
+       }
+      ],
+      "contradictions": [],
+      "seconds": 16.65,
+      "llm_calls": 1,
+      "precision": 1.0,
+      "recall": 0.7777777777777778,
+      "assertion_errors": 0,
+      "duplicates": 0,
+      "wrong": [],
+      "missed": [
+       "allergy 'weitere Allergien' absent",
+       "symptom 'Auswurf' absent"
+      ]
+     },
+     "agents": {
+      "facts": [
+       {
+        "category": "complaint",
+        "name": "Brustschmerzen",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 2,
+          "quote": "Ich habe seit drei Tagen starke Brustschmerzen"
+         }
+        ]
+       },
+       {
+        "category": "complaint",
+        "name": "Atemnot",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 2,
+          "quote": "Ich habe seit drei Tagen starke Brustschmerzen und Atemnot"
+         }
+        ]
+       },
+       {
+        "category": "symptom",
+        "name": "Atemnot bei Treppensteigen",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 2,
+          "quote": "vor allem beim Treppensteigen"
+         }
+        ]
+       },
+       {
+        "category": "medication",
+        "name": "Ramipril",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 4,
+          "quote": "ich nehme Ramipril fünf Milligramm morgens"
+         }
+        ]
+       },
+       {
+        "category": "medication",
+        "name": "Metformin",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 4,
+          "quote": "Metformin zweimal täglich"
+         }
+        ]
+       },
+       {
+        "category": "allergy",
+        "name": "Penicillin",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 6,
+          "quote": "Gegen Penicillin bin ich allergisch"
+         }
+        ]
+       },
+       {
+        "category": "allergy",
+        "name": "weitere Allergien",
+        "details": null,
+        "assertion": "absent",
+        "evidence": [
+         {
+          "line": 6,
+          "quote": "Andere Allergien habe ich keine"
+         }
+        ]
+       },
+       {
+        "category": "symptom",
+        "name": "Fieber",
+        "details": null,
+        "assertion": "absent",
+        "evidence": [
+         {
+          "line": 8,
+          "quote": "Fieber habe ich nicht"
+         }
+        ]
+       },
+       {
+        "category": "symptom",
+        "name": "Husten",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 8,
+          "quote": "aber etwas Husten"
+         }
+        ]
+       },
+       {
+        "category": "symptom",
+        "name": "Auswurf",
+        "details": null,
+        "assertion": "absent",
+        "evidence": [
+         {
+          "line": 8,
+          "quote": "Husten ohne Auswurf"
+         }
+        ]
+       }
+      ],
+      "contradictions": [],
+      "seconds": 57.23,
+      "llm_calls": 11,
+      "precision": 1.0,
+      "recall": 1.0,
+      "assertion_errors": 0,
+      "duplicates": 1,
+      "wrong": [],
+      "missed": [],
+      "rejected": [],
+      "log": [
+       "extract: 10 facts",
+       "check: 10 passed, 0 bad quotes, 1 line numbers corrected",
+       "verify: 10 supported, 0 rejected"
+      ]
+     }
+    },
+    {
+     "case": "history-social",
+     "baseline": {
+      "facts": [
+       {
+        "category": "condition",
+        "name": "Bluthochdruck",
+        "details": null,
+        "assertion": "present"
+       },
+       {
+        "category": "condition",
+        "name": "Diabetes mellitus",
+        "details": null,
+        "assertion": "present"
+       },
+       {
+        "category": "condition",
+        "name": "Herzinfarkt",
+        "details": "vor zwei Jahren",
+        "assertion": "past"
+       },
+       {
+        "category": "medication",
+        "name": "ASS",
+        "details": "hundert Milligramm",
+        "assertion": "present"
+       },
+       {
+        "category": "medication",
+        "name": "Apixaban",
+        "details": null,
+        "assertion": "absent"
+       },
+       {
+        "category": "social",
+        "name": "Rauchen",
+        "details": "etwa zwanzig Packungsjahre",
+        "assertion": "past"
+       },
+       {
+        "category": "social",
+        "name": "Alkohol",
+        "details": null,
+        "assertion": "absent"
+       },
+       {
+        "category": "social",
+        "name": "Wohnsituation",
+        "details": "allein",
+        "assertion": "present"
+       },
+       {
+        "category": "social",
+        "name": "Pflegegrad",
+        "details": "zwei",
+        "assertion": "present"
+       }
+      ],
+      "contradictions": [],
+      "seconds": 18.42,
+      "llm_calls": 1,
+      "precision": 1.0,
+      "recall": 0.9,
+      "assertion_errors": 0,
+      "duplicates": 0,
+      "wrong": [],
+      "missed": [
+       "social 'Pflegedienst' present"
+      ]
+     },
+     "agents": {
+      "facts": [
+       {
+        "category": "condition",
+        "name": "Bluthochdruck",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 2,
+          "quote": "Ich habe Bluthochdruck"
+         }
+        ]
+       },
+       {
+        "category": "condition",
+        "name": "Diabetes mellitus",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 2,
+          "quote": "Ich habe Bluthochdruck und Diabetes mellitus"
+         }
+        ]
+       },
+       {
+        "category": "medication",
+        "name": "ASS",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 4,
+          "quote": "Ich nehme ASS hundert Milligramm"
+         }
+        ]
+       },
+       {
+        "category": "medication",
+        "name": "Apixaban",
+        "details": null,
+        "assertion": "absent",
+        "evidence": [
+         {
+          "line": 4,
+          "quote": "kein Apixaban"
+         }
+        ]
+       },
+       {
+        "category": "social",
+        "name": "Rauchen",
+        "details": null,
+        "assertion": "past",
+        "evidence": [
+         {
+          "line": 6,
+          "quote": "Ich bin ehemaliger Raucher"
+         }
+        ]
+       },
+       {
+        "category": "social",
+        "name": "Alkohol",
+        "details": null,
+        "assertion": "absent",
+        "evidence": [
+         {
+          "line": 6,
+          "quote": "Alkohol trinke ich nie"
+         }
+        ]
+       },
+       {
+        "category": "social",
+        "name": "Wohnsituation",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 8,
+          "quote": "Ich lebe allein"
+         }
+        ]
+       },
+       {
+        "category": "social",
+        "name": "Pflegegrad",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 8,
+          "quote": "ich habe Pflegegrad zwei"
+         }
+        ]
+       }
+      ],
+      "contradictions": [],
+      "seconds": 76.4,
+      "llm_calls": 12,
+      "precision": 1.0,
+      "recall": 0.8,
+      "assertion_errors": 0,
+      "duplicates": 0,
+      "wrong": [],
+      "missed": [
+       "condition 'Herzinfarkt' past",
+       "social 'Pflegedienst' present"
+      ],
+      "rejected": [],
+      "log": [
+       "extract: 9 facts",
+       "check: 9 passed, 0 bad quotes, 1 line numbers corrected",
+       "verify: 8 supported, 1 rejected",
+       "  rejected condition 'Herzinfarkt' past (lines [2]): Verifier: wrong_assertion: The patient explicitly states they had a Herzinfarkt (heart attack) two years ago, which supports the claim that they had it before. However, the claim says they 'no longer' have it, which is incorrect because a heart attack is an event, not a condition that is taken or stopped. The claim misrepresn",
+       "retry 1: 1 sent back, 1 returned",
+       "check: 1 passed, 0 bad quotes, 0 line numbers corrected",
+       "verify: 1 supported, 0 rejected"
+      ]
+     }
+    },
+    {
+     "case": "tricky-family-contradiction",
+     "baseline": {
+      "facts": [
+       {
+        "category": "complaint",
+        "name": "Schwindel",
+        "details": null,
+        "assertion": "present"
+       },
+       {
+        "category": "complaint",
+        "name": "Herzrasen",
+        "details": null,
+        "assertion": "present"
+       },
+       {
+        "category": "symptom",
+        "name": "Brustschmerzen",
+        "details": null,
+        "assertion": "absent"
+       },
+       {
+        "category": "condition",
+        "name": "Herzinfarkt",
+        "details": null,
+        "assertion": "absent"
+       },
+       {
+        "category": "condition",
+        "name": "Herzinfarkt",
+        "details": "Mutter",
+        "assertion": "past"
+       },
+       {
+        "category": "medication",
+        "name": "Bisoprolol",
+        "details": null,
+        "assertion": "present"
+       },
+       {
+        "category": "medication",
+        "name": "Metoprolol",
+        "details": null,
+        "assertion": "past"
+       },
+       {
+        "category": "medication",
+        "name": "Pantoprazol",
+        "details": "vierzig Milligramm",
+        "assertion": "present"
+       },
+       {
+        "category": "allergy",
+        "name": "weitere Allergien",
+        "details": null,
+        "assertion": "absent"
+       },
+       {
+        "category": "social",
+        "name": "Rauchen",
+        "details": null,
+        "assertion": "absent"
+       },
+       {
+        "category": "medication",
+        "name": "Metoprolol",
+        "details": "abends manchmal",
+        "assertion": "present"
+       }
+      ],
+      "contradictions": [],
+      "seconds": 23.4,
+      "llm_calls": 1,
+      "precision": 0.9,
+      "recall": 1.0,
+      "assertion_errors": 0,
+      "duplicates": 1,
+      "wrong": [
+       "condition 'Herzinfarkt' past"
+      ],
+      "missed": []
+     },
+     "agents": {
+      "facts": [
+       {
+        "category": "complaint",
+        "name": "Schwindel",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 2,
+          "quote": "Mir ist seit gestern sehr schwindelig"
+         }
+        ]
+       },
+       {
+        "category": "complaint",
+        "name": "Herzrasen",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 2,
+          "quote": "und ich habe Herzrasen"
+         }
+        ]
+       },
+       {
+        "category": "symptom",
+        "name": "Brustschmerzen",
+        "details": null,
+        "assertion": "absent",
+        "evidence": [
+         {
+          "line": 4,
+          "quote": "Brustschmerzen habe ich nicht"
+         }
+        ]
+       },
+       {
+        "category": "medication",
+        "name": "Bisoprolol",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 8,
+          "quote": "Bisoprolol morgens"
+         }
+        ]
+       },
+       {
+        "category": "medication",
+        "name": "Metoprolol",
+        "details": null,
+        "assertion": "past",
+        "evidence": [
+         {
+          "line": 8,
+          "quote": "und das Metoprolol habe ich letzten Monat abgesetzt"
+         }
+        ]
+       },
+       {
+        "category": "medication",
+        "name": "Pantoprazol",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 10,
+          "quote": "Pantoprazol vierzig Milligramm"
+         }
+        ]
+       },
+       {
+        "category": "allergy",
+        "name": "weitere Allergien",
+        "details": null,
+        "assertion": "absent",
+        "evidence": [
+         {
+          "line": 12,
+          "quote": "Nein, keine"
+         }
+        ]
+       },
+       {
+        "category": "social",
+        "name": "Rauchen",
+        "details": null,
+        "assertion": "absent",
+        "evidence": [
+         {
+          "line": 14,
+          "quote": "Nein, nie geraucht"
+         }
+        ]
+       },
+       {
+        "category": "medication",
+        "name": "Metoprolol",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 16,
+          "quote": "Doch, abends nehme ich es manchmal noch"
+         }
+        ]
+       }
+      ],
+      "contradictions": [
+       "Metoprolol"
+      ],
+      "seconds": 76.06,
+      "llm_calls": 13,
+      "precision": 1.0,
+      "recall": 0.8888888888888888,
+      "assertion_errors": 0,
+      "duplicates": 1,
+      "wrong": [],
+      "missed": [
+       "condition 'Herzinfarkt' absent"
+      ],
+      "rejected": [],
+      "log": [
+       "extract: 10 facts",
+       "check: 10 passed, 0 bad quotes, 1 line numbers corrected",
+       "verify: 9 supported, 1 rejected",
+       "  rejected condition 'Herzinfarkt' past (lines [6]): Verifier: wrong_assertion: The patient explicitly denies having had a Herzinfarkt ('Ich nicht'), and the claim incorrectly states they had one before. The patient's mother had a Herzinfarkt, but this is not the patient's own history. The claim also incorrectly implies the patient no longer takes Herzinfarkt, which is not part",
+       "retry 1: 1 sent back, 1 returned",
+       "check: 1 passed, 0 bad quotes, 0 line numbers corrected",
+       "verify: 1 supported, 0 rejected"
+      ]
+     }
+    },
+    {
+     "case": "roleplay-01-atemnot",
+     "baseline": {
+      "facts": [
+       {
+        "category": "complaint",
+        "name": "Atemnot",
+        "details": "seit ungefähr einer Woche ganz schlecht Luft, am Anfang nur beim Treppensteigen, jetzt schon beim Anziehen",
+        "assertion": "present"
+       },
+       {
+        "category": "symptom",
+        "name": "Atemnot nachts",
+        "details": "nachts muss ich mit drei Kissen schlafen, sonst bekomme ich keine Luft",
+        "assertion": "present"
+       },
+       {
+        "category": "symptom",
+        "name": "Schwellung der Beine",
+        "details": "seit etwa fünf Tagen, vor allem die Knöchel",
+        "assertion": "present"
+       },
+       {
+        "category": "symptom",
+        "name": "Zunahme des Gewichts",
+        "details": "vier Kilo zugenommen in der Woche",
+        "assertion": "present"
+       },
+       {
+        "category": "symptom",
+        "name": "Brustschmerzen",
+        "details": null,
+        "assertion": "absent"
+       },
+       {
+        "category": "symptom",
+        "name": "Fieber",
+        "details": null,
+        "assertion": "absent"
+       },
+       {
+        "category": "symptom",
+        "name": "Husten",
+        "details": "ein bisschen, nachts, aber ohne Auswurf",
+        "assertion": "present"
+       },
+       {
+        "category": "condition",
+        "name": "Herzinfarkt",
+        "details": "zweitausendachtzehn",
+        "assertion": "past"
+       },
+       {
+        "category": "condition",
+        "name": "Stent",
+        "details": null,
+        "assertion": "past"
+       },
+       {
+        "category": "condition",
+        "name": "Diabetes Typ zwei",
+        "details": null,
+        "assertion": "present"
+       },
+       {
+        "category": "condition",
+        "name": "Bluthochdruck",
+        "details": null,
+        "assertion": "present"
+       },
+       {
+        "category": "condition",
+        "name": "Herzkrankheiten in der Familie",
+        "details": "Vater hatte Herzinfarkt mit sechzig",
+        "assertion": "present"
+       },
+       {
+        "category": "surgery",
+        "name": "Arthroskopie am linken Knie",
+        "details": "zweitausendfünfzehn",
+        "assertion": "past"
+       },
+       {
+        "category": "medication",
+        "name": "Ramipril",
+        "details": "fünf Milligramm morgens",
+        "assertion": "present"
+       },
+       {
+        "category": "medication",
+        "name": "Bisoprolol",
+        "details": "zwei komma fünf Milligramm",
+        "assertion": "present"
+       },
+       {
+        "category": "medication",
+        "name": "Metformin",
+        "details": "tausend Milligramm zweimal am Tag",
+        "assertion": "present"
+       },
+       {
+        "category": "medication",
+        "name": "Torasemid",
+        "details": null,
+        "assertion": "past"
+       },
+       {
+        "category": "medication",
+        "name": "ASS",
+        "details": "hundert Milligramm, jeden Morgen",
+        "assertion": "present"
+       },
+       {
+        "category": "allergy",
+        "name": "Penicillin",
+        "details": "Ausschlag",
+        "assertion": "present"
+       },
+       {
+        "category": "social",
+        "name": "Rauchen",
+        "details": "vierzig Jahre, eine Schachtel am Tag",
+        "assertion": "past"
+       },
+       {
+        "category": "social",
+        "name": "Alkoholkonsum",
+        "details": "am Wochenende mal ein Glas Wein, mehr nicht",
+        "assertion": "present"
+       },
+       {
+        "category": "social",
+        "name": "Wohnen",
+        "details": "zusammen im zweiten Stock, ohne Aufzug",
+        "assertion": "present"
+       },
+       {
+        "category": "social",
+        "name": "Pflegedienst",
+        "details": null,
+        "assertion": "absent"
+       },
+       {
+        "category": "social",
+        "name": "Hilfe zu Hause",
+        "details": "Meine Frau hilft mir",
+        "assertion": "present"
+       },
+       {
+        "category": "social",
+        "name": "Blutdruckmessung zu Hause",
+        "details": "gestern waren es hundertfünfzig zu neunzig",
+        "assertion": "present"
+       }
+      ],
+      "contradictions": [],
+      "seconds": 68.33,
+      "llm_calls": 1,
+      "precision": 0.76,
+      "recall": 0.7916666666666666,
+      "assertion_errors": 0,
+      "duplicates": 0,
+      "wrong": [
+       "symptom 'Zunahme des Gewichts' present",
+       "condition 'Stent' past",
+       "condition 'Herzkrankheiten in der Familie' present",
+       "social 'Wohnen' present",
+       "social 'Hilfe zu Hause' present",
+       "social 'Blutdruckmessung zu Hause' present"
+      ],
+      "missed": [
+       "symptom 'Gewichtszunahme' present",
+       "symptom 'Auswurf' absent",
+       "surgery 'Stent' present",
+       "allergy 'weitere Allergien' absent",
+       "social 'Wohnsituation' present"
+      ]
+     },
+     "agents": {
+      "facts": [
+       {
+        "category": "complaint",
+        "name": "Atemnot",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 5,
+          "quote": "Ich bekomme seit ungefähr einer Woche ganz schlecht Luft."
+         },
+         {
+          "line": 4,
+          "quote": "Was führt Sie heute zu uns?"
+         }
+        ]
+       },
+       {
+        "category": "symptom",
+        "name": "Atemnot beim Anziehen",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 5,
+          "quote": "Ich bekomme seit ungefähr einer Woche ganz schlecht Luft. Am Anfang nur beim Treppensteigen, jetzt schon beim Anziehen."
+         }
+        ]
+       },
+       {
+        "category": "symptom",
+        "name": "Atemnot nachts",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 6,
+          "quote": "Ist es nachts schlimmer?"
+         },
+         {
+          "line": 7,
+          "quote": "Ja, nachts muss ich mit drei Kissen schlafen, sonst bekomme ich keine Luft."
+         }
+        ]
+       },
+       {
+        "category": "symptom",
+        "name": "Schwellung der Beine",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 8,
+          "quote": "Und seine Beine sind ganz dick geworden, vor allem die Knöchel."
+         }
+        ]
+       },
+       {
+        "category": "symptom",
+        "name": "Schwellung der Beine seit fünf Tagen",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 9,
+          "quote": "Seit wann sind die Beine geschwollen?"
+         },
+         {
+          "line": 10,
+          "quote": "Seit etwa fünf Tagen."
+         }
+        ]
+       },
+       {
+        "category": "symptom",
+        "name": "Zunahme von vier Kilogramm in einer Woche",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 9,
+          "quote": "Seit wann sind die Beine geschwollen?"
+         },
+         {
+          "line": 10,
+          "quote": "Seit etwa fünf Tagen. Ich habe auch vier Kilo zugenommen in der Woche."
+         }
+        ]
+       },
+       {
+        "category": "symptom",
+        "name": "Brustschmerzen",
+        "details": null,
+        "assertion": "absent",
+        "evidence": [
+         {
+          "line": 11,
+          "quote": "Haben Sie Schmerzen in der Brust?"
+         },
+         {
+          "line": 12,
+          "quote": "Nein, Brustschmerzen habe ich keine."
+         }
+        ]
+       },
+       {
+        "category": "symptom",
+        "name": "Fieber",
+        "details": null,
+        "assertion": "absent",
+        "evidence": [
+         {
+          "line": 13,
+          "quote": "Fieber oder Husten?"
+         },
+         {
+          "line": 14,
+          "quote": "Fieber nicht."
+         }
+        ]
+       },
+       {
+        "category": "symptom",
+        "name": "Husten",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 13,
+          "quote": "Fieber oder Husten?"
+         },
+         {
+          "line": 14,
+          "quote": "Husten ein bisschen, nachts, aber ohne Auswurf."
+         }
+        ]
+       },
+       {
+        "category": "condition",
+        "name": "Diabetes Typ zwei",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 15,
+          "quote": "Welche Vorerkrankungen haben Sie?"
+         },
+         {
+          "line": 16,
+          "quote": "Ich hatte zweitausendachtzehn einen Herzinfarkt, da habe ich einen Stent bekommen. Und ich habe Zucker, Diabetes Typ zwei, und Bluthochdruck."
+         }
+        ]
+       },
+       {
+        "category": "condition",
+        "name": "Bluthochdruck",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 15,
+          "quote": "Welche Vorerkrankungen haben Sie?"
+         },
+         {
+          "line": 16,
+          "quote": "Ich hatte zweitausendachtzehn einen Herzinfarkt, da habe ich einen Stent bekommen. Und ich habe Zucker, Diabetes Typ zwei, und Bluthochdruck."
+         }
+        ]
+       },
+       {
+        "category": "condition",
+        "name": "Herzkrankheiten in der Familie",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 17,
+          "quote": "Gibt es Herzkrankheiten in der Familie?"
+         },
+         {
+          "line": 18,
+          "quote": "Mein Vater hatte auch einen Herzinfarkt, mit sechzig."
+         }
+        ]
+       },
+       {
+        "category": "medication",
+        "name": "Ramipril",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 21,
+          "quote": "Welche Medikamente nehmen Sie zurzeit?"
+         },
+         {
+          "line": 22,
+          "quote": "Ramipril fünf Milligramm morgens, Bisoprolol zwei komma fünf Milligramm, und Metformin tausend Milligramm zweimal am Tag."
+         }
+        ]
+       },
+       {
+        "category": "medication",
+        "name": "Bisoprolol",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 21,
+          "quote": "Welche Medikamente nehmen Sie zurzeit?"
+         },
+         {
+          "line": 22,
+          "quote": "Ramipril fünf Milligramm morgens, Bisoprolol zwei komma fünf Milligramm, und Metformin tausend Milligramm zweimal am Tag."
+         }
+        ]
+       },
+       {
+        "category": "medication",
+        "name": "Metformin",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 21,
+          "quote": "Welche Medikamente nehmen Sie zurzeit?"
+         },
+         {
+          "line": 22,
+          "quote": "Ramipril fünf Milligramm morgens, Bisoprolol zwei komma fünf Milligramm, und Metformin tausend Milligramm zweimal am Tag."
+         }
+        ]
+       },
+       {
+        "category": "medication",
+        "name": "ASS",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 27,
+          "quote": "Nehmen Sie Blutverdünner?"
+         },
+         {
+          "line": 28,
+          "quote": "ASS hundert, jeden Morgen."
+         }
+        ]
+       },
+       {
+        "category": "allergy",
+        "name": "Penicillin",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 29,
+          "quote": "Haben Sie Allergien?"
+         },
+         {
+          "line": 30,
+          "quote": "Gegen Penicillin, da bekomme ich Ausschlag."
+         }
+        ]
+       },
+       {
+        "category": "social",
+        "name": "Rauchen",
+        "details": null,
+        "assertion": "past",
+        "evidence": [
+         {
+          "line": 31,
+          "quote": "Rauchen Sie?"
+         },
+         {
+          "line": 32,
+          "quote": "Seit dem Herzinfarkt nicht mehr. Davor etwa vierzig Jahre, eine Schachtel am Tag."
+         }
+        ]
+       },
+       {
+        "category": "social",
+        "name": "Alkoholkonsum",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 33,
+          "quote": "Und Alkohol?"
+         },
+         {
+          "line": 34,
+          "quote": "Am Wochenende mal ein Glas Wein, mehr nicht."
+         }
+        ]
+       },
+       {
+        "category": "social",
+        "name": "Pflegedienst",
+        "details": null,
+        "assertion": "absent",
+        "evidence": [
+         {
+          "line": 37,
+          "quote": "Bekommen Sie Hilfe zu Hause, einen Pflegedienst?"
+         },
+         {
+          "line": 38,
+          "quote": "Nein, keinen Pflegedienst. Meine Frau hilft mir."
+         }
+        ]
+       },
+       {
+        "category": "social",
+        "name": "Blutdruckmessung zu Hause",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 39,
+          "quote": "Haben Sie zu Hause den Blutdruck gemessen?"
+         },
+         {
+          "line": 40,
+          "quote": "Ja, gestern waren es hundertfünfzig zu neunzig."
+         }
+        ]
+       },
+       {
+        "category": "complaint",
+        "name": "Schlechte Luft",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 4,
+          "quote": "Was führt Sie heute zu uns?"
+         },
+         {
+          "line": 5,
+          "quote": "Ich bekomme seit ungefähr einer Woche ganz schlecht Luft."
+         }
+        ]
+       },
+       {
+        "category": "symptom",
+        "name": "Schlechte Luft",
+        "details": null,
+        "assertion": "present",
+        "evidence": [
+         {
+          "line": 4,
+          "quote": "Was führt Sie heute zu uns?"
+         },
+         {
+          "line": 5,
+          "quote": "Ich bekomme seit ungefähr einer Woche ganz schlecht Luft."
+         }
+        ]
+       }
+      ],
+      "contradictions": [],
+      "seconds": 327.21,
+      "llm_calls": 31,
+      "precision": 0.8,
+      "recall": 0.6666666666666666,
+      "assertion_errors": 0,
+      "duplicates": 3,
+      "wrong": [
+       "symptom 'Schwellung der Beine seit fünf Tagen' present",
+       "symptom 'Zunahme von vier Kilogramm in einer Woche' present",
+       "condition 'Herzkrankheiten in der Familie' present",
+       "social 'Blutdruckmessung zu Hause' present"
+      ],
+      "missed": [
+       "symptom 'Gewichtszunahme' present",
+       "symptom 'Auswurf' absent",
+       "condition 'Herzinfarkt' past",
+       "surgery 'Stent' present",
+       "surgery 'Arthroskopie' present",
+       "medication 'Torasemid' past",
+       "allergy 'weitere Allergien' absent",
+       "social 'Wohnsituation' present"
+      ],
+      "rejected": [
+       {
+        "fact": {
+         "category": "symptom",
+         "name": "Schwäche beim Gehen",
+         "details": null,
+         "assertion": "present",
+         "evidence": [
+          {
+           "line": 4,
+           "quote": "Was führt Sie heute zu uns?"
+          },
+          {
+           "line": 5,
+           "quote": "Am Anfang nur beim Treppensteigen, jetzt schon beim Anziehen."
+          }
+         ]
+        },
+        "reason": "Verifier: unsupported: The claim states the patient has 'Schwäche beim Gehen' (weakness when walking), but the transcript does not mention this symptom. The patient reports difficulty breathing, especially with activity, but there is no mention of weakness during walking. The claim is not supported by the transcript."
+       },
+       {
+        "fact": {
+         "category": "symptom",
+         "name": "Schwäche nachts",
+         "details": null,
+         "assertion": "present",
+         "evidence": [
+          {
+           "line": 6,
+           "quote": "Ist es nachts schlimmer?"
+          },
+          {
+           "line": 7,
+           "quote": "Ja, nachts muss ich mit drei Kissen schlafen, sonst bekomme ich keine Luft."
+          }
+         ]
+        },
+        "reason": "Verifier: unsupported: The claim states the patient has 'Schwäche nachts' (weakness at night). However, the transcript does not mention weakness at night. Instead, the patient describes difficulty breathing at night ('nachts muss ich mit drei Kissen schlafen, sonst bekomme ich keine Luft'), and the companion mentions the患"
+       }
+      ],
+      "log": [
+       "extract: 25 facts",
+       "check: 25 passed, 0 bad quotes, 1 line numbers corrected",
+       "verify: 21 supported, 4 rejected",
+       "  rejected condition 'Herzinfarkt' past (lines [15, 16]): Verifier: wrong_assertion: The patient mentions having a Herzinfarkt (heart attack) in 2018, which indicates they had it before. However, the claim states they 'had / took Herzinfarkt before, but no longer,' implying they no longer have it. The transcript does not indicate that the patient no longer has a Herzinfarkt—this is误",
+       "  rejected surgery 'Arthroskopie am linken Knie' past (lines [19, 20]): Verifier: wrong_details: The patient mentions having had an Arthroskopie on the left knee in 2015, which confirms they had the surgery before. However, the claim states they 'no longer' take it, which is incorrect—Arthroskopie is a procedure, not a medication. The claim incorrectly frames the surgery as something taken, not",
+       "  rejected medication 'Torasemid' past (lines [23, 24]): Verifier: wrong_assertion: The patient explicitly states they are no longer taking Torasemid ('Das Torasemid nehme ich nicht mehr'), which supports the claim that they stopped taking it. The companion's statement that the patient takes it every second day contradicts this, but since the patient is the primary speaker and the伴",
+       "  rejected social 'Wohnung' present (lines [35, 36]): Verifier: unsupported: The claim is about the patient having a 'Wohnung' (apartment), but the transcript lines do not mention the patient's residence. The companion mentions they live together in the second floor without an elevator, but this is about the companion's living situation, not the patient's. The patient does *",
+       "retry 1: 4 sent back, 4 returned",
+       "check: 4 passed, 0 bad quotes, 0 line numbers corrected",
+       "verify: 2 supported, 2 rejected",
+       "  rejected symptom 'Schwäche beim Gehen' present (lines [4, 5]): Verifier: unsupported: The claim states the patient has 'Schwäche beim Gehen' (weakness when walking), but the transcript does not mention this symptom. The patient reports difficulty breathing, especially with activity, but there is no mention of weakness during walking. The claim is not supported by the transcript.",
+       "  rejected symptom 'Schwäche nachts' present (lines [6, 7]): Verifier: unsupported: The claim states the patient has 'Schwäche nachts' (weakness at night). However, the transcript does not mention weakness at night. Instead, the patient describes difficulty breathing at night ('nachts muss ich mit drei Kissen schlafen, sonst bekomme ich keine Luft'), and the companion mentions the患"
+      ]
+     }
+    }
+   ],
+   "totals": {
+    "baseline": {
+     "precision": 0.8627450980392157,
+     "recall": 0.8461538461538461,
+     "assertion_errors": 0,
+     "contradictions_found": 0,
+     "contradictions_expected": 2,
+     "seconds": 126.8
+    },
+    "agents": {
+     "precision": 0.9111111111111111,
+     "recall": 0.7884615384615384,
+     "assertion_errors": 0,
+     "contradictions_found": 1,
+     "contradictions_expected": 2,
+     "seconds": 536.9
+    }
+   }
+  }
+ }
+}

@@ -7,6 +7,7 @@
     uv run clinic-eval run [--model REPO] [CASE ...]  transcribe, score, save results
     uv run clinic-eval extract [--llm MODEL]...       agents vs one-prompt baseline on gold facts
     uv run clinic-eval fhir RESULTS.json              agents' facts → FHIR bundles, checked by the HL7 validator
+    uv run clinic-eval e2e [CASE ...]                 audio → facts end to end, every stage scored, Markdown report
 """
 
 import argparse
@@ -40,9 +41,12 @@ def cmd_synth(_args: argparse.Namespace) -> None:
 
 def cmd_add(args: argparse.Namespace) -> None:
     pcm = to_pcm16(Path(args.audio)) if args.audio else pcm_from_app(args.session)  # None = latest
-    case = add_case(args.name, pcm)
+    case = add_case(args.name, pcm, Path(args.script) if args.script else None)
     print(f"wrote {case.audio_path.relative_to(EVAL_DIR)} ({len(pcm) / 32000:.1f} s)")
-    print(f"now write what was said into {case.reference_path.relative_to(EVAL_DIR)}")
+    if args.script:
+        print(f"reference.tsv starts from {args.script}: listen and correct it; gold facts copied if present")
+    else:
+        print(f"now write what was said into {case.reference_path.relative_to(EVAL_DIR)}")
 
 
 def cmd_run(args: argparse.Namespace) -> None:
@@ -351,6 +355,18 @@ def cmd_fhir(args: argparse.Namespace) -> None:
         raise SystemExit(1)
 
 
+def cmd_e2e(args: argparse.Namespace) -> None:
+    from clinic_eval import e2e
+
+    language = None if args.language == "auto" else args.language
+    print(f"Running end to end with {args.llm} …")
+    data = e2e.run(args.cases or None, args.llm, language, with_reference=not args.no_reference)
+    js, md = e2e.save(data)
+    print()
+    print(e2e.report_markdown(data))
+    print(f"saved {js.relative_to(EVAL_DIR)} and {md.relative_to(EVAL_DIR)}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(prog="clinic-eval", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = parser.add_subparsers(required=True)
@@ -364,6 +380,7 @@ def main() -> None:
     source.add_argument("--audio", help="any audio file ffmpeg can read")
     source.add_argument("--session", help="session id of a consultation recorded in the app")
     source.add_argument("--latest", action="store_true", help="the most recent recording made in the app")
+    add.add_argument("--script", help="role-play script (scripts/*.tsv) to start reference.tsv and gold facts from")
     add.set_defaults(func=cmd_add)
 
     run = sub.add_parser("run", help="transcribe all cases and score them")
@@ -384,6 +401,13 @@ def main() -> None:
     fhir.add_argument("results", help="results/<date>-extraction.json from `clinic-eval extract`")
     fhir.add_argument("--llm", help="which model's facts to use (default: the first in the file)")
     fhir.set_defaults(func=cmd_fhir)
+
+    e2e = sub.add_parser("e2e", help="audio to facts end to end, every stage scored")
+    e2e.add_argument("cases", nargs="*", help="case names under eval/fixtures (default: all with gold facts)")
+    e2e.add_argument("--llm", default="qwen3:8b", help="Ollama model for agents and baseline")
+    e2e.add_argument("--language", default="de", choices=["de", "en", "auto"])
+    e2e.add_argument("--no-reference", action="store_true", help="skip the agents run on the perfect transcript")
+    e2e.set_defaults(func=cmd_e2e)
 
     args = parser.parse_args()
     args.func(args)

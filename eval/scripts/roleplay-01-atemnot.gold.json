@@ -1,0 +1,30 @@
+{
+  "_note": "Gold facts for roleplay-01-atemnot.tsv. The father's heart attack must NOT appear as the patient's. Torasemid is first 'stopped', then 'still taken sometimes': either assertion matches, and a contradiction must be flagged. Blood pressure and weight gain are said but are measurements, not in the fact categories; they are not scored.",
+  "facts": [
+    {"category": "symptom", "names": ["Atemnot", "Luftnot", "Dyspnoe", "schlecht Luft"], "assertions": ["present"]},
+    {"category": "symptom", "names": ["Orthopnoe", "nächtliche Atemnot", "Atemnot nachts", "drei Kissen"], "assertions": ["present"]},
+    {"category": "symptom", "names": ["Beinödeme", "Ödeme", "geschwollene Beine", "dicke Beine", "Knöchelödeme", "Beine geschwollen", "Schwellungen der Beine", "Beinschwellung", "Schwellung der Knöchel"], "assertions": ["present"]},
+    {"category": "symptom", "names": ["Gewichtszunahme", "zugenommen"], "assertions": ["present"]},
+    {"category": "symptom", "names": ["Brustschmerzen", "Thoraxschmerzen"], "assertions": ["absent"]},
+    {"category": "symptom", "names": ["Fieber"], "assertions": ["absent"]},
+    {"category": "symptom", "names": ["Husten", "nächtlicher Husten"], "assertions": ["present"]},
+    {"category": "symptom", "names": ["Auswurf"], "assertions": ["absent"]},
+    {"category": "condition", "names": ["Herzinfarkt", "Myokardinfarkt"], "assertions": ["past", "present"]},
+    {"category": "condition", "names": ["Diabetes mellitus", "Diabetes", "Diabetes Typ 2", "Zucker"], "assertions": ["present"]},
+    {"category": "condition", "names": ["Bluthochdruck", "Hypertonie", "arterielle Hypertonie"], "assertions": ["present"]},
+    {"category": "surgery", "names": ["Stent", "Stentimplantation", "Koronarstent"], "assertions": ["present", "past"]},
+    {"category": "surgery", "names": ["Arthroskopie", "Knie-Arthroskopie", "Knie-OP", "Knieoperation"], "assertions": ["present", "past"]},
+    {"category": "medication", "names": ["Ramipril"], "assertions": ["present"]},
+    {"category": "medication", "names": ["Bisoprolol"], "assertions": ["present"]},
+    {"category": "medication", "names": ["Metformin"], "assertions": ["present"]},
+    {"category": "medication", "names": ["Torasemid", "Wassertablette"], "assertions": ["past", "present"]},
+    {"category": "medication", "names": ["ASS", "Aspirin", "Acetylsalicylsäure"], "assertions": ["present"]},
+    {"category": "allergy", "names": ["Penicillin"], "assertions": ["present"]},
+    {"category": "allergy", "names": ["weitere Allergien", "Allergien", "andere Allergien", "sonstige Allergien"], "assertions": ["absent"]},
+    {"category": "social", "match": [["Rauchen", "past"], ["Raucher", "past"], ["ehemaliger Raucher", "present"], ["ehemaliger Raucher", "past"], ["Nikotin", "past"]]},
+    {"category": "social", "names": ["Alkohol", "Alkoholkonsum", "Wein"], "assertions": ["present"]},
+    {"category": "social", "names": ["Wohnsituation", "lebt mit Ehefrau", "wohnt mit Ehefrau", "zweiter Stock ohne Aufzug", "zweiter Stock"], "assertions": ["present"]},
+    {"category": "social", "names": ["Pflegedienst"], "assertions": ["absent"]}
+  ],
+  "contradictions": ["Torasemid"]
+}

@@ -123,11 +123,25 @@ def pcm_from_app(session_id: str | None) -> bytes:
     return (APP_DATA_DIR / "audio" / f"{row[0]}.pcm").read_bytes()
 
 
-def add_case(name: str, pcm: bytes) -> Case:
+def add_case(name: str, pcm: bytes, script: Path | None = None) -> Case:
+    """With a role-play script (speaker<TAB>text), the script becomes the starting
+    reference transcript and its <script>.gold.json the gold facts. The reference
+    still has to be corrected by listening for anything said differently."""
     case = Case(name, FIXTURES_DIR / name)
     case.dir.mkdir(parents=True, exist_ok=True)
     write_wav(case.audio_path, pcm)
-    if not case.reference_path.exists():
+    if script is not None:
+        lines = [ln for ln in script.read_text(encoding="utf-8").splitlines() if ln.strip() and not ln.startswith("#")]
+        case.reference_path.write_text(
+            f"# From {script.name}. Listen to the recording and correct every line that was said differently.\n"
+            + "\n".join(lines)
+            + "\n",
+            encoding="utf-8",
+        )
+        gold = script.with_name(script.stem + ".gold.json")
+        if gold.exists():
+            (case.dir / "gold.json").write_text(gold.read_text(encoding="utf-8"), encoding="utf-8")
+    elif not case.reference_path.exists():
         case.reference_path.write_text(REFERENCE_TEMPLATE, encoding="utf-8")
     return case
 

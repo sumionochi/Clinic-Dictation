@@ -1,0 +1,45 @@
+# Role-play 01: Aufnahmegespräch Innere Medizin, Atemnot und Beinödeme.
+# Three people: arzt (doctor), patient (68, male), begleitung (his wife).
+# Read naturally; small deviations are fine (fix them in reference.tsv afterwards).
+# Fictional: no real person, no real patient data.
+arzt	Guten Tag, ich bin Doktor Schneider, ich bin heute der aufnehmende Arzt. Sind Sie damit einverstanden, dass unser Gespräch aufgezeichnet wird?
+patient	Ja, das ist in Ordnung.
+begleitung	Für mich auch.
+arzt	Danke. Was führt Sie heute zu uns?
+patient	Ich bekomme seit ungefähr einer Woche ganz schlecht Luft. Am Anfang nur beim Treppensteigen, jetzt schon beim Anziehen.
+arzt	Ist es nachts schlimmer?
+patient	Ja, nachts muss ich mit drei Kissen schlafen, sonst bekomme ich keine Luft.
+begleitung	Und seine Beine sind ganz dick geworden, vor allem die Knöchel.
+arzt	Seit wann sind die Beine geschwollen?
+patient	Seit etwa fünf Tagen. Ich habe auch vier Kilo zugenommen in der Woche.
+arzt	Haben Sie Schmerzen in der Brust?
+patient	Nein, Brustschmerzen habe ich keine.
+arzt	Fieber oder Husten?
+patient	Fieber nicht. Husten ein bisschen, nachts, aber ohne Auswurf.
+arzt	Welche Vorerkrankungen haben Sie?
+patient	Ich hatte zweitausendachtzehn einen Herzinfarkt, da habe ich einen Stent bekommen. Und ich habe Zucker, Diabetes Typ zwei, und Bluthochdruck.
+arzt	Gibt es Herzkrankheiten in der Familie?
+patient	Mein Vater hatte auch einen Herzinfarkt, mit sechzig.
+arzt	Sind Sie schon einmal operiert worden, außer dem Stent?
+patient	Am linken Knie, zweitausendfünfzehn, eine Arthroskopie.
+arzt	Welche Medikamente nehmen Sie zurzeit?
+patient	Ramipril fünf Milligramm morgens, Bisoprolol zwei komma fünf Milligramm, und Metformin tausend Milligramm zweimal am Tag.
+arzt	Und Wassertabletten?
+patient	Das Torasemid nehme ich nicht mehr, da musste ich immer so oft auf die Toilette.
+begleitung	Doch, du nimmst die Wassertablette noch, jeden zweiten Tag, ich lege sie dir doch hin.
+patient	Na gut, manchmal nehme ich sie noch.
+arzt	Nehmen Sie Blutverdünner?
+patient	ASS hundert, jeden Morgen.
+arzt	Haben Sie Allergien?
+patient	Gegen Penicillin, da bekomme ich Ausschlag. Sonst keine Allergien.
+arzt	Rauchen Sie?
+patient	Seit dem Herzinfarkt nicht mehr. Davor etwa vierzig Jahre, eine Schachtel am Tag.
+arzt	Und Alkohol?
+patient	Am Wochenende mal ein Glas Wein, mehr nicht.
+arzt	Wie wohnen Sie?
+begleitung	Wir wohnen zusammen im zweiten Stock, ohne Aufzug. Die Treppe schafft er gerade kaum noch.
+arzt	Bekommen Sie Hilfe zu Hause, einen Pflegedienst?
+patient	Nein, keinen Pflegedienst. Meine Frau hilft mir.
+arzt	Haben Sie zu Hause den Blutdruck gemessen?
+patient	Ja, gestern waren es hundertfünfzig zu neunzig.
+arzt	Gut, vielen Dank. Wir nehmen Sie heute auf und untersuchen Ihr Herz genauer.
