@@ -29,6 +29,7 @@ Universität Hannover), in the *AI for Good* track.
 - [What it deliberately does not do](#what-it-deliberately-does-not-do)
 - [How a consultation flows](#how-a-consultation-flows)
 - [Architecture](#architecture)
+- [What we tried and built around the models](#what-we-tried-and-built-around-the-models)
 - [Privacy and security](#privacy-and-security)
 - [Legal and regulatory notes](#legal-and-regulatory-notes)
 - [Requirements](#requirements)
@@ -171,6 +172,78 @@ its own.
   Electron prints it in a hidden, sandboxed window with JavaScript disabled.
   Ghostscript converts it to PDF/A-2b, and veraPDF must accept it before it is
   saved.
+
+## What we tried and built around the models
+
+Every model runs locally. The work went into choosing them by measurement and
+building the pipeline, prompts and checks around them, so that a small model on
+a laptop gives output a doctor can trust and check.
+
+**Models, chosen by measurement**
+
+| Job | Model | Why this one |
+|---|---|---|
+| Speech to text | Whisper large-v3 (`mlx-community/whisper-large-v3-mlx`) | Strong German accuracy and fast on Apple MLX: 29 s of speech in 3 s |
+| Who spoke when | Sortformer 4-speaker (`mlx-community/diar_sortformer_4spk-v1-fp32`) | Runs on MLX next to Whisper, handles up to four people |
+| Extraction and verification | `qwen3:8b` via Ollama | Fits in 16 GB and follows the JSON schema reliably |
+| Tried and dropped | `medgemma:4b` via Ollama | As the verifier it kept only 43% of the correct facts |
+
+**Speech pipeline**
+
+- **Per-line language detection.** With a fixed language, Whisper translates
+  everything into it, so an English answer in a German consultation came out in
+  German. In *Several / detect* mode, each line is re-checked and re-transcribed
+  in its own language when Whisper is confident (`transcriber.py`).
+- **Live pass cut at pauses.** Windows of about 20 s end at the quietest 100 ms of
+  their last two seconds, so words are rarely cut in half (`live.py`). The live
+  pass reached the same word error rate as the final pass on the test cases.
+- **Speaker labels per word.** Whisper's word timestamps are matched with
+  Sortformer's speaker turns, and a single word that flips speaker mid-sentence
+  is smoothed back (`speaker_merge.py`).
+- **One MLX thread.** All MLX work runs on one dedicated thread, because two
+  threads using MLX at once crash it.
+
+**Agent pipeline**
+
+- **Split into checkable steps:** extract → evidence check → contradiction check →
+  verify → retry once → finalize (`agents/graph.py`), so every error shows up at
+  one step and can be measured there.
+- **Code where code is enough.** The evidence check and the contradiction check
+  are plain code, not model calls. The evidence check moves a miscounted line
+  reference to the nearby line that really holds the quote, and only rejects a
+  fact when no line does.
+- **Structured output with hard limits.** Every answer must match a JSON schema
+  with length limits (60 characters per name, 160 per quote, at most four
+  quotes per fact), and a token cap ends any answer that runs on. This stopped
+  the model from looping until timeout.
+- **Bounded retries.** A rejected fact goes back to the extractor once, with the
+  verifier's reason; the retry may return at most as many facts as were
+  rejected.
+
+**Prompt rules, each added for an error the evaluation caught**
+
+| Error seen | Rule added |
+|---|---|
+| "Torasemid nehme ich nicht mehr" recorded as *absent* | "nicht mehr", "früher" mean *past*, not *absent* |
+| Denials in a list lost or merged | Every denied symptom is its own fact with assertion *absent* |
+| A relative's heart attack recorded as the patient's | Illnesses of relatives are not the patient's |
+| Facts dropped when the diarizer gave a line to the wrong person | Speaker labels can be wrong: judge by the words, not the label |
+| Verdicts that did not match their own reasoning | The verifier writes its reason first, then the verdict |
+| The verifier read *absent* as "not mentioned" | It checks a plain sentence: "The patient does NOT take: Apixaban" |
+| One side of a contradiction silently rejected | Contradictions are found before verification and shown to the doctor |
+
+The first two rules took present/absent errors to zero for both the agents and
+the one-prompt baseline.
+
+**Measured against a baseline**
+
+- A one-prompt baseline (`agents/baseline.py`) runs on the same model and the
+  same transcripts, so the agents have to earn their extra time.
+- The evaluation package (`eval/`) scores every stage: word error rate,
+  medical-term and negation recall, speaker accuracy, live vs. final pass, fact
+  precision and recall, present/absent flips, contradictions flagged, verifier
+  precision and recall, time to a drafted record, and FHIR validity. Results are
+  in [Results so far](#results-so-far).
 
 ## Privacy and security
 
