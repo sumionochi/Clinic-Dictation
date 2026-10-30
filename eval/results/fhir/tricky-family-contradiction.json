@@ -1,0 +1,987 @@
+{
+ "resourceType": "Bundle",
+ "id": "d2589851-02ad-5461-9106-c4cbbfce92e9",
+ "identifier": {
+  "system": "urn:ietf:rfc:3986",
+  "value": "urn:uuid:f9d11102-0ff9-5485-9f37-869d418ed0a7"
+ },
+ "type": "document",
+ "timestamp": "2026-10-30T07:04:31+00:00",
+ "entry": [
+  {
+   "fullUrl": "urn:uuid:5cc9980c-6066-5b1c-b528-3057db2b462f",
+   "resource": {
+    "resourceType": "Composition",
+    "id": "5cc9980c-6066-5b1c-b528-3057db2b462f",
+    "text": {
+     "status": "generated",
+     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Aufnahmegespräch (Entwurf, nicht freigegeben)</p></div>"
+    },
+    "status": "preliminary",
+    "type": {
+     "coding": [
+      {
+       "system": "http://loinc.org",
+       "code": "34117-2",
+       "display": "History and physical note"
+      }
+     ],
+     "text": "Aufnahmegespräch"
+    },
+    "subject": {
+     "reference": "urn:uuid:d05f44b5-6d16-5c49-8af3-85a7fefa0d16"
+    },
+    "encounter": {
+     "reference": "urn:uuid:b6a3cb62-5a8e-5e1c-98dd-1ae02c01989c"
+    },
+    "date": "2026-10-30T07:04:31+00:00",
+    "author": [
+     {
+      "reference": "urn:uuid:16bf9361-b0fb-523c-b1c3-6d7045363d56"
+     }
+    ],
+    "title": "Aufnahmegespräch (Entwurf)",
+    "section": [
+     {
+      "title": "Aufnahmegrund und Beschwerden",
+      "text": {
+       "status": "generated",
+       "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Schwindel: ja</p><p>Herzrasen: ja</p><p>Brustschmerzen: nein (verneint)</p></div>"
+      },
+      "entry": [
+       {
+        "reference": "urn:uuid:daf5dced-46eb-5e27-ae9b-0e495b6377d7"
+       },
+       {
+        "reference": "urn:uuid:c4598cc4-808f-53fe-803b-54e1bef51f43"
+       },
+       {
+        "reference": "urn:uuid:4807ec51-67c4-52f1-89c9-a43f2ef040f0"
+       }
+      ]
+     },
+     {
+      "title": "Medikation",
+      "text": {
+       "status": "generated",
+       "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Bisoprolol: ja</p><p>Metoprolol: früher</p><p>Pantoprazol: ja</p><p>Metoprolol: ja</p></div>"
+      },
+      "entry": [
+       {
+        "reference": "urn:uuid:3ee3e15d-d169-5f8c-9a50-917db05f256c"
+       },
+       {
+        "reference": "urn:uuid:ba82c6bb-e7be-52a7-8bc5-b3dd225e1ea5"
+       },
+       {
+        "reference": "urn:uuid:3ea03461-ca0a-50a9-b193-c5f94fa71c4e"
+       },
+       {
+        "reference": "urn:uuid:3338c368-8fdf-5962-b4e9-b5f8a0eb440a"
+       }
+      ]
+     },
+     {
+      "title": "Allergien und Unverträglichkeiten",
+      "text": {
+       "status": "generated",
+       "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>weitere Allergien: nein (verneint)</p></div>"
+      },
+      "entry": [
+       {
+        "reference": "urn:uuid:727271cf-92e6-58d4-b578-2cb57523e4ae"
+       }
+      ]
+     },
+     {
+      "title": "Sozialanamnese",
+      "text": {
+       "status": "generated",
+       "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Rauchen: nein (verneint)</p></div>"
+      },
+      "entry": [
+       {
+        "reference": "urn:uuid:5ba43184-ff7e-516d-8c08-8e19c3e5922f"
+       }
+      ]
+     },
+     {
+      "title": "Widersprüche im Gespräch (bitte klären)",
+      "text": {
+       "status": "generated",
+       "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Metoprolol: früher, ja (Zeilen 7, 8, 15, 16)</p></div>"
+      }
+     },
+     {
+      "title": "Hinweis",
+      "text": {
+       "status": "generated",
+       "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Automatisch aus dem aufgezeichneten Gespräch erstellter Entwurf. Jede Angabe verweist auf die wörtliche Stelle im Transkript (Provenance). Keine Diagnosen; nicht ärztlich freigegeben.</p></div>"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "fullUrl": "urn:uuid:d05f44b5-6d16-5c49-8af3-85a7fefa0d16",
+   "resource": {
+    "resourceType": "Patient",
+    "id": "d05f44b5-6d16-5c49-8af3-85a7fefa0d16",
+    "text": {
+     "status": "generated",
+     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Patient (in dieser Anwendung nicht identifiziert; Zuordnung im Primärsystem)</p></div>"
+    }
+   }
+  },
+  {
+   "fullUrl": "urn:uuid:b6a3cb62-5a8e-5e1c-98dd-1ae02c01989c",
+   "resource": {
+    "resourceType": "Encounter",
+    "id": "b6a3cb62-5a8e-5e1c-98dd-1ae02c01989c",
+    "text": {
+     "status": "generated",
+     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Aufnahmegespräch</p></div>"
+    },
+    "status": "finished",
+    "class": {
+     "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+     "code": "IMP",
+     "display": "inpatient encounter"
+    },
+    "type": [
+     {
+      "text": "Aufnahmegespräch"
+     }
+    ],
+    "subject": {
+     "reference": "urn:uuid:d05f44b5-6d16-5c49-8af3-85a7fefa0d16"
+    },
+    "period": {
+     "start": "2026-10-30T07:04:31+00:00"
+    }
+   }
+  },
+  {
+   "fullUrl": "urn:uuid:16bf9361-b0fb-523c-b1c3-6d7045363d56",
+   "resource": {
+    "resourceType": "Device",
+    "id": "16bf9361-b0fb-523c-b1c3-6d7045363d56",
+    "text": {
+     "status": "generated",
+     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Clinic Dictation 0.1.0 (Extraktion: qwen3:8b)</p></div>"
+    },
+    "deviceName": [
+     {
+      "name": "Clinic Dictation",
+      "type": "user-friendly-name"
+     }
+    ],
+    "version": [
+     {
+      "value": "0.1.0"
+     }
+    ],
+    "note": [
+     {
+      "text": "Extraktionsmodell: qwen3:8b. Lokal ausgeführt, nicht vom Arzt freigegeben."
+     }
+    ]
+   }
+  },
+  {
+   "fullUrl": "urn:uuid:daf5dced-46eb-5e27-ae9b-0e495b6377d7",
+   "resource": {
+    "resourceType": "Condition",
+    "id": "daf5dced-46eb-5e27-ae9b-0e495b6377d7",
+    "text": {
+     "status": "generated",
+     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Schwindel: ja</p></div>"
+    },
+    "clinicalStatus": {
+     "coding": [
+      {
+       "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+       "code": "active"
+      }
+     ]
+    },
+    "verificationStatus": {
+     "coding": [
+      {
+       "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+       "code": "unconfirmed"
+      }
+     ]
+    },
+    "category": [
+     {
+      "coding": [
+       {
+        "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+        "code": "encounter-diagnosis"
+       }
+      ]
+     }
+    ],
+    "code": {
+     "text": "Schwindel"
+    },
+    "subject": {
+     "reference": "urn:uuid:d05f44b5-6d16-5c49-8af3-85a7fefa0d16"
+    },
+    "encounter": {
+     "reference": "urn:uuid:b6a3cb62-5a8e-5e1c-98dd-1ae02c01989c"
+    }
+   }
+  },
+  {
+   "fullUrl": "urn:uuid:c4598cc4-808f-53fe-803b-54e1bef51f43",
+   "resource": {
+    "resourceType": "Condition",
+    "id": "c4598cc4-808f-53fe-803b-54e1bef51f43",
+    "text": {
+     "status": "generated",
+     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Herzrasen: ja</p></div>"
+    },
+    "clinicalStatus": {
+     "coding": [
+      {
+       "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+       "code": "active"
+      }
+     ]
+    },
+    "verificationStatus": {
+     "coding": [
+      {
+       "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+       "code": "unconfirmed"
+      }
+     ]
+    },
+    "category": [
+     {
+      "coding": [
+       {
+        "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+        "code": "encounter-diagnosis"
+       }
+      ]
+     }
+    ],
+    "code": {
+     "text": "Herzrasen"
+    },
+    "subject": {
+     "reference": "urn:uuid:d05f44b5-6d16-5c49-8af3-85a7fefa0d16"
+    },
+    "encounter": {
+     "reference": "urn:uuid:b6a3cb62-5a8e-5e1c-98dd-1ae02c01989c"
+    }
+   }
+  },
+  {
+   "fullUrl": "urn:uuid:4807ec51-67c4-52f1-89c9-a43f2ef040f0",
+   "resource": {
+    "resourceType": "Condition",
+    "id": "4807ec51-67c4-52f1-89c9-a43f2ef040f0",
+    "text": {
+     "status": "generated",
+     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Brustschmerzen: nein (verneint)</p></div>"
+    },
+    "clinicalStatus": {
+     "coding": [
+      {
+       "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+       "code": "inactive"
+      }
+     ]
+    },
+    "verificationStatus": {
+     "coding": [
+      {
+       "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+       "code": "refuted"
+      }
+     ]
+    },
+    "category": [
+     {
+      "coding": [
+       {
+        "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+        "code": "encounter-diagnosis"
+       }
+      ]
+     }
+    ],
+    "code": {
+     "text": "Brustschmerzen"
+    },
+    "subject": {
+     "reference": "urn:uuid:d05f44b5-6d16-5c49-8af3-85a7fefa0d16"
+    },
+    "encounter": {
+     "reference": "urn:uuid:b6a3cb62-5a8e-5e1c-98dd-1ae02c01989c"
+    }
+   }
+  },
+  {
+   "fullUrl": "urn:uuid:3ee3e15d-d169-5f8c-9a50-917db05f256c",
+   "resource": {
+    "resourceType": "MedicationStatement",
+    "id": "3ee3e15d-d169-5f8c-9a50-917db05f256c",
+    "text": {
+     "status": "generated",
+     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Bisoprolol: ja</p></div>"
+    },
+    "status": "active",
+    "medicationCodeableConcept": {
+     "text": "Bisoprolol"
+    },
+    "subject": {
+     "reference": "urn:uuid:d05f44b5-6d16-5c49-8af3-85a7fefa0d16"
+    },
+    "context": {
+     "reference": "urn:uuid:b6a3cb62-5a8e-5e1c-98dd-1ae02c01989c"
+    },
+    "dateAsserted": "2026-10-30T07:04:31+00:00",
+    "informationSource": {
+     "reference": "urn:uuid:d05f44b5-6d16-5c49-8af3-85a7fefa0d16"
+    }
+   }
+  },
+  {
+   "fullUrl": "urn:uuid:ba82c6bb-e7be-52a7-8bc5-b3dd225e1ea5",
+   "resource": {
+    "resourceType": "MedicationStatement",
+    "id": "ba82c6bb-e7be-52a7-8bc5-b3dd225e1ea5",
+    "text": {
+     "status": "generated",
+     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Metoprolol: früher</p></div>"
+    },
+    "status": "stopped",
+    "medicationCodeableConcept": {
+     "text": "Metoprolol"
+    },
+    "subject": {
+     "reference": "urn:uuid:d05f44b5-6d16-5c49-8af3-85a7fefa0d16"
+    },
+    "context": {
+     "reference": "urn:uuid:b6a3cb62-5a8e-5e1c-98dd-1ae02c01989c"
+    },
+    "dateAsserted": "2026-10-30T07:04:31+00:00",
+    "informationSource": {
+     "reference": "urn:uuid:d05f44b5-6d16-5c49-8af3-85a7fefa0d16"
+    }
+   }
+  },
+  {
+   "fullUrl": "urn:uuid:3ea03461-ca0a-50a9-b193-c5f94fa71c4e",
+   "resource": {
+    "resourceType": "MedicationStatement",
+    "id": "3ea03461-ca0a-50a9-b193-c5f94fa71c4e",
+    "text": {
+     "status": "generated",
+     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Pantoprazol: ja</p></div>"
+    },
+    "status": "active",
+    "medicationCodeableConcept": {
+     "text": "Pantoprazol"
+    },
+    "subject": {
+     "reference": "urn:uuid:d05f44b5-6d16-5c49-8af3-85a7fefa0d16"
+    },
+    "context": {
+     "reference": "urn:uuid:b6a3cb62-5a8e-5e1c-98dd-1ae02c01989c"
+    },
+    "dateAsserted": "2026-10-30T07:04:31+00:00",
+    "informationSource": {
+     "reference": "urn:uuid:d05f44b5-6d16-5c49-8af3-85a7fefa0d16"
+    }
+   }
+  },
+  {
+   "fullUrl": "urn:uuid:727271cf-92e6-58d4-b578-2cb57523e4ae",
+   "resource": {
+    "resourceType": "AllergyIntolerance",
+    "id": "727271cf-92e6-58d4-b578-2cb57523e4ae",
+    "text": {
+     "status": "generated",
+     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>weitere Allergien: nein (verneint)</p></div>"
+    },
+    "clinicalStatus": {
+     "coding": [
+      {
+       "system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical",
+       "code": "active"
+      }
+     ]
+    },
+    "verificationStatus": {
+     "coding": [
+      {
+       "system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-verification",
+       "code": "unconfirmed"
+      }
+     ]
+    },
+    "code": {
+     "coding": [
+      {
+       "system": "http://snomed.info/sct",
+       "code": "716186003",
+       "display": "No known allergy"
+      }
+     ],
+     "text": "weitere Allergien"
+    },
+    "patient": {
+     "reference": "urn:uuid:d05f44b5-6d16-5c49-8af3-85a7fefa0d16"
+    },
+    "encounter": {
+     "reference": "urn:uuid:b6a3cb62-5a8e-5e1c-98dd-1ae02c01989c"
+    }
+   }
+  },
+  {
+   "fullUrl": "urn:uuid:5ba43184-ff7e-516d-8c08-8e19c3e5922f",
+   "resource": {
+    "resourceType": "Observation",
+    "id": "5ba43184-ff7e-516d-8c08-8e19c3e5922f",
+    "text": {
+     "status": "generated",
+     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Rauchen: nein (verneint)</p></div>"
+    },
+    "status": "preliminary",
+    "category": [
+     {
+      "coding": [
+       {
+        "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+        "code": "social-history",
+        "display": "Social History"
+       }
+      ]
+     }
+    ],
+    "code": {
+     "text": "Rauchen"
+    },
+    "subject": {
+     "reference": "urn:uuid:d05f44b5-6d16-5c49-8af3-85a7fefa0d16"
+    },
+    "encounter": {
+     "reference": "urn:uuid:b6a3cb62-5a8e-5e1c-98dd-1ae02c01989c"
+    },
+    "effectiveDateTime": "2026-10-30T07:04:31+00:00",
+    "performer": [
+     {
+      "reference": "urn:uuid:d05f44b5-6d16-5c49-8af3-85a7fefa0d16"
+     }
+    ],
+    "valueString": "nein (verneint)"
+   }
+  },
+  {
+   "fullUrl": "urn:uuid:3338c368-8fdf-5962-b4e9-b5f8a0eb440a",
+   "resource": {
+    "resourceType": "MedicationStatement",
+    "id": "3338c368-8fdf-5962-b4e9-b5f8a0eb440a",
+    "text": {
+     "status": "generated",
+     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Metoprolol: ja</p></div>"
+    },
+    "status": "active",
+    "medicationCodeableConcept": {
+     "text": "Metoprolol"
+    },
+    "subject": {
+     "reference": "urn:uuid:d05f44b5-6d16-5c49-8af3-85a7fefa0d16"
+    },
+    "context": {
+     "reference": "urn:uuid:b6a3cb62-5a8e-5e1c-98dd-1ae02c01989c"
+    },
+    "dateAsserted": "2026-10-30T07:04:31+00:00",
+    "informationSource": {
+     "reference": "urn:uuid:d05f44b5-6d16-5c49-8af3-85a7fefa0d16"
+    }
+   }
+  },
+  {
+   "fullUrl": "urn:uuid:c5f352a6-888f-53d2-9d15-c9632e3c4fce",
+   "resource": {
+    "resourceType": "Provenance",
+    "id": "c5f352a6-888f-53d2-9d15-c9632e3c4fce",
+    "text": {
+     "status": "generated",
+     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Belegt durch: Transkript Zeile 2 (Patient): &quot;Mir ist seit gestern sehr schwindelig&quot;</p></div>"
+    },
+    "target": [
+     {
+      "reference": "urn:uuid:daf5dced-46eb-5e27-ae9b-0e495b6377d7"
+     }
+    ],
+    "recorded": "2026-10-30T07:04:31+00:00",
+    "agent": [
+     {
+      "type": {
+       "coding": [
+        {
+         "system": "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+         "code": "assembler",
+         "display": "Assembler"
+        }
+       ]
+      },
+      "who": {
+       "reference": "urn:uuid:16bf9361-b0fb-523c-b1c3-6d7045363d56"
+      }
+     }
+    ],
+    "entity": [
+     {
+      "role": "source",
+      "what": {
+       "identifier": {
+        "system": "urn:clinic-dictation:transcript-line",
+        "value": "2"
+       },
+       "display": "Transkript Zeile 2 (Patient): \"Mir ist seit gestern sehr schwindelig\""
+      }
+     }
+    ]
+   }
+  },
+  {
+   "fullUrl": "urn:uuid:106b9351-6e6e-5b3c-91d2-0b3ce37f43c5",
+   "resource": {
+    "resourceType": "Provenance",
+    "id": "106b9351-6e6e-5b3c-91d2-0b3ce37f43c5",
+    "text": {
+     "status": "generated",
+     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Belegt durch: Transkript Zeile 2 (Patient): &quot;und ich habe Herzrasen&quot;</p></div>"
+    },
+    "target": [
+     {
+      "reference": "urn:uuid:c4598cc4-808f-53fe-803b-54e1bef51f43"
+     }
+    ],
+    "recorded": "2026-10-30T07:04:31+00:00",
+    "agent": [
+     {
+      "type": {
+       "coding": [
+        {
+         "system": "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+         "code": "assembler",
+         "display": "Assembler"
+        }
+       ]
+      },
+      "who": {
+       "reference": "urn:uuid:16bf9361-b0fb-523c-b1c3-6d7045363d56"
+      }
+     }
+    ],
+    "entity": [
+     {
+      "role": "source",
+      "what": {
+       "identifier": {
+        "system": "urn:clinic-dictation:transcript-line",
+        "value": "2"
+       },
+       "display": "Transkript Zeile 2 (Patient): \"und ich habe Herzrasen\""
+      }
+     }
+    ]
+   }
+  },
+  {
+   "fullUrl": "urn:uuid:1cbee3bf-1386-57d7-80ba-285f2d668f2f",
+   "resource": {
+    "resourceType": "Provenance",
+    "id": "1cbee3bf-1386-57d7-80ba-285f2d668f2f",
+    "text": {
+     "status": "generated",
+     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Belegt durch: Transkript Zeile 3 (Doctor): &quot;Haben Sie auch Brustschmerzen?&quot;; Transkript Zeile 4 (Patient): &quot;Brustschmerzen habe ich nicht&quot;</p></div>"
+    },
+    "target": [
+     {
+      "reference": "urn:uuid:4807ec51-67c4-52f1-89c9-a43f2ef040f0"
+     }
+    ],
+    "recorded": "2026-10-30T07:04:31+00:00",
+    "agent": [
+     {
+      "type": {
+       "coding": [
+        {
+         "system": "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+         "code": "assembler",
+         "display": "Assembler"
+        }
+       ]
+      },
+      "who": {
+       "reference": "urn:uuid:16bf9361-b0fb-523c-b1c3-6d7045363d56"
+      }
+     }
+    ],
+    "entity": [
+     {
+      "role": "source",
+      "what": {
+       "identifier": {
+        "system": "urn:clinic-dictation:transcript-line",
+        "value": "3"
+       },
+       "display": "Transkript Zeile 3 (Doctor): \"Haben Sie auch Brustschmerzen?\""
+      }
+     },
+     {
+      "role": "source",
+      "what": {
+       "identifier": {
+        "system": "urn:clinic-dictation:transcript-line",
+        "value": "4"
+       },
+       "display": "Transkript Zeile 4 (Patient): \"Brustschmerzen habe ich nicht\""
+      }
+     }
+    ]
+   }
+  },
+  {
+   "fullUrl": "urn:uuid:e353a56e-e671-52d7-9a73-ef2514733770",
+   "resource": {
+    "resourceType": "Provenance",
+    "id": "e353a56e-e671-52d7-9a73-ef2514733770",
+    "text": {
+     "status": "generated",
+     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Belegt durch: Transkript Zeile 7 (Doctor): &quot;Welche Medikamente nehmen Sie?&quot;; Transkript Zeile 8 (Patient): &quot;Bisoprolol morgens&quot;</p></div>"
+    },
+    "target": [
+     {
+      "reference": "urn:uuid:3ee3e15d-d169-5f8c-9a50-917db05f256c"
+     }
+    ],
+    "recorded": "2026-10-30T07:04:31+00:00",
+    "agent": [
+     {
+      "type": {
+       "coding": [
+        {
+         "system": "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+         "code": "assembler",
+         "display": "Assembler"
+        }
+       ]
+      },
+      "who": {
+       "reference": "urn:uuid:16bf9361-b0fb-523c-b1c3-6d7045363d56"
+      }
+     }
+    ],
+    "entity": [
+     {
+      "role": "source",
+      "what": {
+       "identifier": {
+        "system": "urn:clinic-dictation:transcript-line",
+        "value": "7"
+       },
+       "display": "Transkript Zeile 7 (Doctor): \"Welche Medikamente nehmen Sie?\""
+      }
+     },
+     {
+      "role": "source",
+      "what": {
+       "identifier": {
+        "system": "urn:clinic-dictation:transcript-line",
+        "value": "8"
+       },
+       "display": "Transkript Zeile 8 (Patient): \"Bisoprolol morgens\""
+      }
+     }
+    ]
+   }
+  },
+  {
+   "fullUrl": "urn:uuid:9b662199-8a43-5911-8bf1-b9f03b320a70",
+   "resource": {
+    "resourceType": "Provenance",
+    "id": "9b662199-8a43-5911-8bf1-b9f03b320a70",
+    "text": {
+     "status": "generated",
+     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Belegt durch: Transkript Zeile 7 (Doctor): &quot;Welche Medikamente nehmen Sie?&quot;; Transkript Zeile 8 (Patient): &quot;das Metoprolol habe ich letzten Monat abgesetzt&quot;</p></div>"
+    },
+    "target": [
+     {
+      "reference": "urn:uuid:ba82c6bb-e7be-52a7-8bc5-b3dd225e1ea5"
+     }
+    ],
+    "recorded": "2026-10-30T07:04:31+00:00",
+    "agent": [
+     {
+      "type": {
+       "coding": [
+        {
+         "system": "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+         "code": "assembler",
+         "display": "Assembler"
+        }
+       ]
+      },
+      "who": {
+       "reference": "urn:uuid:16bf9361-b0fb-523c-b1c3-6d7045363d56"
+      }
+     }
+    ],
+    "entity": [
+     {
+      "role": "source",
+      "what": {
+       "identifier": {
+        "system": "urn:clinic-dictation:transcript-line",
+        "value": "7"
+       },
+       "display": "Transkript Zeile 7 (Doctor): \"Welche Medikamente nehmen Sie?\""
+      }
+     },
+     {
+      "role": "source",
+      "what": {
+       "identifier": {
+        "system": "urn:clinic-dictation:transcript-line",
+        "value": "8"
+       },
+       "display": "Transkript Zeile 8 (Patient): \"das Metoprolol habe ich letzten Monat abgesetzt\""
+      }
+     }
+    ]
+   }
+  },
+  {
+   "fullUrl": "urn:uuid:b0fb2743-9892-5dc4-95ee-3afee1c6ea3c",
+   "resource": {
+    "resourceType": "Provenance",
+    "id": "b0fb2743-9892-5dc4-95ee-3afee1c6ea3c",
+    "text": {
+     "status": "generated",
+     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Belegt durch: Transkript Zeile 9 (Companion): &quot;du nimmst doch auch noch Pantoprazol&quot;; Transkript Zeile 10 (Patient): &quot;Pantoprazol vierzig Milligramm&quot;</p></div>"
+    },
+    "target": [
+     {
+      "reference": "urn:uuid:3ea03461-ca0a-50a9-b193-c5f94fa71c4e"
+     }
+    ],
+    "recorded": "2026-10-30T07:04:31+00:00",
+    "agent": [
+     {
+      "type": {
+       "coding": [
+        {
+         "system": "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+         "code": "assembler",
+         "display": "Assembler"
+        }
+       ]
+      },
+      "who": {
+       "reference": "urn:uuid:16bf9361-b0fb-523c-b1c3-6d7045363d56"
+      }
+     }
+    ],
+    "entity": [
+     {
+      "role": "source",
+      "what": {
+       "identifier": {
+        "system": "urn:clinic-dictation:transcript-line",
+        "value": "9"
+       },
+       "display": "Transkript Zeile 9 (Companion): \"du nimmst doch auch noch Pantoprazol\""
+      }
+     },
+     {
+      "role": "source",
+      "what": {
+       "identifier": {
+        "system": "urn:clinic-dictation:transcript-line",
+        "value": "10"
+       },
+       "display": "Transkript Zeile 10 (Patient): \"Pantoprazol vierzig Milligramm\""
+      }
+     }
+    ]
+   }
+  },
+  {
+   "fullUrl": "urn:uuid:5db0b29d-6522-5804-a6e6-668d86866244",
+   "resource": {
+    "resourceType": "Provenance",
+    "id": "5db0b29d-6522-5804-a6e6-668d86866244",
+    "text": {
+     "status": "generated",
+     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Belegt durch: Transkript Zeile 11 (Doctor): &quot;Haben Sie Allergien?&quot;; Transkript Zeile 12 (Patient): &quot;Nein, keine&quot;</p></div>"
+    },
+    "target": [
+     {
+      "reference": "urn:uuid:727271cf-92e6-58d4-b578-2cb57523e4ae"
+     }
+    ],
+    "recorded": "2026-10-30T07:04:31+00:00",
+    "agent": [
+     {
+      "type": {
+       "coding": [
+        {
+         "system": "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+         "code": "assembler",
+         "display": "Assembler"
+        }
+       ]
+      },
+      "who": {
+       "reference": "urn:uuid:16bf9361-b0fb-523c-b1c3-6d7045363d56"
+      }
+     }
+    ],
+    "entity": [
+     {
+      "role": "source",
+      "what": {
+       "identifier": {
+        "system": "urn:clinic-dictation:transcript-line",
+        "value": "11"
+       },
+       "display": "Transkript Zeile 11 (Doctor): \"Haben Sie Allergien?\""
+      }
+     },
+     {
+      "role": "source",
+      "what": {
+       "identifier": {
+        "system": "urn:clinic-dictation:transcript-line",
+        "value": "12"
+       },
+       "display": "Transkript Zeile 12 (Patient): \"Nein, keine\""
+      }
+     }
+    ]
+   }
+  },
+  {
+   "fullUrl": "urn:uuid:6228a448-fb86-545d-ac58-20397d7e06b6",
+   "resource": {
+    "resourceType": "Provenance",
+    "id": "6228a448-fb86-545d-ac58-20397d7e06b6",
+    "text": {
+     "status": "generated",
+     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Belegt durch: Transkript Zeile 13 (Doctor): &quot;Rauchen Sie?&quot;; Transkript Zeile 14 (Patient): &quot;Nein, nie geraucht&quot;</p></div>"
+    },
+    "target": [
+     {
+      "reference": "urn:uuid:5ba43184-ff7e-516d-8c08-8e19c3e5922f"
+     }
+    ],
+    "recorded": "2026-10-30T07:04:31+00:00",
+    "agent": [
+     {
+      "type": {
+       "coding": [
+        {
+         "system": "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+         "code": "assembler",
+         "display": "Assembler"
+        }
+       ]
+      },
+      "who": {
+       "reference": "urn:uuid:16bf9361-b0fb-523c-b1c3-6d7045363d56"
+      }
+     }
+    ],
+    "entity": [
+     {
+      "role": "source",
+      "what": {
+       "identifier": {
+        "system": "urn:clinic-dictation:transcript-line",
+        "value": "13"
+       },
+       "display": "Transkript Zeile 13 (Doctor): \"Rauchen Sie?\""
+      }
+     },
+     {
+      "role": "source",
+      "what": {
+       "identifier": {
+        "system": "urn:clinic-dictation:transcript-line",
+        "value": "14"
+       },
+       "display": "Transkript Zeile 14 (Patient): \"Nein, nie geraucht\""
+      }
+     }
+    ]
+   }
+  },
+  {
+   "fullUrl": "urn:uuid:999b7296-58fc-5903-81d1-6aeba7a88f09",
+   "resource": {
+    "resourceType": "Provenance",
+    "id": "999b7296-58fc-5903-81d1-6aeba7a88f09",
+    "text": {
+     "status": "generated",
+     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Belegt durch: Transkript Zeile 15 (Doctor): &quot;Und das Metoprolol nehmen Sie wirklich nicht mehr?&quot;; Transkript Zeile 16 (Patient): &quot;abends nehme ich es manchmal noch&quot;</p></div>"
+    },
+    "target": [
+     {
+      "reference": "urn:uuid:3338c368-8fdf-5962-b4e9-b5f8a0eb440a"
+     }
+    ],
+    "recorded": "2026-10-30T07:04:31+00:00",
+    "agent": [
+     {
+      "type": {
+       "coding": [
+        {
+         "system": "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+         "code": "assembler",
+         "display": "Assembler"
+        }
+       ]
+      },
+      "who": {
+       "reference": "urn:uuid:16bf9361-b0fb-523c-b1c3-6d7045363d56"
+      }
+     }
+    ],
+    "entity": [
+     {
+      "role": "source",
+      "what": {
+       "identifier": {
+        "system": "urn:clinic-dictation:transcript-line",
+        "value": "15"
+       },
+       "display": "Transkript Zeile 15 (Doctor): \"Und das Metoprolol nehmen Sie wirklich nicht mehr?\""
+      }
+     },
+     {
+      "role": "source",
+      "what": {
+       "identifier": {
+        "system": "urn:clinic-dictation:transcript-line",
+        "value": "16"
+       },
+       "display": "Transkript Zeile 16 (Patient): \"abends nehme ich es manchmal noch\""
+      }
+     }
+    ]
+   }
+  }
+ ]
+}

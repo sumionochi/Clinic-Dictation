@@ -122,3 +122,23 @@ statistically meaningful; it shows direction, not proof.
   fact, detecting contradictions before verification, letting the verifier write
   its reason before its verdict, and verifying a plain sentence ("The patient does
   NOT take: Apixaban") instead of a JSON field.
+
+## FHIR export
+
+`uv run clinic-eval fhir results/<date>-extraction.json` turns the agents' facts
+from an extraction run into FHIR R4 document bundles
+(`sidecar/src/clinic_sidecar/fhir/mapper.py`) and runs the official HL7 validator
+on each. Bundles are written to `results/fhir/`. The command fails if any bundle
+has a validation error.
+
+Each fact becomes one resource (Condition, MedicationStatement,
+AllergyIntolerance, Procedure or social-history Observation) with present / absent
+/ past expressed in its status fields, plus a Provenance that quotes the transcript
+line behind it. Everything is `unconfirmed` / `preliminary` until the doctor
+approves it. Names are free text: no ICD-10-GM, ATC or SNOMED codes are proposed
+(except SNOMED "No known allergy"), since suggesting codes moves a scribe towards
+medical-device territory.
+
+Validated against FHIR R4 core. Not yet claimed: German base profiles or ISiK,
+and the patient is not identified (a real deployment links the record to the
+practice or hospital system).

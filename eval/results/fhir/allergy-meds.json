@@ -1,0 +1,846 @@
+{
+ "resourceType": "Bundle",
+ "id": "25a60091-d75b-5161-8de5-7275dadcd2cf",
+ "identifier": {
+  "system": "urn:ietf:rfc:3986",
+  "value": "urn:uuid:a148be77-d9d0-56dc-8205-e06fe9f08e37"
+ },
+ "type": "document",
+ "timestamp": "2026-10-30T07:04:20+00:00",
+ "entry": [
+  {
+   "fullUrl": "urn:uuid:d635b74c-55fc-5ce9-8324-24628c6cae34",
+   "resource": {
+    "resourceType": "Composition",
+    "id": "d635b74c-55fc-5ce9-8324-24628c6cae34",
+    "text": {
+     "status": "generated",
+     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Aufnahmegespräch (Entwurf, nicht freigegeben)</p></div>"
+    },
+    "status": "preliminary",
+    "type": {
+     "coding": [
+      {
+       "system": "http://loinc.org",
+       "code": "34117-2",
+       "display": "History and physical note"
+      }
+     ],
+     "text": "Aufnahmegespräch"
+    },
+    "subject": {
+     "reference": "urn:uuid:818e8ce1-911a-5174-956f-42b56db74e42"
+    },
+    "encounter": {
+     "reference": "urn:uuid:ffbb2436-4c70-5989-8047-5e371974cfa0"
+    },
+    "date": "2026-10-30T07:04:20+00:00",
+    "author": [
+     {
+      "reference": "urn:uuid:8d17318e-48fb-5485-8391-3ce4d74c66d0"
+     }
+    ],
+    "title": "Aufnahmegespräch (Entwurf)",
+    "section": [
+     {
+      "title": "Aufnahmegrund und Beschwerden",
+      "text": {
+       "status": "generated",
+       "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Brustschmerzen: ja</p><p>Atemnot: ja</p><p>Husten: ja</p><p>Fieber: nein (verneint)</p></div>"
+      },
+      "entry": [
+       {
+        "reference": "urn:uuid:698698c1-1b7a-5daf-b79c-1dc6d4435008"
+       },
+       {
+        "reference": "urn:uuid:967701fe-b620-5599-93b5-790851e46ca6"
+       },
+       {
+        "reference": "urn:uuid:6cdb2742-474e-5ac7-a696-c8f0444f19dd"
+       },
+       {
+        "reference": "urn:uuid:85ad725f-920f-50e1-bac1-d1a88dbecbf5"
+       }
+      ]
+     },
+     {
+      "title": "Medikation",
+      "text": {
+       "status": "generated",
+       "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Ramipril: ja</p><p>Metformin: ja</p></div>"
+      },
+      "entry": [
+       {
+        "reference": "urn:uuid:b7ace908-d855-5efb-a28b-1e1463a3c1bb"
+       },
+       {
+        "reference": "urn:uuid:5b72e5ec-610b-58ec-bf24-b2c91d603f17"
+       }
+      ]
+     },
+     {
+      "title": "Allergien und Unverträglichkeiten",
+      "text": {
+       "status": "generated",
+       "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Penicillin: ja</p><p>weitere Allergien: nein (verneint)</p></div>"
+      },
+      "entry": [
+       {
+        "reference": "urn:uuid:1a2dfd4f-e449-50c0-9ef7-ab0938bf1cfb"
+       },
+       {
+        "reference": "urn:uuid:04f83dbb-27b0-5b29-ad6e-f0cedf933323"
+       }
+      ]
+     },
+     {
+      "title": "Hinweis",
+      "text": {
+       "status": "generated",
+       "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Automatisch aus dem aufgezeichneten Gespräch erstellter Entwurf. Jede Angabe verweist auf die wörtliche Stelle im Transkript (Provenance). Keine Diagnosen; nicht ärztlich freigegeben.</p></div>"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "fullUrl": "urn:uuid:818e8ce1-911a-5174-956f-42b56db74e42",
+   "resource": {
+    "resourceType": "Patient",
+    "id": "818e8ce1-911a-5174-956f-42b56db74e42",
+    "text": {
+     "status": "generated",
+     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Patient (in dieser Anwendung nicht identifiziert; Zuordnung im Primärsystem)</p></div>"
+    }
+   }
+  },
+  {
+   "fullUrl": "urn:uuid:ffbb2436-4c70-5989-8047-5e371974cfa0",
+   "resource": {
+    "resourceType": "Encounter",
+    "id": "ffbb2436-4c70-5989-8047-5e371974cfa0",
+    "text": {
+     "status": "generated",
+     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Aufnahmegespräch</p></div>"
+    },
+    "status": "finished",
+    "class": {
+     "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+     "code": "IMP",
+     "display": "inpatient encounter"
+    },
+    "type": [
+     {
+      "text": "Aufnahmegespräch"
+     }
+    ],
+    "subject": {
+     "reference": "urn:uuid:818e8ce1-911a-5174-956f-42b56db74e42"
+    },
+    "period": {
+     "start": "2026-10-30T07:04:20+00:00"
+    }
+   }
+  },
+  {
+   "fullUrl": "urn:uuid:8d17318e-48fb-5485-8391-3ce4d74c66d0",
+   "resource": {
+    "resourceType": "Device",
+    "id": "8d17318e-48fb-5485-8391-3ce4d74c66d0",
+    "text": {
+     "status": "generated",
+     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Clinic Dictation 0.1.0 (Extraktion: qwen3:8b)</p></div>"
+    },
+    "deviceName": [
+     {
+      "name": "Clinic Dictation",
+      "type": "user-friendly-name"
+     }
+    ],
+    "version": [
+     {
+      "value": "0.1.0"
+     }
+    ],
+    "note": [
+     {
+      "text": "Extraktionsmodell: qwen3:8b. Lokal ausgeführt, nicht vom Arzt freigegeben."
+     }
+    ]
+   }
+  },
+  {
+   "fullUrl": "urn:uuid:698698c1-1b7a-5daf-b79c-1dc6d4435008",
+   "resource": {
+    "resourceType": "Condition",
+    "id": "698698c1-1b7a-5daf-b79c-1dc6d4435008",
+    "text": {
+     "status": "generated",
+     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Brustschmerzen: ja</p></div>"
+    },
+    "clinicalStatus": {
+     "coding": [
+      {
+       "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+       "code": "active"
+      }
+     ]
+    },
+    "verificationStatus": {
+     "coding": [
+      {
+       "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+       "code": "unconfirmed"
+      }
+     ]
+    },
+    "category": [
+     {
+      "coding": [
+       {
+        "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+        "code": "encounter-diagnosis"
+       }
+      ]
+     }
+    ],
+    "code": {
+     "text": "Brustschmerzen"
+    },
+    "subject": {
+     "reference": "urn:uuid:818e8ce1-911a-5174-956f-42b56db74e42"
+    },
+    "encounter": {
+     "reference": "urn:uuid:ffbb2436-4c70-5989-8047-5e371974cfa0"
+    }
+   }
+  },
+  {
+   "fullUrl": "urn:uuid:967701fe-b620-5599-93b5-790851e46ca6",
+   "resource": {
+    "resourceType": "Condition",
+    "id": "967701fe-b620-5599-93b5-790851e46ca6",
+    "text": {
+     "status": "generated",
+     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Atemnot: ja</p></div>"
+    },
+    "clinicalStatus": {
+     "coding": [
+      {
+       "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+       "code": "active"
+      }
+     ]
+    },
+    "verificationStatus": {
+     "coding": [
+      {
+       "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+       "code": "unconfirmed"
+      }
+     ]
+    },
+    "category": [
+     {
+      "coding": [
+       {
+        "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+        "code": "encounter-diagnosis"
+       }
+      ]
+     }
+    ],
+    "code": {
+     "text": "Atemnot"
+    },
+    "subject": {
+     "reference": "urn:uuid:818e8ce1-911a-5174-956f-42b56db74e42"
+    },
+    "encounter": {
+     "reference": "urn:uuid:ffbb2436-4c70-5989-8047-5e371974cfa0"
+    }
+   }
+  },
+  {
+   "fullUrl": "urn:uuid:6cdb2742-474e-5ac7-a696-c8f0444f19dd",
+   "resource": {
+    "resourceType": "Condition",
+    "id": "6cdb2742-474e-5ac7-a696-c8f0444f19dd",
+    "text": {
+     "status": "generated",
+     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Husten: ja</p></div>"
+    },
+    "clinicalStatus": {
+     "coding": [
+      {
+       "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+       "code": "active"
+      }
+     ]
+    },
+    "verificationStatus": {
+     "coding": [
+      {
+       "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+       "code": "unconfirmed"
+      }
+     ]
+    },
+    "category": [
+     {
+      "coding": [
+       {
+        "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+        "code": "encounter-diagnosis"
+       }
+      ]
+     }
+    ],
+    "code": {
+     "text": "Husten"
+    },
+    "subject": {
+     "reference": "urn:uuid:818e8ce1-911a-5174-956f-42b56db74e42"
+    },
+    "encounter": {
+     "reference": "urn:uuid:ffbb2436-4c70-5989-8047-5e371974cfa0"
+    }
+   }
+  },
+  {
+   "fullUrl": "urn:uuid:b7ace908-d855-5efb-a28b-1e1463a3c1bb",
+   "resource": {
+    "resourceType": "MedicationStatement",
+    "id": "b7ace908-d855-5efb-a28b-1e1463a3c1bb",
+    "text": {
+     "status": "generated",
+     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Ramipril: ja</p></div>"
+    },
+    "status": "active",
+    "medicationCodeableConcept": {
+     "text": "Ramipril"
+    },
+    "subject": {
+     "reference": "urn:uuid:818e8ce1-911a-5174-956f-42b56db74e42"
+    },
+    "context": {
+     "reference": "urn:uuid:ffbb2436-4c70-5989-8047-5e371974cfa0"
+    },
+    "dateAsserted": "2026-10-30T07:04:20+00:00",
+    "informationSource": {
+     "reference": "urn:uuid:818e8ce1-911a-5174-956f-42b56db74e42"
+    }
+   }
+  },
+  {
+   "fullUrl": "urn:uuid:5b72e5ec-610b-58ec-bf24-b2c91d603f17",
+   "resource": {
+    "resourceType": "MedicationStatement",
+    "id": "5b72e5ec-610b-58ec-bf24-b2c91d603f17",
+    "text": {
+     "status": "generated",
+     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Metformin: ja</p></div>"
+    },
+    "status": "active",
+    "medicationCodeableConcept": {
+     "text": "Metformin"
+    },
+    "subject": {
+     "reference": "urn:uuid:818e8ce1-911a-5174-956f-42b56db74e42"
+    },
+    "context": {
+     "reference": "urn:uuid:ffbb2436-4c70-5989-8047-5e371974cfa0"
+    },
+    "dateAsserted": "2026-10-30T07:04:20+00:00",
+    "informationSource": {
+     "reference": "urn:uuid:818e8ce1-911a-5174-956f-42b56db74e42"
+    }
+   }
+  },
+  {
+   "fullUrl": "urn:uuid:1a2dfd4f-e449-50c0-9ef7-ab0938bf1cfb",
+   "resource": {
+    "resourceType": "AllergyIntolerance",
+    "id": "1a2dfd4f-e449-50c0-9ef7-ab0938bf1cfb",
+    "text": {
+     "status": "generated",
+     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Penicillin: ja</p></div>"
+    },
+    "clinicalStatus": {
+     "coding": [
+      {
+       "system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical",
+       "code": "active"
+      }
+     ]
+    },
+    "verificationStatus": {
+     "coding": [
+      {
+       "system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-verification",
+       "code": "unconfirmed"
+      }
+     ]
+    },
+    "code": {
+     "text": "Penicillin"
+    },
+    "patient": {
+     "reference": "urn:uuid:818e8ce1-911a-5174-956f-42b56db74e42"
+    },
+    "encounter": {
+     "reference": "urn:uuid:ffbb2436-4c70-5989-8047-5e371974cfa0"
+    }
+   }
+  },
+  {
+   "fullUrl": "urn:uuid:04f83dbb-27b0-5b29-ad6e-f0cedf933323",
+   "resource": {
+    "resourceType": "AllergyIntolerance",
+    "id": "04f83dbb-27b0-5b29-ad6e-f0cedf933323",
+    "text": {
+     "status": "generated",
+     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>weitere Allergien: nein (verneint)</p></div>"
+    },
+    "clinicalStatus": {
+     "coding": [
+      {
+       "system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical",
+       "code": "active"
+      }
+     ]
+    },
+    "verificationStatus": {
+     "coding": [
+      {
+       "system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-verification",
+       "code": "unconfirmed"
+      }
+     ]
+    },
+    "code": {
+     "coding": [
+      {
+       "system": "http://snomed.info/sct",
+       "code": "716186003",
+       "display": "No known allergy"
+      }
+     ],
+     "text": "weitere Allergien"
+    },
+    "patient": {
+     "reference": "urn:uuid:818e8ce1-911a-5174-956f-42b56db74e42"
+    },
+    "encounter": {
+     "reference": "urn:uuid:ffbb2436-4c70-5989-8047-5e371974cfa0"
+    }
+   }
+  },
+  {
+   "fullUrl": "urn:uuid:85ad725f-920f-50e1-bac1-d1a88dbecbf5",
+   "resource": {
+    "resourceType": "Condition",
+    "id": "85ad725f-920f-50e1-bac1-d1a88dbecbf5",
+    "text": {
+     "status": "generated",
+     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Fieber: nein (verneint)</p></div>"
+    },
+    "clinicalStatus": {
+     "coding": [
+      {
+       "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+       "code": "inactive"
+      }
+     ]
+    },
+    "verificationStatus": {
+     "coding": [
+      {
+       "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+       "code": "refuted"
+      }
+     ]
+    },
+    "category": [
+     {
+      "coding": [
+       {
+        "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+        "code": "encounter-diagnosis"
+       }
+      ]
+     }
+    ],
+    "code": {
+     "text": "Fieber"
+    },
+    "subject": {
+     "reference": "urn:uuid:818e8ce1-911a-5174-956f-42b56db74e42"
+    },
+    "encounter": {
+     "reference": "urn:uuid:ffbb2436-4c70-5989-8047-5e371974cfa0"
+    }
+   }
+  },
+  {
+   "fullUrl": "urn:uuid:ba74f39e-82e4-5838-97f4-bbc5b4cace56",
+   "resource": {
+    "resourceType": "Provenance",
+    "id": "ba74f39e-82e4-5838-97f4-bbc5b4cace56",
+    "text": {
+     "status": "generated",
+     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Belegt durch: Transkript Zeile 2 (Patient): &quot;Ich habe seit drei Tagen starke Brustschmerzen und Atemnot&quot;</p></div>"
+    },
+    "target": [
+     {
+      "reference": "urn:uuid:698698c1-1b7a-5daf-b79c-1dc6d4435008"
+     }
+    ],
+    "recorded": "2026-10-30T07:04:20+00:00",
+    "agent": [
+     {
+      "type": {
+       "coding": [
+        {
+         "system": "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+         "code": "assembler",
+         "display": "Assembler"
+        }
+       ]
+      },
+      "who": {
+       "reference": "urn:uuid:8d17318e-48fb-5485-8391-3ce4d74c66d0"
+      }
+     }
+    ],
+    "entity": [
+     {
+      "role": "source",
+      "what": {
+       "identifier": {
+        "system": "urn:clinic-dictation:transcript-line",
+        "value": "2"
+       },
+       "display": "Transkript Zeile 2 (Patient): \"Ich habe seit drei Tagen starke Brustschmerzen und Atemnot\""
+      }
+     }
+    ]
+   }
+  },
+  {
+   "fullUrl": "urn:uuid:02870acb-ed14-5caa-8625-1e537b03c560",
+   "resource": {
+    "resourceType": "Provenance",
+    "id": "02870acb-ed14-5caa-8625-1e537b03c560",
+    "text": {
+     "status": "generated",
+     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Belegt durch: Transkript Zeile 2 (Patient): &quot;Ich habe seit drei Tagen starke Brustschmerzen und Atemnot&quot;</p></div>"
+    },
+    "target": [
+     {
+      "reference": "urn:uuid:967701fe-b620-5599-93b5-790851e46ca6"
+     }
+    ],
+    "recorded": "2026-10-30T07:04:20+00:00",
+    "agent": [
+     {
+      "type": {
+       "coding": [
+        {
+         "system": "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+         "code": "assembler",
+         "display": "Assembler"
+        }
+       ]
+      },
+      "who": {
+       "reference": "urn:uuid:8d17318e-48fb-5485-8391-3ce4d74c66d0"
+      }
+     }
+    ],
+    "entity": [
+     {
+      "role": "source",
+      "what": {
+       "identifier": {
+        "system": "urn:clinic-dictation:transcript-line",
+        "value": "2"
+       },
+       "display": "Transkript Zeile 2 (Patient): \"Ich habe seit drei Tagen starke Brustschmerzen und Atemnot\""
+      }
+     }
+    ]
+   }
+  },
+  {
+   "fullUrl": "urn:uuid:0c2dbebf-44ce-58f1-a561-a51db387148a",
+   "resource": {
+    "resourceType": "Provenance",
+    "id": "0c2dbebf-44ce-58f1-a561-a51db387148a",
+    "text": {
+     "status": "generated",
+     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Belegt durch: Transkript Zeile 8 (Patient): &quot;Husten ohne Auswurf&quot;</p></div>"
+    },
+    "target": [
+     {
+      "reference": "urn:uuid:6cdb2742-474e-5ac7-a696-c8f0444f19dd"
+     }
+    ],
+    "recorded": "2026-10-30T07:04:20+00:00",
+    "agent": [
+     {
+      "type": {
+       "coding": [
+        {
+         "system": "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+         "code": "assembler",
+         "display": "Assembler"
+        }
+       ]
+      },
+      "who": {
+       "reference": "urn:uuid:8d17318e-48fb-5485-8391-3ce4d74c66d0"
+      }
+     }
+    ],
+    "entity": [
+     {
+      "role": "source",
+      "what": {
+       "identifier": {
+        "system": "urn:clinic-dictation:transcript-line",
+        "value": "8"
+       },
+       "display": "Transkript Zeile 8 (Patient): \"Husten ohne Auswurf\""
+      }
+     }
+    ]
+   }
+  },
+  {
+   "fullUrl": "urn:uuid:b1279816-d999-5a49-b375-e7de7e3bc1e0",
+   "resource": {
+    "resourceType": "Provenance",
+    "id": "b1279816-d999-5a49-b375-e7de7e3bc1e0",
+    "text": {
+     "status": "generated",
+     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Belegt durch: Transkript Zeile 4 (Patient): &quot;ich nehme Ramipril fünf Milligramm morgens&quot;</p></div>"
+    },
+    "target": [
+     {
+      "reference": "urn:uuid:b7ace908-d855-5efb-a28b-1e1463a3c1bb"
+     }
+    ],
+    "recorded": "2026-10-30T07:04:20+00:00",
+    "agent": [
+     {
+      "type": {
+       "coding": [
+        {
+         "system": "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+         "code": "assembler",
+         "display": "Assembler"
+        }
+       ]
+      },
+      "who": {
+       "reference": "urn:uuid:8d17318e-48fb-5485-8391-3ce4d74c66d0"
+      }
+     }
+    ],
+    "entity": [
+     {
+      "role": "source",
+      "what": {
+       "identifier": {
+        "system": "urn:clinic-dictation:transcript-line",
+        "value": "4"
+       },
+       "display": "Transkript Zeile 4 (Patient): \"ich nehme Ramipril fünf Milligramm morgens\""
+      }
+     }
+    ]
+   }
+  },
+  {
+   "fullUrl": "urn:uuid:69a28223-a2dc-5406-8adb-1e2cc324f05e",
+   "resource": {
+    "resourceType": "Provenance",
+    "id": "69a28223-a2dc-5406-8adb-1e2cc324f05e",
+    "text": {
+     "status": "generated",
+     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Belegt durch: Transkript Zeile 4 (Patient): &quot;Metformin zweimal täglich&quot;</p></div>"
+    },
+    "target": [
+     {
+      "reference": "urn:uuid:5b72e5ec-610b-58ec-bf24-b2c91d603f17"
+     }
+    ],
+    "recorded": "2026-10-30T07:04:20+00:00",
+    "agent": [
+     {
+      "type": {
+       "coding": [
+        {
+         "system": "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+         "code": "assembler",
+         "display": "Assembler"
+        }
+       ]
+      },
+      "who": {
+       "reference": "urn:uuid:8d17318e-48fb-5485-8391-3ce4d74c66d0"
+      }
+     }
+    ],
+    "entity": [
+     {
+      "role": "source",
+      "what": {
+       "identifier": {
+        "system": "urn:clinic-dictation:transcript-line",
+        "value": "4"
+       },
+       "display": "Transkript Zeile 4 (Patient): \"Metformin zweimal täglich\""
+      }
+     }
+    ]
+   }
+  },
+  {
+   "fullUrl": "urn:uuid:75caa20b-8534-540b-ada9-42560ada7501",
+   "resource": {
+    "resourceType": "Provenance",
+    "id": "75caa20b-8534-540b-ada9-42560ada7501",
+    "text": {
+     "status": "generated",
+     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Belegt durch: Transkript Zeile 6 (Patient): &quot;Gegen Penicillin bin ich allergisch&quot;</p></div>"
+    },
+    "target": [
+     {
+      "reference": "urn:uuid:1a2dfd4f-e449-50c0-9ef7-ab0938bf1cfb"
+     }
+    ],
+    "recorded": "2026-10-30T07:04:20+00:00",
+    "agent": [
+     {
+      "type": {
+       "coding": [
+        {
+         "system": "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+         "code": "assembler",
+         "display": "Assembler"
+        }
+       ]
+      },
+      "who": {
+       "reference": "urn:uuid:8d17318e-48fb-5485-8391-3ce4d74c66d0"
+      }
+     }
+    ],
+    "entity": [
+     {
+      "role": "source",
+      "what": {
+       "identifier": {
+        "system": "urn:clinic-dictation:transcript-line",
+        "value": "6"
+       },
+       "display": "Transkript Zeile 6 (Patient): \"Gegen Penicillin bin ich allergisch\""
+      }
+     }
+    ]
+   }
+  },
+  {
+   "fullUrl": "urn:uuid:7edbf84d-f4b9-5050-9943-18b87c93fed9",
+   "resource": {
+    "resourceType": "Provenance",
+    "id": "7edbf84d-f4b9-5050-9943-18b87c93fed9",
+    "text": {
+     "status": "generated",
+     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Belegt durch: Transkript Zeile 6 (Patient): &quot;Andere Allergien habe ich keine&quot;</p></div>"
+    },
+    "target": [
+     {
+      "reference": "urn:uuid:04f83dbb-27b0-5b29-ad6e-f0cedf933323"
+     }
+    ],
+    "recorded": "2026-10-30T07:04:20+00:00",
+    "agent": [
+     {
+      "type": {
+       "coding": [
+        {
+         "system": "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+         "code": "assembler",
+         "display": "Assembler"
+        }
+       ]
+      },
+      "who": {
+       "reference": "urn:uuid:8d17318e-48fb-5485-8391-3ce4d74c66d0"
+      }
+     }
+    ],
+    "entity": [
+     {
+      "role": "source",
+      "what": {
+       "identifier": {
+        "system": "urn:clinic-dictation:transcript-line",
+        "value": "6"
+       },
+       "display": "Transkript Zeile 6 (Patient): \"Andere Allergien habe ich keine\""
+      }
+     }
+    ]
+   }
+  },
+  {
+   "fullUrl": "urn:uuid:ae2a90da-9706-51b8-8e46-14f13c77da73",
+   "resource": {
+    "resourceType": "Provenance",
+    "id": "ae2a90da-9706-51b8-8e46-14f13c77da73",
+    "text": {
+     "status": "generated",
+     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Belegt durch: Transkript Zeile 8 (Patient): &quot;Fieber habe ich nicht&quot;</p></div>"
+    },
+    "target": [
+     {
+      "reference": "urn:uuid:85ad725f-920f-50e1-bac1-d1a88dbecbf5"
+     }
+    ],
+    "recorded": "2026-10-30T07:04:20+00:00",
+    "agent": [
+     {
+      "type": {
+       "coding": [
+        {
+         "system": "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+         "code": "assembler",
+         "display": "Assembler"
+        }
+       ]
+      },
+      "who": {
+       "reference": "urn:uuid:8d17318e-48fb-5485-8391-3ce4d74c66d0"
+      }
+     }
+    ],
+    "entity": [
+     {
+      "role": "source",
+      "what": {
+       "identifier": {
+        "system": "urn:clinic-dictation:transcript-line",
+        "value": "8"
+       },
+       "display": "Transkript Zeile 8 (Patient): \"Fieber habe ich nicht\""
+      }
+     }
+    ]
+   }
+  }
+ ]
+}

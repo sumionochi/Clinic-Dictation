@@ -6,6 +6,7 @@
     uv run clinic-eval add NAME --session SESSION_ID  add a specific one recorded in the app
     uv run clinic-eval run [--model REPO] [CASE ...]  transcribe, score, save results
     uv run clinic-eval extract [--llm MODEL]...       agents vs one-prompt baseline on gold facts
+    uv run clinic-eval fhir RESULTS.json              agents' facts → FHIR bundles, checked by the HL7 validator
 """
 
 import argparse
@@ -274,6 +275,54 @@ def cmd_extract(args: argparse.Namespace) -> None:
     print(f"\nsaved {path.relative_to(EVAL_DIR)}")
 
 
+def cmd_fhir(args: argparse.Namespace) -> None:
+    from clinic_eval.extraction import SPEAKER_NAMES, load_cases
+    from clinic_sidecar.agents.graph import Contradiction
+    from clinic_sidecar.agents.schema import Fact, TranscriptLine
+    from clinic_sidecar.fhir.mapper import DocumentInput, build_document
+    from clinic_sidecar.fhir.validator import validate
+
+    source = Path(args.results)
+    report = json.loads(source.read_text(encoding="utf-8"))
+    model = args.llm or next(iter(report["models"]))
+    cases = {c.name: c for c in load_cases()}
+    out_dir = RESULTS_DIR / "fhir"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    print(f"Facts from {source.name} ({model})\n")
+    print(f"{'case':28s} {'facts':>5s} {'resources':>9s} {'errors':>6s} {'warnings':>8s}")
+    failed = False
+    for row in report["models"][model]["cases"]:
+        case = cases[row["case"]]
+        lines = [
+            TranscriptLine(line=i + 1, speaker=SPEAKER_NAMES.get(spk, spk.title()), text=text)
+            for i, (spk, text) in enumerate(case.lines)
+        ]
+        facts = [Fact.model_validate(f) for f in row["agents"]["facts"]]
+        flagged = set(row["agents"]["contradictions"])
+        contradictions = [
+            Contradiction(
+                category=group[0].category,
+                name=name,
+                assertions=sorted({f.assertion for f in group}),
+                lines=sorted({e.line for f in group for e in f.evidence}),
+            )
+            for name in flagged
+            if (group := [f for f in facts if f.name == name])
+        ]
+        bundle = build_document(
+            DocumentInput(f"eval-{case.name}", facts, lines, contradictions, extraction_model=model)
+        )
+        result = validate(bundle)
+        failed |= not result.valid
+        (out_dir / f"{case.name}.json").write_text(json.dumps(bundle, ensure_ascii=False, indent=1), encoding="utf-8")
+        print(f"{case.name:28s} {len(facts):5d} {len(bundle['entry']):9d} {len(result.errors):6d} {len(result.warnings):8d}")
+        for issue in result.errors + result.warnings:
+            print(f"    {issue.severity}: {issue.location}: {issue.message[:160]}")
+    print(f"\nbundles saved in {out_dir.relative_to(EVAL_DIR)}/")
+    if failed:
+        raise SystemExit(1)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(prog="clinic-eval", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = parser.add_subparsers(required=True)
@@ -301,6 +350,11 @@ def main() -> None:
     extract.add_argument("cases", nargs="*", help="case names under eval/extraction (default: all)")
     extract.add_argument("--llm", action="append", help="Ollama model; repeat to compare several (default: qwen3:8b)")
     extract.set_defaults(func=cmd_extract)
+
+    fhir = sub.add_parser("fhir", help="turn the agents' facts from an extract run into validated FHIR bundles")
+    fhir.add_argument("results", help="results/<date>-extraction.json from `clinic-eval extract`")
+    fhir.add_argument("--llm", help="which model's facts to use (default: the first in the file)")
+    fhir.set_defaults(func=cmd_fhir)
 
     args = parser.parse_args()
     args.func(args)

@@ -37,6 +37,12 @@ notices within two seconds and exits on its own.
 
 Sidecar tests: `cd sidecar && uv run pytest`.
 
+FHIR export (step 8) is checked by the official HL7 validator before anything
+leaves the app. It needs JDK 17+ (`brew install openjdk@21`, keg-only, so the system
+Java is untouched) and `validator_cli.jar` in
+`~/Library/Application Support/clinic-dictation/tools/`. The first run downloads the
+FHIR R4 definitions into `~/.fhir/packages` (about 300 MB); after that it is offline.
+
 The extraction agents (step 7) use a local model through [Ollama](https://ollama.com)
 on `127.0.0.1:11434`: `brew install ollama`, `ollama serve`, then
 `ollama pull qwen3:8b` (5.2 GB) and/or `ollama pull medgemma:4b` (3.3 GB).
