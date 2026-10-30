@@ -14,28 +14,32 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
+import { useI18n, type I18n, type MessageKey } from '@/i18n/i18n'
 import { useConsultation } from '@/lib/consultation'
 import {
   ROLE_OPTIONS,
   sessionsApi,
+  type Blocker,
   type Decision,
   type Participant,
   type Role,
   type Session
 } from '@/lib/sessions'
 
-function formatTime(iso: string): string {
-  return new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+const DECISION_TEXT: Record<Participant['decision'], MessageKey> = {
+  pending: 'consent.decision.pending',
+  granted: 'consent.decision.granted',
+  declined: 'consent.decision.declined',
+  unable: 'consent.decision.unable'
 }
 
-const DECISION_TEXT: Record<Participant['decision'], string> = {
-  pending: 'Not answered',
-  granted: 'Agreed',
-  declined: 'Declined',
-  unable: 'Cannot consent'
+function blockerText(b: Blocker, session: Session, { t, person }: I18n): string {
+  const name = session.participants.find((p) => p.id === b.participant_id)?.display_name
+  return t(`blocker.${b.code}`, { person: person(name) })
 }
 
 export function ConsentScreen(): React.JSX.Element {
+  const { t } = useI18n()
   const { sessionId, setSessionId, goTo } = useConsultation()
   const [loaded, setSession] = useState<Session | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -84,14 +88,12 @@ export function ConsentScreen(): React.JSX.Element {
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 p-8">
       <header className="flex items-start justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-semibold tracking-tight">Consent</h1>
-          <p className="text-sm text-muted-foreground">
-            Everyone in the room agrees before anything is recorded.
-          </p>
+          <h1 className="text-2xl font-semibold tracking-tight">{t('consent.title')}</h1>
+          <p className="text-sm text-muted-foreground">{t('consent.subtitle')}</p>
         </div>
         {session && (
           <Button variant="outline" disabled={busy} onClick={() => void startConsultation()}>
-            New consultation
+            {t('consent.newConsultation')}
           </Button>
         )}
       </header>
@@ -99,7 +101,7 @@ export function ConsentScreen(): React.JSX.Element {
       {error && (
         <Alert>
           <CircleX />
-          <AlertTitle>Could not save that</AlertTitle>
+          <AlertTitle>{t('consent.saveError')}</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
@@ -107,15 +109,12 @@ export function ConsentScreen(): React.JSX.Element {
       {!session ? (
         <Card>
           <CardHeader>
-            <CardTitle>Start a consultation</CardTitle>
-            <CardDescription>
-              Add everyone in the room, read them the statement below, and record each person&apos;s
-              answer. Recording stays locked until everyone has agreed.
-            </CardDescription>
+            <CardTitle>{t('consent.startTitle')}</CardTitle>
+            <CardDescription>{t('consent.startText')}</CardDescription>
           </CardHeader>
           <CardContent>
             <Button disabled={busy} onClick={() => void startConsultation()}>
-              New consultation
+              {t('consent.newConsultation')}
             </Button>
           </CardContent>
         </Card>
@@ -136,10 +135,11 @@ export function ConsentScreen(): React.JSX.Element {
 }
 
 function ConsentStatement(): React.JSX.Element {
+  const { t } = useI18n()
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Read this to everyone present</CardTitle>
+        <CardTitle>{t('consent.readThis')}</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-3 text-sm">
         <p lang="de">
@@ -148,7 +148,7 @@ function ConsentStatement(): React.JSX.Element {
           Aufnahme wird gelöscht, sobald der Bericht freigegeben ist. Sie können ablehnen oder die
           Aufnahme jederzeit stoppen lassen. Ihre Behandlung hängt nicht davon ab.
         </p>
-        <p className="text-muted-foreground">
+        <p lang="en" className="text-muted-foreground">
           This conversation is recorded with your agreement and turned into text on this computer
           only. The doctor checks the record made from it. The recording is deleted once the record
           is approved. You can say no, or ask to stop at any time. Your treatment does not depend on
@@ -168,6 +168,7 @@ function ParticipantsCard({
   busy: boolean
   run: (action: () => Promise<Session>) => Promise<void>
 }): React.JSX.Element {
+  const { t } = useI18n()
   const [role, setRole] = useState<Role>('companion')
   const [label, setLabel] = useState('')
   const locked = session.mode === 'manual'
@@ -181,10 +182,8 @@ function ParticipantsCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Who is in the room</CardTitle>
-        <CardDescription>
-          Everyone whose voice could be recorded needs to answer, the doctor included.
-        </CardDescription>
+        <CardTitle>{t('consent.whoTitle')}</CardTitle>
+        <CardDescription>{t('consent.whoText')}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <ul className="flex flex-col divide-y rounded-lg border">
@@ -200,7 +199,7 @@ function ParticipantsCard({
             />
           ))}
           {session.participants.length === 0 && (
-            <li className="p-3 text-sm text-muted-foreground">Nobody added yet.</li>
+            <li className="p-3 text-sm text-muted-foreground">{t('consent.nobody')}</li>
           )}
         </ul>
 
@@ -213,25 +212,25 @@ function ParticipantsCard({
             }}
           >
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="add-role">Role</Label>
+              <Label htmlFor="add-role">{t('consent.role')}</Label>
               <Select value={role} onValueChange={(v) => setRole(v as Role)}>
-                <SelectTrigger id="add-role" className="w-40">
+                <SelectTrigger id="add-role" className="w-48">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {ROLE_OPTIONS.map((o) => (
                     <SelectItem key={o.value} value={o.value}>
-                      {o.title}
+                      {t(o.title)}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="flex flex-1 flex-col gap-1.5">
-              <Label htmlFor="add-label">Description (optional, no names)</Label>
+              <Label htmlFor="add-label">{t('consent.description')}</Label>
               <Input
                 id="add-label"
-                placeholder="e.g. Daughter"
+                placeholder={t('consent.descriptionPlaceholder')}
                 maxLength={40}
                 value={label}
                 onChange={(e) => setLabel(e.target.value)}
@@ -239,7 +238,7 @@ function ParticipantsCard({
             </div>
             <Button type="submit" variant="outline" disabled={busy}>
               <Plus data-icon="inline-start" />
-              Add
+              {t('consent.add')}
             </Button>
           </form>
         )}
@@ -259,6 +258,7 @@ function ParticipantRow({
   onDecide: (decision: Decision) => void
   onRemove: () => void
 }): React.JSX.Element {
+  const { t, person, time } = useI18n()
   // Once someone has answered, the buttons hide until the doctor asks to change it.
   const [changing, setChanging] = useState(false)
   const answered = p.decision !== 'pending'
@@ -275,29 +275,40 @@ function ParticipantRow({
     <li className="flex items-center gap-3 p-3">
       <Icon className="size-4 shrink-0" />
       <div className="flex min-w-0 flex-1 flex-col">
-        <span className="truncate text-sm font-medium">{p.display_name}</span>
+        <span className="truncate text-sm font-medium">{person(p.display_name)}</span>
         <span className="text-xs text-muted-foreground">
-          {DECISION_TEXT[p.decision]}
-          {p.decided_at && ` at ${formatTime(p.decided_at)}`}
+          {p.decided_at
+            ? t('consent.decidedAt', {
+                decision: t(DECISION_TEXT[p.decision]),
+                time: time(p.decided_at)
+              })
+            : t(DECISION_TEXT[p.decision])}
         </span>
       </div>
       {p.label && (
-        <Badge variant="outline">{ROLE_OPTIONS.find((o) => o.value === p.role)?.title}</Badge>
+        <Badge variant="outline">
+          {t(ROLE_OPTIONS.find((o) => o.value === p.role)?.title ?? 'role.other')}
+        </Badge>
       )}
 
       {showButtons ? (
         <div className="flex gap-1">
           <Button size="sm" onClick={() => decide('granted')}>
-            Agrees
+            {t('consent.agrees')}
           </Button>
           <Button size="sm" variant="outline" onClick={() => decide('declined')}>
-            Declines
+            {t('consent.declines')}
           </Button>
           <Button size="sm" variant="ghost" onClick={() => decide('unable')}>
-            Cannot consent
+            {t('consent.cannotConsent')}
           </Button>
           {!answered && (
-            <Button size="icon-sm" variant="ghost" aria-label="Remove" onClick={onRemove}>
+            <Button
+              size="icon-sm"
+              variant="ghost"
+              aria-label={t('consent.remove')}
+              onClick={onRemove}
+            >
               <Trash2 />
             </Button>
           )}
@@ -306,7 +317,7 @@ function ParticipantRow({
         answered &&
         !disabled && (
           <Button size="sm" variant="ghost" onClick={() => setChanging(true)}>
-            Change answer
+            {t('consent.changeAnswer')}
           </Button>
         )
       )}
@@ -325,16 +336,18 @@ function StatusCard({
   onManual: () => void
   onContinue: () => void
 }): React.JSX.Element {
+  const i18n = useI18n()
+  const { t } = i18n
   const someoneRefused = session.participants.some(
     (p) => p.decision === 'declined' || p.decision === 'unable'
   )
   const manual = session.mode === 'manual'
   const Icon = session.recording_allowed ? CircleCheck : Lock
   const title = manual
-    ? 'Documenting manually'
+    ? t('consent.manualTitle')
     : session.recording_allowed
-      ? 'Everyone has agreed. Recording is allowed.'
-      : 'Recording is locked'
+      ? t('consent.allowedTitle')
+      : t('consent.lockedTitle')
 
   // Pinned to the bottom of the screen so the doctor always sees whether
   // recording is allowed, however long the list of people gets.
@@ -344,21 +357,19 @@ function StatusCard({
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
         <p className="text-sm font-medium">{title}</p>
         {manual ? (
-          <p className="text-xs text-muted-foreground">
-            Nothing is recorded in this consultation. Start a new one to record another.
-          </p>
+          <p className="text-xs text-muted-foreground">{t('consent.manualText')}</p>
         ) : (
-          session.blockers.map((b) => (
-            <p key={b} className="text-xs text-muted-foreground">
-              {b}
+          session.blocker_items.map((b) => (
+            <p key={`${b.code}-${b.participant_id}`} className="text-xs text-muted-foreground">
+              {blockerText(b, session, i18n)}
             </p>
           ))
         )}
       </div>
-      {session.recording_allowed && <Button onClick={onContinue}>Continue to session</Button>}
+      {session.recording_allowed && <Button onClick={onContinue}>{t('consent.continue')}</Button>}
       {!manual && someoneRefused && (
         <Button variant="outline" disabled={busy} onClick={onManual}>
-          Document manually instead
+          {t('consent.manualButton')}
         </Button>
       )}
     </div>

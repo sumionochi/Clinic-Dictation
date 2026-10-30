@@ -1,5 +1,6 @@
 // Typed client for the sidecar's record API (sidecar/src/clinic_sidecar/routes_record.py).
 
+import type { MessageKey } from '@/i18n/i18n'
 import { ApiError } from '@/lib/sessions'
 
 export type Category =
@@ -55,19 +56,19 @@ export interface ClinicalRecord {
   validation: { errors: number; warnings: number; resources: number } | null
 }
 
-export const SECTIONS: { title: string; categories: Category[] }[] = [
-  { title: 'Complaint and symptoms', categories: ['complaint', 'symptom'] },
-  { title: 'Medication', categories: ['medication'] },
-  { title: 'Allergies', categories: ['allergy'] },
-  { title: 'Previous illnesses', categories: ['condition'] },
-  { title: 'Operations', categories: ['surgery'] },
-  { title: 'Social history', categories: ['social'] }
+export const SECTIONS: { title: MessageKey; categories: Category[] }[] = [
+  { title: 'section.complaint', categories: ['complaint', 'symptom'] },
+  { title: 'section.medication', categories: ['medication'] },
+  { title: 'section.allergy', categories: ['allergy'] },
+  { title: 'section.condition', categories: ['condition'] },
+  { title: 'section.surgery', categories: ['surgery'] },
+  { title: 'section.social', categories: ['social'] }
 ]
 
-export const ASSERTION_LABEL: Record<Assertion, string> = {
-  present: 'Yes',
-  absent: 'No (denied)',
-  past: 'Previously'
+export const ASSERTION_LABEL: Record<Assertion, MessageKey> = {
+  present: 'assertion.present',
+  absent: 'assertion.absent',
+  past: 'assertion.past'
 }
 
 async function call<T>(method: 'GET' | 'POST', route: string, body?: unknown): Promise<T> {

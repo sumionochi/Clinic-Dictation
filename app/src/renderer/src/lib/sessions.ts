@@ -1,5 +1,6 @@
 // Typed client for the sidecar's /sessions API (sidecar/src/clinic_sidecar/routes_consent.py).
 
+import type { MessageKey } from '@/i18n/i18n'
 import type { HttpMethod } from '@shared/sidecar'
 
 export type Role = 'doctor' | 'patient' | 'companion' | 'interpreter' | 'student' | 'other'
@@ -22,15 +23,22 @@ export interface Session {
   participants: Participant[]
   recording_allowed: boolean
   blockers: string[]
+  /** The same reasons as codes, so they can be shown in the interface language. */
+  blocker_items: Blocker[]
 }
 
-export const ROLE_OPTIONS: { value: Role; title: string }[] = [
-  { value: 'doctor', title: 'Doctor' },
-  { value: 'patient', title: 'Patient' },
-  { value: 'companion', title: 'Companion' },
-  { value: 'interpreter', title: 'Interpreter' },
-  { value: 'student', title: 'Student' },
-  { value: 'other', title: 'Other person' }
+export interface Blocker {
+  code: 'manual' | 'add_doctor' | 'add_patient' | 'pending' | 'declined' | 'unable'
+  participant_id: string | null
+}
+
+export const ROLE_OPTIONS: { value: Role; title: MessageKey }[] = [
+  { value: 'doctor', title: 'role.doctor' },
+  { value: 'patient', title: 'role.patient' },
+  { value: 'companion', title: 'role.companion' },
+  { value: 'interpreter', title: 'role.interpreter' },
+  { value: 'student', title: 'role.student' },
+  { value: 'other', title: 'role.other' }
 ]
 
 export class ApiError extends Error {}

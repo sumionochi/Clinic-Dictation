@@ -18,6 +18,8 @@ export interface ControllerState {
   savedSeconds: number
   level: number
   error: string | null
+  /** The sidecar refused the audio and recording stopped; `error` holds its reason, if any. */
+  refused: boolean
 }
 
 const IDLE: ControllerState = {
@@ -26,7 +28,8 @@ const IDLE: ControllerState = {
   recordingId: null,
   savedSeconds: 0,
   level: 0,
-  error: null
+  error: null,
+  refused: false
 }
 
 let state: ControllerState = IDLE
@@ -64,7 +67,7 @@ function queueUpload(): Promise<void> {
       // The sidecar refused the audio, e.g. because consent changed. Stop at once.
       rejected = true
       const detail = (res.body as { detail?: string } | null)?.detail
-      void stopRecording(`Recording stopped: ${detail ?? 'the engine refused the audio'}`)
+      void stopRecording(detail ?? null)
     }
   })
   return uploads
@@ -109,7 +112,7 @@ export function resumeRecording(): void {
 }
 
 /** Stops the microphone, waits until every chunk is saved, then starts transcription. */
-export async function stopRecording(reason: string | null = null): Promise<void> {
+export async function stopRecording(refusal?: string | null): Promise<void> {
   if (state.phase === 'idle' || state.phase === 'stopping') return
   const { sessionId, recordingId } = state
   set({ phase: 'stopping', level: 0 })
@@ -118,7 +121,7 @@ export async function stopRecording(reason: string | null = null): Promise<void>
   await queueUpload()
   try {
     if (sessionId && recordingId) await recordingsApi.stop(sessionId, recordingId)
-    set({ ...IDLE, error: reason })
+    set({ ...IDLE, error: refusal ?? null, refused: refusal !== undefined })
   } catch (e) {
     set({ ...IDLE, error: e instanceof Error ? e.message : String(e) })
   }

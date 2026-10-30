@@ -3,12 +3,14 @@ import { useEffect, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { useI18n } from '@/i18n/i18n'
 import { useConsultation } from '@/lib/consultation'
 import { useRecord } from '@/lib/useRecord'
 
 type Format = 'pdf' | 'fhir'
 
 export function ExportScreen(): React.JSX.Element {
+  const { t, lang } = useI18n()
   const { sessionId, goTo } = useConsultation()
   const { record, loaded } = useRecord(sessionId)
   const [preview, setPreview] = useState<{ sessionId: string; html: string } | null>(null)
@@ -34,7 +36,7 @@ export function ExportScreen(): React.JSX.Element {
     setError(null)
     setSaving(format)
     const action = format === 'pdf' ? window.api.export.savePdf : window.api.export.saveFhir
-    action(sessionId)
+    action(sessionId, lang)
       .then(
         (path) => path && setSaved((s) => ({ ...s, [format]: path })),
         (e: Error) =>
@@ -46,10 +48,8 @@ export function ExportScreen(): React.JSX.Element {
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 p-8">
       <header className="flex flex-col gap-1">
-        <h1 className="text-2xl font-semibold tracking-tight">Export</h1>
-        <p className="text-sm text-muted-foreground">
-          The approved record in two forms: a document for people and a FHIR file for systems.
-        </p>
+        <h1 className="text-2xl font-semibold tracking-tight">{t('export.title')}</h1>
+        <p className="text-sm text-muted-foreground">{t('export.subtitle')}</p>
       </header>
 
       {!sessionId || !loaded ? null : !approved ? (
@@ -57,15 +57,13 @@ export function ExportScreen(): React.JSX.Element {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Lock className="size-4" />
-              Not approved yet
+              {t('export.notApproved')}
             </CardTitle>
-            <CardDescription>
-              Only a record you have reviewed and approved can be exported.
-            </CardDescription>
+            <CardDescription>{t('export.notApprovedText')}</CardDescription>
           </CardHeader>
           <CardContent>
             <Button variant="outline" onClick={() => goTo('review')}>
-              Go to Review
+              {t('goTo.review')}
             </Button>
           </CardContent>
         </Card>
@@ -76,14 +74,9 @@ export function ExportScreen(): React.JSX.Element {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <FileText className="size-4" />
-                  Readable document (PDF/A)
+                  {t('export.pdfTitle')}
                 </CardTitle>
-                <CardDescription>
-                  For reading, forwarding and the patient file. German, with the consents, every
-                  fact and its quote, open questions and a log of your changes (§ 630f BGB).
-                  Archival PDF/A-2b, checked by veraPDF. To send it as an eArztbrief, sign it in
-                  your practice software with your eHBA.
-                </CardDescription>
+                <CardDescription>{t('export.pdfText')}</CardDescription>
               </CardHeader>
               <CardContent className="flex flex-col items-start gap-2">
                 <Button disabled={saving !== null} onClick={() => save('pdf')}>
@@ -92,30 +85,39 @@ export function ExportScreen(): React.JSX.Element {
                   ) : (
                     <Download data-icon="inline-start" />
                   )}
-                  Save PDF/A…
+                  {t('export.savePdf')}
                 </Button>
-                {saved.pdf && <p className="text-sm text-muted-foreground">Saved to {saved.pdf}</p>}
+                {saved.pdf && (
+                  <p className="text-sm text-muted-foreground">
+                    {t('export.savedTo', { path: saved.pdf })}
+                  </p>
+                )}
               </CardContent>
             </Card>
             <Card size="sm">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <CircleCheck className="size-4" />
-                  FHIR R4 document (JSON)
+                  {t('export.fhirTitle')}
                 </CardTitle>
                 <CardDescription>
-                  For other systems: {kept} facts in {record.validation?.resources} resources, each
-                  with a Provenance that quotes the transcript. HL7 validator:{' '}
-                  {record.validation?.errors} errors, {record.validation?.warnings} warnings.
+                  {t('export.fhirText', {
+                    facts: kept,
+                    resources: record.validation?.resources ?? 0,
+                    errors: record.validation?.errors ?? 0,
+                    warnings: record.validation?.warnings ?? 0
+                  })}
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex flex-col items-start gap-2">
                 <Button variant="outline" disabled={saving !== null} onClick={() => save('fhir')}>
                   <Download data-icon="inline-start" />
-                  Save FHIR…
+                  {t('export.saveFhir')}
                 </Button>
                 {saved.fhir && (
-                  <p className="text-sm text-muted-foreground">Saved to {saved.fhir}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {t('export.savedTo', { path: saved.fhir })}
+                  </p>
                 )}
               </CardContent>
             </Card>
@@ -124,14 +126,14 @@ export function ExportScreen(): React.JSX.Element {
 
           <Card size="sm">
             <CardHeader>
-              <CardTitle>Preview</CardTitle>
-              <CardDescription>The readable document as it will be saved.</CardDescription>
+              <CardTitle>{t('export.preview')}</CardTitle>
+              <CardDescription>{t('export.previewText')}</CardDescription>
             </CardHeader>
             <CardContent>
               {preview?.sessionId === sessionId ? (
                 // Static content only: the sandbox blocks scripts, forms and navigation.
                 <iframe
-                  title="Document preview"
+                  title={t('export.previewFrame')}
                   sandbox=""
                   srcDoc={preview.html}
                   className="h-[70vh] w-full rounded-md border bg-white"

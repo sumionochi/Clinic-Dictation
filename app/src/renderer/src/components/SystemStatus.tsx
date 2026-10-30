@@ -2,22 +2,24 @@ import { CircleCheck, CircleDashed, CircleX, LoaderCircle, type LucideIcon } fro
 import { useEffect, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
+import { useI18n, type MessageKey } from '@/i18n/i18n'
 import type { MicStatus, SidecarState, SidecarStatus } from '@shared/sidecar'
 
-const ENGINE_LABEL: Record<SidecarStatus, { text: string; icon: LucideIcon; spin?: boolean }> = {
-  starting: { text: 'Starting', icon: LoaderCircle, spin: true },
-  running: { text: 'Running', icon: CircleCheck },
-  stopping: { text: 'Stopping', icon: LoaderCircle, spin: true },
-  stopped: { text: 'Stopped', icon: CircleDashed },
-  error: { text: 'Error', icon: CircleX }
-}
+const ENGINE_LABEL: Record<SidecarStatus, { text: MessageKey; icon: LucideIcon; spin?: boolean }> =
+  {
+    starting: { text: 'status.engine.starting', icon: LoaderCircle, spin: true },
+    running: { text: 'status.engine.running', icon: CircleCheck },
+    stopping: { text: 'status.engine.stopping', icon: LoaderCircle, spin: true },
+    stopped: { text: 'status.engine.stopped', icon: CircleDashed },
+    error: { text: 'status.engine.error', icon: CircleX }
+  }
 
-const MIC_LABEL: Record<MicStatus, { text: string; icon: LucideIcon }> = {
-  granted: { text: 'Allowed', icon: CircleCheck },
-  'not-determined': { text: 'Not asked yet', icon: CircleDashed },
-  denied: { text: 'Blocked', icon: CircleX },
-  restricted: { text: 'Restricted', icon: CircleX },
-  unknown: { text: 'Unknown', icon: CircleDashed }
+const MIC_LABEL: Record<MicStatus, { text: MessageKey; icon: LucideIcon }> = {
+  granted: { text: 'status.mic.granted', icon: CircleCheck },
+  'not-determined': { text: 'status.mic.notDetermined', icon: CircleDashed },
+  denied: { text: 'status.mic.denied', icon: CircleX },
+  restricted: { text: 'status.mic.restricted', icon: CircleX },
+  unknown: { text: 'status.mic.unknown', icon: CircleDashed }
 }
 
 function useSidecarState(): SidecarState | null {
@@ -54,6 +56,7 @@ function StatusRow({
 }
 
 export function SystemStatus(): React.JSX.Element {
+  const { t } = useI18n()
   const sidecar = useSidecarState()
   const [mic, setMic] = useState<MicStatus | null>(null)
 
@@ -66,30 +69,33 @@ export function SystemStatus(): React.JSX.Element {
 
   return (
     <div className="flex flex-col gap-2 p-4">
-      <StatusRow label="Engine" text={engine.text} icon={engine.icon} spin={engine.spin} />
+      <StatusRow
+        label={t('status.engine')}
+        text={t(engine.text)}
+        icon={engine.icon}
+        spin={engine.spin}
+      />
       {sidecar?.status === 'error' && (
         <>
           <p className="text-xs break-words text-muted-foreground">{sidecar.error}</p>
           <Button size="xs" variant="outline" onClick={() => void window.api.sidecar.restart()}>
-            Retry
+            {t('status.retry')}
           </Button>
         </>
       )}
 
-      <StatusRow label="Microphone" text={micLabel.text} icon={micLabel.icon} />
+      <StatusRow label={t('status.microphone')} text={t(micLabel.text)} icon={micLabel.icon} />
       {mic === 'not-determined' && (
         <Button
           size="xs"
           variant="outline"
           onClick={() => void window.api.mic.request().then(setMic)}
         >
-          Allow microphone
+          {t('status.allowMic')}
         </Button>
       )}
       {(mic === 'denied' || mic === 'restricted') && (
-        <p className="text-xs text-muted-foreground">
-          Turn it on in System Settings → Privacy &amp; Security → Microphone.
-        </p>
+        <p className="text-xs text-muted-foreground">{t('status.micSettings')}</p>
       )}
     </div>
   )

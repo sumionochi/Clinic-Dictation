@@ -9,7 +9,9 @@ import { BrowserWindow, dialog } from 'electron'
 import { writeFile } from 'fs/promises'
 import { join } from 'path'
 
+import { SAVE_DIALOG } from './dialogText'
 import type { SidecarManager } from './sidecarManager'
+import type { UiLanguage } from '../shared/sidecar'
 
 interface RenderedDocument {
   html: string
@@ -49,6 +51,7 @@ export async function savePdfDocument(
   sidecar: SidecarManager,
   sessionId: string,
   parent: BrowserWindow | null,
+  lang: UiLanguage,
   testExportDir?: string
 ): Promise<string | null> {
   const res = await sidecar.callJson('GET', `/sessions/${sessionId}/record/document`, undefined)
@@ -67,9 +70,9 @@ export async function savePdfDocument(
     target = join(testExportDir, `${doc.filename}.pdf`)
   } else {
     const options = {
-      title: 'Save readable document (PDF/A)',
+      title: SAVE_DIALOG[lang].pdfTitle,
       defaultPath: `${doc.filename}.pdf`,
-      filters: [{ name: 'PDF/A document', extensions: ['pdf'] }]
+      filters: [{ name: SAVE_DIALOG[lang].pdfFilter, extensions: ['pdf'] }]
     }
     const choice = parent
       ? await dialog.showSaveDialog(parent, options)

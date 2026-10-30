@@ -9,6 +9,9 @@ export interface SidecarState {
   error: string | null
 }
 
+/** The app's interface language. */
+export type UiLanguage = 'en' | 'de'
+
 export type MicStatus = 'not-determined' | 'granted' | 'denied' | 'restricted' | 'unknown'
 
 export type HttpMethod = 'GET' | 'POST' | 'DELETE'

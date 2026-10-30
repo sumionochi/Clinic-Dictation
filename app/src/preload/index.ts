@@ -22,8 +22,8 @@ const api: Api = {
       ipcRenderer.invoke('recording:audio', sessionId, recordingId, pcm)
   },
   export: {
-    saveFhir: (sessionId) => ipcRenderer.invoke('export:saveFhir', sessionId),
-    savePdf: (sessionId) => ipcRenderer.invoke('export:savePdf', sessionId)
+    saveFhir: (sessionId, lang) => ipcRenderer.invoke('export:saveFhir', sessionId, lang),
+    savePdf: (sessionId, lang) => ipcRenderer.invoke('export:savePdf', sessionId, lang)
   },
   mic: {
     getStatus: () => ipcRenderer.invoke('mic:getStatus'),

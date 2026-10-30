@@ -147,3 +147,14 @@ def test_consent_log_cannot_be_edited(tmp_path) -> None:
         conn.execute("UPDATE consent_events SET decision = 'granted'")
     with pytest.raises(sqlite3.IntegrityError, match="append-only"):
         conn.execute("DELETE FROM consent_events")
+
+
+def test_blockers_come_with_codes_for_translation(client: TestClient) -> None:
+    sid = new_session(client)
+    doctor = add(client, sid, "doctor")
+    body = decide(client, sid, add(client, sid, "patient"), "declined")
+    assert body["blocker_items"] == [
+        {"code": "pending", "participant_id": doctor},
+        {"code": "declined", "participant_id": body["participants"][1]["id"]},
+    ]
+    assert body["blockers"] == ["Doctor has not answered yet.", "Patient declined. Document manually."]

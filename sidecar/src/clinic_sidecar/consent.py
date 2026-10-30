@@ -49,6 +49,17 @@ class ParticipantView:
     decided_at: str | None
 
 
+BlockerCode = Literal["manual", "add_doctor", "add_patient", "pending", "declined", "unable"]
+
+
+@dataclass
+class Blocker:
+    """Why recording is locked, as a code the app can show in its own language."""
+
+    code: BlockerCode
+    participant_id: str | None = None
+
+
 @dataclass
 class SessionView:
     id: str
@@ -57,6 +68,7 @@ class SessionView:
     participants: list[ParticipantView]
     recording_allowed: bool
     blockers: list[str] = field(default_factory=list)
+    blocker_items: list[Blocker] = field(default_factory=list)
 
 
 @dataclass
@@ -96,23 +108,34 @@ def _display_names(rows: list[sqlite3.Row]) -> dict[str, str]:
     return names
 
 
-def _blockers(mode: Mode, participants: list[ParticipantView]) -> list[str]:
+_BLOCKER_TEXT: dict[str, str] = {
+    "manual": "Switched to manual documentation for this consultation.",
+    "add_doctor": "Add the doctor.",
+    "add_patient": "Add the patient.",
+    "pending": "{name} has not answered yet.",
+    "declined": "{name} declined. Document manually.",
+    "unable": "{name} cannot consent. Document manually.",
+}
+
+
+def _blocker_items(mode: Mode, participants: list[ParticipantView]) -> list[Blocker]:
     if mode == "manual":
-        return ["Switched to manual documentation for this consultation."]
-    blockers: list[str] = []
+        return [Blocker("manual")]
+    blockers: list[Blocker] = []
     roles = {p.role for p in participants}
     if "doctor" not in roles:
-        blockers.append("Add the doctor.")
+        blockers.append(Blocker("add_doctor"))
     if "patient" not in roles:
-        blockers.append("Add the patient.")
+        blockers.append(Blocker("add_patient"))
     for p in participants:
-        if p.decision == "pending":
-            blockers.append(f"{p.display_name} has not answered yet.")
-        elif p.decision == "declined":
-            blockers.append(f"{p.display_name} declined. Document manually.")
-        elif p.decision == "unable":
-            blockers.append(f"{p.display_name} cannot consent. Document manually.")
+        if p.decision != "granted":
+            blockers.append(Blocker(p.decision, p.id))
     return blockers
+
+
+def _blocker_text(blocker: Blocker, participants: list[ParticipantView]) -> str:
+    names = {p.id: p.display_name for p in participants}
+    return _BLOCKER_TEXT[blocker.code].format(name=names.get(blocker.participant_id or "", ""))
 
 
 class ConsentService:
@@ -151,7 +174,8 @@ class ConsentService:
             )
             for r in rows
         ]
-        blockers = _blockers(session["mode"], participants)
+        items = _blocker_items(session["mode"], participants)
+        blockers = [_blocker_text(b, participants) for b in items]
         return SessionView(
             id=session["id"],
             created_at=session["created_at"],
@@ -159,6 +183,7 @@ class ConsentService:
             participants=participants,
             recording_allowed=not blockers,
             blockers=blockers,
+            blocker_items=items,
         )
 
     def recording_allowed(self, session_id: str) -> bool:

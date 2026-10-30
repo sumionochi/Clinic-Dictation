@@ -1,4 +1,4 @@
-import type { HttpMethod, MicStatus, SidecarResponse, SidecarState } from './sidecar'
+import type { HttpMethod, MicStatus, SidecarResponse, SidecarState, UiLanguage } from './sidecar'
 
 /** What the preload script exposes to the renderer as `window.api`. */
 export interface Api {
@@ -19,10 +19,11 @@ export interface Api {
     ) => Promise<SidecarResponse>
   }
   export: {
-    /** Asks where to save, then writes the approved FHIR document. Null if cancelled. */
-    saveFhir: (sessionId: string) => Promise<string | null>
+    /** Asks where to save, then writes the approved FHIR document. Null if cancelled.
+     * `lang` is the language of the save dialog. */
+    saveFhir: (sessionId: string, lang: UiLanguage) => Promise<string | null>
     /** Same, for the readable PDF/A document. */
-    savePdf: (sessionId: string) => Promise<string | null>
+    savePdf: (sessionId: string, lang: UiLanguage) => Promise<string | null>
   }
   mic: {
     getStatus: () => Promise<MicStatus>

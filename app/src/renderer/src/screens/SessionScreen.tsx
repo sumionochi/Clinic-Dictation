@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
+import { isMessageKey, useI18n, type MessageKey } from '@/i18n/i18n'
 import { useConsultation } from '@/lib/consultation'
 import {
   pauseRecording,
@@ -40,10 +41,10 @@ import {
 } from '@/lib/recordings'
 import { sessionsApi, type Session } from '@/lib/sessions'
 
-const LANGUAGES: { value: string; title: string }[] = [
-  { value: 'de', title: 'German' },
-  { value: 'en', title: 'English' },
-  { value: 'auto', title: 'Several / detect' }
+const LANGUAGES: { value: string; title: MessageKey }[] = [
+  { value: 'de', title: 'session.lang.de' },
+  { value: 'en', title: 'session.lang.en' },
+  { value: 'auto', title: 'session.lang.auto' }
 ]
 
 /** Keeps the session and its recording in sync with the sidecar, polling while it works. */
@@ -96,6 +97,8 @@ function useSessionData(sessionId: string | null, controllerPhase: string): Sess
 }
 
 export function SessionScreen(): React.JSX.Element {
+  const i18n = useI18n()
+  const { t } = i18n
   const { sessionId, goTo } = useConsultation()
   const controller = useRecordingController()
   const { session, recording, error, refresh } = useSessionData(sessionId, controller.phase)
@@ -105,24 +108,28 @@ export function SessionScreen(): React.JSX.Element {
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 p-8">
       <header className="flex flex-col gap-1">
-        <h1 className="text-2xl font-semibold tracking-tight">Session</h1>
-        <p className="text-sm text-muted-foreground">
-          Record the consultation locally. Audio never leaves this machine.
-        </p>
+        <h1 className="text-2xl font-semibold tracking-tight">{t('session.title')}</h1>
+        <p className="text-sm text-muted-foreground">{t('session.subtitle')}</p>
       </header>
 
-      {(error || controller.error) && (
+      {(error || controller.error || controller.refused) && (
         <Alert>
           <CircleX />
-          <AlertTitle>Something went wrong</AlertTitle>
-          <AlertDescription>{controller.error ?? error}</AlertDescription>
+          <AlertTitle>{t('common.somethingWrong')}</AlertTitle>
+          <AlertDescription>
+            {controller.refused
+              ? t('recorder.stoppedBecause', {
+                  detail: controller.error ?? t('recorder.refused')
+                })
+              : (controller.error ?? error)}
+          </AlertDescription>
         </Alert>
       )}
 
       {!sessionId ? (
         <LockedCard
-          title="No consultation open"
-          lines={['Start a consultation and collect consent first.']}
+          title={t('session.noConsultation')}
+          lines={[t('session.startFirst')]}
           onConsent={() => goTo('consent')}
         />
       ) : !session ? null : live ? (
@@ -134,23 +141,25 @@ export function SessionScreen(): React.JSX.Element {
         <RecordingResult recording={recording} session={session} onChange={refresh} />
       ) : !session.recording_allowed ? (
         <LockedCard
-          title="Recording is locked"
-          lines={session.blockers}
+          title={t('consent.lockedTitle')}
+          lines={session.blocker_items.map((b) =>
+            t(`blocker.${b.code}`, {
+              person: i18n.person(
+                session.participants.find((p) => p.id === b.participant_id)?.display_name
+              )
+            })
+          )}
           onConsent={() => goTo('consent')}
         />
       ) : (
         <Card>
           <CardHeader>
-            <CardTitle>Ready to record</CardTitle>
-            <CardDescription>
-              Everyone present has agreed. Pause at any time; paused audio is never recorded. If
-              more than one language will be spoken, choose “Several / detect”: a fixed language
-              makes Whisper translate everything into it.
-            </CardDescription>
+            <CardTitle>{t('session.readyTitle')}</CardTitle>
+            <CardDescription>{t('session.readyText')}</CardDescription>
           </CardHeader>
           <CardContent className="flex items-end gap-3">
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="language">Spoken language</Label>
+              <Label htmlFor="language">{t('session.spokenLanguage')}</Label>
               <Select value={language} onValueChange={setLanguage}>
                 <SelectTrigger id="language" className="w-52">
                   <SelectValue />
@@ -158,7 +167,7 @@ export function SessionScreen(): React.JSX.Element {
                 <SelectContent>
                   {LANGUAGES.map((l) => (
                     <SelectItem key={l.value} value={l.value}>
-                      {l.title}
+                      {t(l.title)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -171,7 +180,7 @@ export function SessionScreen(): React.JSX.Element {
               }
             >
               <Mic data-icon="inline-start" />
-              Start recording
+              {t('session.start')}
             </Button>
           </CardContent>
         </Card>
@@ -189,6 +198,7 @@ function LockedCard({
   lines: string[]
   onConsent: () => void
 }): React.JSX.Element {
+  const { t } = useI18n()
   return (
     <Card>
       <CardHeader>
@@ -205,7 +215,7 @@ function LockedCard({
         </ul>
         <div>
           <Button variant="outline" onClick={onConsent}>
-            Go to Consent
+            {t('goTo.consent')}
           </Button>
         </div>
       </CardContent>
@@ -214,6 +224,7 @@ function LockedCard({
 }
 
 function RecorderCard(): React.JSX.Element {
+  const { t } = useI18n()
   const c = useRecordingController()
   const paused = c.phase === 'paused'
   return (
@@ -226,17 +237,22 @@ function RecorderCard(): React.JSX.Element {
             <Pause className="size-4" />
           )}
           {c.phase === 'starting'
-            ? 'Starting…'
+            ? t('recorder.starting')
             : c.phase === 'stopping'
-              ? 'Saving the last seconds…'
+              ? t('recorder.stopping')
               : paused
-                ? 'Paused: nothing is being recorded'
-                : 'Recording'}
+                ? t('recorder.paused')
+                : t('recorder.recording')}
         </CardTitle>
-        <CardDescription>Saved so far: {formatClock(c.savedSeconds)}</CardDescription>
+        <CardDescription>
+          {t('recorder.saved', { time: formatClock(c.savedSeconds) })}
+        </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
-        <div className="h-2 w-full overflow-hidden rounded-full bg-muted" aria-label="Input level">
+        <div
+          className="h-2 w-full overflow-hidden rounded-full bg-muted"
+          aria-label={t('recorder.level')}
+        >
           <div
             className="h-full bg-foreground transition-[width] duration-100"
             style={{ width: `${Math.min(100, Math.sqrt(c.level) * 160)}%` }}
@@ -246,12 +262,12 @@ function RecorderCard(): React.JSX.Element {
           {paused ? (
             <Button variant="outline" onClick={resumeRecording}>
               <Play data-icon="inline-start" />
-              Resume
+              {t('recorder.resume')}
             </Button>
           ) : (
             <Button variant="outline" disabled={c.phase !== 'recording'} onClick={pauseRecording}>
               <Pause data-icon="inline-start" />
-              Pause
+              {t('recorder.pause')}
             </Button>
           )}
           <Button
@@ -259,7 +275,7 @@ function RecorderCard(): React.JSX.Element {
             onClick={() => void stopRecording()}
           >
             <Square data-icon="inline-start" />
-            Stop and transcribe
+            {t('recorder.stop')}
           </Button>
         </div>
       </CardContent>
@@ -270,6 +286,7 @@ function RecorderCard(): React.JSX.Element {
 const LIVE_POLL_MS = 3000
 
 function LivePanel({ sessionId }: { sessionId: string }): React.JSX.Element {
+  const { t } = useI18n()
   const [live, setLive] = useState<LiveView | null>(null)
   useEffect(() => {
     let cancelled = false
@@ -287,18 +304,25 @@ function LivePanel({ sessionId }: { sessionId: string }): React.JSX.Element {
     }
   }, [sessionId])
 
+  // Topic labels by id; the sidecar's English label only for a topic the app does not know.
+  const checklistLabel = (item: { id: string; label: string }): string => {
+    const key = `checklist.${item.id}`
+    return isMessageKey(key) ? t(key) : item.label
+  }
   const missing = live?.checklist.filter((c) => !c.covered).length ?? 0
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       <Card size="sm">
         <CardHeader>
-          <CardTitle>Checklist</CardTitle>
+          <CardTitle>{t('live.checklist')}</CardTitle>
           <CardDescription>
             {!live || live.lines.length === 0
-              ? 'Fills in as the conversation goes; the first update comes after about 20 seconds.'
+              ? t('live.waiting')
               : missing === 0
-                ? 'Every topic has come up.'
-                : `${missing} topic${missing === 1 ? '' : 's'} not mentioned yet.`}
+                ? t('live.allCovered')
+                : missing === 1
+                  ? t('live.missingOne')
+                  : t('live.missingMany', { n: missing })}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -311,7 +335,9 @@ function LivePanel({ sessionId }: { sessionId: string }): React.JSX.Element {
                   <CircleDashed className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
                 )}
                 <div className="flex flex-col">
-                  <span className={item.covered ? '' : 'text-muted-foreground'}>{item.label}</span>
+                  <span className={item.covered ? '' : 'text-muted-foreground'}>
+                    {checklistLabel(item)}
+                  </span>
                   {item.covered && (
                     <span className="text-xs text-muted-foreground">“{item.match}”</span>
                   )}
@@ -323,11 +349,10 @@ function LivePanel({ sessionId }: { sessionId: string }): React.JSX.Element {
       </Card>
       <Card size="sm">
         <CardHeader>
-          <CardTitle>Live preview</CardTitle>
+          <CardTitle>{t('live.previewTitle')}</CardTitle>
           <CardDescription>
-            A quick draft every ~20 seconds
-            {live ? ` (up to ${formatClock(live.processed_s)})` : ''}. The accurate transcript is
-            made after you stop.
+            {t('live.previewText')}
+            {live && ` ${t('live.upTo', { time: formatClock(live.processed_s) })}`}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -356,6 +381,7 @@ function RecordingResult({
   session: Session
   onChange: () => void
 }): React.JSX.Element {
+  const { t, person } = useI18n()
   const sessionId = session.id
   const [actionError, setActionError] = useState<string | null>(null)
   const act = (fn: () => Promise<unknown>): void => {
@@ -367,13 +393,12 @@ function RecordingResult({
   if (recording.status === 'recording') {
     // The sidecar still thinks it is recording, but this window is not (e.g. it was reloaded).
     return (
-      <StatusCard title="Recording was cut off" error={actionError}>
+      <StatusCard title={t('result.cutOff')} error={actionError}>
         <p className="text-sm">
-          {formatClock(recording.duration_s)} of audio is saved. Stop the recording to transcribe
-          it.
+          {t('result.cutOffText', { time: formatClock(recording.duration_s) })}
         </p>
         <Button onClick={() => act(() => recordingsApi.stop(sessionId, recording.id))}>
-          Stop and transcribe
+          {t('recorder.stop')}
         </Button>
       </StatusCard>
     )
@@ -381,29 +406,24 @@ function RecordingResult({
   if (recording.status === 'recorded' || recording.status === 'transcribing') {
     return (
       <StatusCard
-        title={`Transcribing ${formatClock(recording.duration_s)} of audio…`}
+        title={t('result.transcribing', { time: formatClock(recording.duration_s) })}
         icon={<LoaderCircle className="size-4 animate-spin" />}
       >
-        <p className="text-sm text-muted-foreground">
-          Transcribing and telling the speakers apart, on this Mac. The first time, the speech
-          models (about 3.5 GB) are downloaded once.
-        </p>
+        <p className="text-sm text-muted-foreground">{t('result.transcribingText')}</p>
       </StatusCard>
     )
   }
   if (recording.status === 'failed' || recording.status === 'interrupted') {
     return (
       <StatusCard
-        title={
-          recording.status === 'failed' ? 'Transcription failed' : 'The recording was interrupted'
-        }
+        title={recording.status === 'failed' ? t('result.failed') : t('result.interrupted')}
         error={actionError}
       >
         <p className="text-sm">
-          {formatClock(recording.duration_s)} of audio is saved and nothing is lost.
+          {t('result.savedNothingLost', { time: formatClock(recording.duration_s) })}
           {recording.error && <span className="text-muted-foreground"> {recording.error}</span>}
         </p>
-        <Button onClick={transcribe}>Transcribe saved audio</Button>
+        <Button onClick={transcribe}>{t('result.transcribeSaved')}</Button>
       </StatusCard>
     )
   }
@@ -422,25 +442,28 @@ function RecordingResult({
       )}
       <Card>
         <CardHeader>
-          <CardTitle>Transcript</CardTitle>
+          <CardTitle>{t('transcript.title')}</CardTitle>
           <CardDescription>
-            {formatClock(recording.duration_s)} of audio, transcribed in{' '}
-            {Math.round(recording.transcribe_seconds ?? 0)} s with{' '}
-            {recording.model?.split('/').pop()}
+            {t('transcript.meta', {
+              duration: formatClock(recording.duration_s),
+              seconds: Math.round(recording.transcribe_seconds ?? 0),
+              model: recording.model?.split('/').pop() ?? ''
+            })}
             {recording.diarization_model &&
-              `, speakers told apart in ${Math.round(recording.diarize_seconds ?? 0)} s`}
-            {recording.audio_deleted_at && '. The audio was deleted when the record was approved.'}
+              t('transcript.metaSpeakers', {
+                seconds: Math.round(recording.diarize_seconds ?? 0)
+              })}
+            {recording.audio_deleted_at ? t('transcript.audioDeleted') : '.'}
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-3">
           {recording.diarization_error && (
             <p className="text-sm text-muted-foreground">
-              Speakers could not be told apart, so lines are not labelled. (
-              {recording.diarization_error})
+              {t('transcript.diarizationError', { error: recording.diarization_error })}
             </p>
           )}
           {recording.segments.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No speech was recognised.</p>
+            <p className="text-sm text-muted-foreground">{t('transcript.noSpeech')}</p>
           ) : (
             <ol className="flex flex-col gap-3">
               {recording.segments.map((s, i) => {
@@ -455,9 +478,11 @@ function RecordingResult({
                       {!newSpeaker || recording.speakers.length === 0 ? (
                         ''
                       ) : s.speaker ? (
-                        names.get(s.speaker)
+                        person(names.get(s.speaker))
                       ) : (
-                        <span className="font-normal text-muted-foreground">Unknown</span>
+                        <span className="font-normal text-muted-foreground">
+                          {t('transcript.unknown')}
+                        </span>
                       )}
                     </span>
                     <span>
@@ -490,6 +515,7 @@ function SpeakersCard({
   session: Session
   onChange: () => void
 }): React.JSX.Element {
+  const { t, person } = useI18n()
   const [error, setError] = useState<string | null>(null)
   const unmatched = recording.speakers.filter((v) => !v.participant_id).length
   const match = (speaker: string, value: string): void => {
@@ -501,11 +527,11 @@ function SpeakersCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Who is speaking</CardTitle>
+        <CardTitle>{t('speakers.title')}</CardTitle>
         <CardDescription>
           {unmatched > 0
-            ? `${recording.speakers.length} voices detected. Match each one to a person present.`
-            : 'Every voice is matched to a person present.'}
+            ? t('speakers.unmatched', { n: recording.speakers.length })
+            : t('speakers.allMatched')}
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
@@ -513,27 +539,30 @@ function SpeakersCard({
           <div key={v.speaker} className="flex items-center gap-4">
             <div className="flex min-w-0 flex-1 flex-col">
               <span className="text-sm font-medium">
-                Voice {v.speaker.slice(1)}{' '}
+                {t('speakers.voice', { n: v.speaker.slice(1) })}{' '}
                 <span className="font-normal text-muted-foreground">
-                  · {formatClock(v.seconds)} spoken
+                  · {t('speakers.spoken', { time: formatClock(v.seconds) })}
                 </span>
               </span>
               <span className="truncate text-xs text-muted-foreground">
-                First said: “{v.first_words}”
+                {t('speakers.firstSaid', { words: v.first_words })}
               </span>
             </div>
             <Select
               value={v.participant_id ?? UNMATCHED}
               onValueChange={(value) => match(v.speaker, value)}
             >
-              <SelectTrigger className="w-44" aria-label={`Person for voice ${v.speaker.slice(1)}`}>
+              <SelectTrigger
+                className="w-44"
+                aria-label={t('speakers.personFor', { n: v.speaker.slice(1) })}
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={UNMATCHED}>Not matched</SelectItem>
+                <SelectItem value={UNMATCHED}>{t('speakers.notMatched')}</SelectItem>
                 {session.participants.map((p) => (
                   <SelectItem key={p.id} value={p.id}>
-                    {p.display_name}
+                    {person(p.display_name)}
                   </SelectItem>
                 ))}
               </SelectContent>
