@@ -186,6 +186,24 @@ export class SidecarManager {
     )
   }
 
+  /** POST binary, expecting binary back; errors come back as the sidecar's JSON detail. */
+  async exchangeBinary(
+    route: string,
+    body: Buffer,
+    contentType: string
+  ): Promise<{ ok: true; bytes: Buffer } | { ok: false; detail: string }> {
+    const res = await this.request(route, {
+      method: 'POST',
+      headers: { 'Content-Type': contentType },
+      body: new Uint8Array(body)
+    })
+    if (!res.ok) {
+      const parsed = (await parseBody(res)) as { detail?: string } | null
+      return { ok: false, detail: parsed?.detail ?? `Request failed (${res.status})` }
+    }
+    return { ok: true, bytes: Buffer.from(await res.arrayBuffer()) }
+  }
+
   private async callRaw(
     route: string,
     body: Buffer,

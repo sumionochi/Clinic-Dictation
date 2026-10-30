@@ -4,6 +4,7 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 
+import { savePdfDocument } from './documentExport'
 import { getMicStatus, requestMicAccess, restrictWebPermissions } from './microphone'
 import { SidecarManager } from './sidecarManager'
 
@@ -24,6 +25,14 @@ function registerIpc(): void {
     (_event, sessionId: unknown, recordingId: unknown, pcm: unknown) =>
       sidecar.postAudio(sessionId, recordingId, pcm)
   )
+  ipcMain.handle('export:savePdf', (event, sessionId: unknown) => {
+    if (typeof sessionId !== 'string' || !/^[0-9a-f]{32}$/.test(sessionId)) {
+      throw new Error('Invalid session id')
+    }
+    // Development-only hook so automated checks can export without the save dialog.
+    const testDir = is.dev ? process.env['CLINIC_EXPORT_DIR'] : undefined
+    return savePdfDocument(sidecar, sessionId, BrowserWindow.fromWebContents(event.sender), testDir)
+  })
   ipcMain.handle('export:saveFhir', (event, sessionId: unknown) =>
     saveFhir(event.sender, sessionId)
   )
@@ -43,7 +52,7 @@ async function saveFhir(sender: Electron.WebContents, sessionId: unknown): Promi
   const window = BrowserWindow.fromWebContents(sender)
   const date = new Date().toISOString().slice(0, 10)
   const options = {
-    title: 'Save FHIR document',
+    title: 'Save FHIR document (for other systems)',
     defaultPath: `aufnahmegespraech-${date}.fhir.json`,
     filters: [{ name: 'FHIR JSON', extensions: ['json'] }]
   }

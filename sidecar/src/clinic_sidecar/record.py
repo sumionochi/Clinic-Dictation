@@ -8,7 +8,10 @@ approved by the doctor.
   numbered lines. The lines are stored with the record so citations keep pointing
   at the same words.
 - The doctor can remove a fact, restore one (including one the verifier rejected),
-  or correct its assertion, details or name. The evidence stays attached.
+  or correct its assertion, details or name. The evidence stays attached, and
+  every change is logged with its time and the content before and after it:
+  § 630f Abs. 1 BGB allows corrections only if the original content and the time
+  of the change stay recognisable.
 - Approval builds the FHIR document and runs the official validator. Only with
   zero errors is the record approved, the document stored, and then the audio
   deleted. The transcript and the record are kept.
@@ -19,7 +22,7 @@ import time
 import uuid
 from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
 from typing import Literal
 
@@ -28,6 +31,8 @@ from clinic_sidecar.agents.llm import LLM
 from clinic_sidecar.agents.schema import Assertion, Fact, TranscriptLine
 from clinic_sidecar.consent import Conflict, ConsentService, NotFound
 from clinic_sidecar.db import Database
+from clinic_sidecar.document import pdfa
+from clinic_sidecar.document.render import DocumentData, render_html
 from clinic_sidecar.fhir.mapper import DocumentInput, build_document
 from clinic_sidecar.fhir.validator import ValidationReport
 from clinic_sidecar.recording import RecordingService
@@ -44,6 +49,8 @@ class ReviewFact:
     state: FactState
     origin: FactOrigin
     reason: str | None = None  # why the verifier rejected it, for restored facts
+    # Every change the doctor made: {at, action, before, after}, oldest first.
+    history: list[dict] = field(default_factory=list)
 
 
 @dataclass
@@ -74,12 +81,16 @@ class RecordService:
         recordings: RecordingService,
         llm_factory: Callable[[], LLM],
         validator: Callable[[dict], ValidationReport],
+        pdf_to_pdfa: Callable[[bytes, pdfa.PdfMetadata], bytes] = pdfa.to_pdfa,
+        pdfa_validator: Callable[[bytes], pdfa.PdfaReport] = pdfa.validate,
     ) -> None:
         self.db = db
         self.consent = consent
         self.recordings = recordings
         self.llm_factory = llm_factory
         self.validator = validator
+        self.pdf_to_pdfa = pdf_to_pdfa
+        self.pdfa_validator = pdfa_validator
         # LLM calls go over HTTP to Ollama, so they do not need the MLX thread.
         self._executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="agents")
         self._recover()
@@ -159,6 +170,7 @@ class RecordService:
         target = next((f for f in facts if f.id == fact_id), None)
         if target is None:
             raise NotFound(f"Fact {fact_id} not found")
+        before = self._snapshot(target)
         if action == "remove":
             target.state = "removed"
         elif action == "restore":
@@ -174,6 +186,9 @@ class RecordService:
             target.fact = target.fact.model_copy(update=changes)
             target.origin = "doctor_edited"
             target.state = "kept"
+        after = self._snapshot(target)
+        if after != before:
+            target.history.append({"at": _now(), "action": action, "before": before, "after": after})
         kept = [f.fact for f in facts if f.state == "kept"]
         with self.db.connect() as conn:
             conn.execute(
@@ -234,6 +249,66 @@ class RecordService:
             raise Conflict("Only an approved record can be exported.")
         return json.loads(row["fhir_bundle"])["bundle"]
 
+    # ── Readable document ────────────────────────────────────────────────────
+
+    def document_data(self, session_id: str) -> DocumentData:
+        row = self._require(session_id)
+        if row["status"] != "approved":
+            raise Conflict("Only an approved record can be exported.")
+        stored = json.loads(row["fhir_bundle"])
+        rec = self.recordings.get(session_id)
+        session = self.consent.get_session(session_id)
+        facts = self._load_facts(row)
+        return DocumentData(
+            document_id=stored["bundle"]["identifier"]["value"],
+            started_at=rec.started_at if rec else None,
+            stopped_at=rec.stopped_at if rec else None,
+            duration_s=rec.duration_s if rec else 0.0,
+            approved_at=row["approved_at"],
+            audio_deleted_at=rec.audio_deleted_at if rec else None,
+            languages=sorted({s.language for s in rec.segments if s.language}) if rec else [],
+            participants=[
+                {"role": p.role, "display_name": p.display_name, "decision": p.decision, "decided_at": p.decided_at}
+                for p in session.participants
+            ],
+            facts=[{**asdict(f), "fact": f.fact.model_dump()} for f in facts if f.state == "kept"],
+            changed=[{**asdict(f), "fact": f.fact.model_dump()} for f in facts if f.history],
+            contradictions=json.loads(row["contradictions"] or "[]"),
+            lines={ln["line"]: ln for ln in json.loads(row["lines"] or "[]")},
+            transcription_model=rec.model if rec else None,
+            diarization_model=rec.diarization_model if rec else None,
+            extraction_model=row["model"],
+        )
+
+    def document_html(self, session_id: str) -> dict:
+        data = self.document_data(session_id)
+        day = (data.started_at or data.approved_at)[:10]
+        return {
+            "html": render_html(data),
+            "document_id": data.document_id,
+            "filename": f"aufnahmegespraech-{day}",
+        }
+
+    def document_pdfa(self, session_id: str, printed_pdf: bytes) -> bytes:
+        """The printed document as PDF/A-2b, released only if veraPDF accepts it."""
+        data = self.document_data(session_id)
+        try:
+            converted = self.pdf_to_pdfa(
+                printed_pdf,
+                pdfa.PdfMetadata(
+                    title=f"Aufnahmegespräch {data.document_id}",
+                    author="Clinic Dictation (KI-gestützt erstellt, ärztlich geprüft und freigegeben)",
+                    subject="Strukturierte Anamnese aus einem aufgezeichneten Arzt-Patienten-Gespräch",
+                    keywords=f"AI-assisted; human-reviewed; approved {data.approved_at}; FHIR {data.document_id}",
+                ),
+            )
+            report = self.pdfa_validator(converted)
+        except pdfa.PdfaUnavailable as exc:
+            raise Conflict(f"PDF/A export is not set up: {exc}") from exc
+        if not report.compliant:
+            raise Conflict("The PDF did not pass PDF/A validation: " + "; ".join(report.failures[:3]))
+        return converted
+
     # ── Reading ──────────────────────────────────────────────────────────────
 
     def get(self, session_id: str) -> RecordView | None:
@@ -262,6 +337,11 @@ class RecordService:
     @staticmethod
     def _review(fact: Fact, state: FactState, origin: FactOrigin, reason: str | None = None) -> ReviewFact:
         return ReviewFact(id=uuid.uuid4().hex[:12], fact=fact, state=state, origin=origin, reason=reason)
+
+    @staticmethod
+    def _snapshot(item: ReviewFact) -> dict:
+        f = item.fact
+        return {"name": f.name, "details": f.details, "assertion": f.assertion, "state": item.state}
 
     @staticmethod
     def _dump(facts: list[ReviewFact]) -> str:

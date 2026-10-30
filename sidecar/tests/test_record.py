@@ -191,3 +191,78 @@ def test_changes_rejected_after_approval(tmp_path, action) -> None:
     client.post(f"/sessions/{sid}/record/approve")
     res = client.post(f"/sessions/{sid}/record/facts/{body['facts'][0]['id']}", json={"action": action})
     assert res.status_code == 409
+
+
+def test_every_doctor_change_keeps_the_original_and_its_time(tmp_path) -> None:
+    """§ 630f Abs. 1 BGB: the original content and the time of a correction stay visible."""
+    client = make(tmp_path)
+    sid, _, body = ready_record(client)
+    fid = next(f["id"] for f in body["facts"] if f["fact"]["name"] == "Allergien")
+    url = f"/sessions/{sid}/record/facts/{fid}"
+    client.post(url, json={"action": "edit", "details": "keine bekannt"})
+    client.post(url, json={"action": "remove"})
+    body = client.post(url, json={"action": "restore"}).json()
+    history = next(f for f in body["facts"] if f["id"] == fid)["history"]
+    assert [h["action"] for h in history] == ["edit", "remove", "restore"]
+    assert history[0]["before"]["details"] is None and history[0]["after"]["details"] == "keine bekannt"
+    assert history[1]["before"]["state"] == "kept" and history[1]["after"]["state"] == "removed"
+    assert all(h["at"] for h in history)
+    # A no-op change is not logged.
+    body = client.post(url, json={"action": "restore"}).json()
+    assert len(next(f for f in body["facts"] if f["id"] == fid)["history"]) == 3
+
+
+def approved(tmp_path, **kwargs) -> tuple[TestClient, str]:
+    client = make(tmp_path, **kwargs)
+    sid, _, body = ready_record(client)
+    fid = next(f["id"] for f in body["facts"] if f["fact"]["name"] == "Allergien")
+    client.post(f"/sessions/{sid}/record/facts/{fid}", json={"action": "edit", "details": "keine bekannt <b>"})
+    client.post(f"/sessions/{sid}/record/approve")
+    return client, sid
+
+
+def test_readable_document_follows_the_rules(tmp_path) -> None:
+    client, sid = approved(tmp_path)
+    doc = client.get(f"/sessions/{sid}/record/document").json()
+    html = doc["html"]
+    bundle = client.get(f"/sessions/{sid}/record/fhir").json()
+    assert doc["document_id"] == bundle["identifier"]["value"]  # both exports name the same document
+    assert doc["filename"].startswith("aufnahmegespraech-")
+    # § 630f Abs. 2: consents; § 201 StGB: everyone agreed before recording
+    assert "Einwilligung in die Aufzeichnung" in html and "eingewilligt" in html
+    # § 630f Abs. 1: the doctor's change, with the original
+    assert "Änderungsprotokoll" in html and "geändert" in html and "keine bekannt" in html
+    # Facts with their evidence; empty topics marked as not discussed, not as denied
+    assert "Allergien" in html and "Z. 1" in html and "Keine Angaben dokumentiert." in html
+    assert "verneint" in html
+    assert "Im Gespräch nicht erhoben" not in html  # the app cannot know a topic never came up
+    assert "<td>Arzt/Ärztin</td>" in html and "<td>Doctor</td>" not in html
+    # AI transparency, no diagnoses, and where signing happens
+    assert "KI-gestützt" in html and "keine Diagnosen" in html and "Heilberufsausweis" in html
+    # Everything from the transcript or the doctor is escaped
+    assert "keine bekannt &lt;b&gt;" in html and "keine bekannt <b>" not in html
+
+
+def test_document_only_after_approval(tmp_path) -> None:
+    client = make(tmp_path)
+    sid, _, _ = ready_record(client)
+    assert client.get(f"/sessions/{sid}/record/document").status_code == 409
+
+
+def test_pdf_is_returned_only_if_pdfa_valid(tmp_path) -> None:
+    from clinic_sidecar.document.pdfa import PdfaReport
+
+    client, sid = approved(
+        tmp_path,
+    )
+    service = client.app.state.records
+    service.pdf_to_pdfa = lambda pdf, meta: pdf + b"%converted"
+    service.pdfa_validator = lambda pdf: PdfaReport(True, "PDF/A-2B")
+    res = client.post(f"/sessions/{sid}/record/document/pdf", content=b"%PDF-1.7 fake")
+    assert res.status_code == 200 and res.content.endswith(b"%converted")
+    assert res.headers["content-type"] == "application/pdf"
+
+    service.pdfa_validator = lambda pdf: PdfaReport(False, "PDF/A-2B", ["6.2.11.4.1 font not embedded"])
+    res = client.post(f"/sessions/{sid}/record/document/pdf", content=b"%PDF-1.7 fake")
+    assert res.status_code == 409 and "font not embedded" in res.json()["detail"]
+    assert client.post(f"/sessions/{sid}/record/document/pdf", content=b"not a pdf").status_code == 409

@@ -43,6 +43,15 @@ Java is untouched) and `validator_cli.jar` in
 `~/Library/Application Support/clinic-dictation/tools/`. The first run downloads the
 FHIR R4 definitions into `~/.fhir/packages` (about 300 MB); after that it is offline.
 
+Approved records can also be exported as a readable German document (PDF/A-2b)
+for people: consents, the structured history with a quote behind every fact,
+open questions, and a log of the doctor's changes (§ 630f BGB). Chromium prints
+it, Ghostscript converts it to PDF/A (`brew install ghostscript`) and the veraPDF
+validator must accept it before it is saved (installed to
+`~/Library/Application Support/clinic-dictation/tools/verapdf/`). To send it as a
+KBV eArztbrief, the doctor signs it with the eHBA in the practice software, which
+also adds the patient's identity and sends it via KIM.
+
 The extraction agents (step 7) use a local model through [Ollama](https://ollama.com)
 on `127.0.0.1:11434`: `brew install ollama`, `ollama serve`, then
 `ollama pull qwen3:8b` (5.2 GB) and/or `ollama pull medgemma:4b` (3.3 GB).

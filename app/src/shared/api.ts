@@ -21,6 +21,8 @@ export interface Api {
   export: {
     /** Asks where to save, then writes the approved FHIR document. Null if cancelled. */
     saveFhir: (sessionId: string) => Promise<string | null>
+    /** Same, for the readable PDF/A document. */
+    savePdf: (sessionId: string) => Promise<string | null>
   }
   mic: {
     getStatus: () => Promise<MicStatus>
