@@ -55,6 +55,24 @@ export interface Recording {
   segments: TranscriptSegment[]
 }
 
+export interface ChecklistItem {
+  id: string
+  label: string
+  covered: boolean
+  /** First live line that mentions it, and the words that matched. */
+  line: number | null
+  match: string | null
+}
+
+export interface LiveView {
+  recording_id: string
+  status: RecordingStatus
+  recorded_s: number
+  processed_s: number
+  lines: { idx: number; start: number; end: number; text: string }[]
+  checklist: ChecklistItem[]
+}
+
 async function call<T>(method: 'GET' | 'POST', route: string, body?: unknown): Promise<T> {
   const res = await window.api.sidecar.call(method, route, body)
   if (!res.ok) {
@@ -66,6 +84,8 @@ async function call<T>(method: 'GET' | 'POST', route: string, body?: unknown): P
 
 export const recordingsApi = {
   get: (sessionId: string) => call<Recording | null>('GET', `/sessions/${sessionId}/recording`),
+  live: (sessionId: string) =>
+    call<LiveView | null>('GET', `/sessions/${sessionId}/recording/live`),
   start: (sessionId: string, language: Language | null) =>
     call<Recording>('POST', `/sessions/${sessionId}/recordings`, { language }),
   stop: (sessionId: string, recordingId: string) =>

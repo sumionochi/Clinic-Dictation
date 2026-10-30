@@ -4,7 +4,7 @@ from fastapi import APIRouter, Request
 from pydantic import BaseModel
 
 from clinic_sidecar.consent import Conflict
-from clinic_sidecar.recording import Language, RecordingService, RecordingView
+from clinic_sidecar.recording import Language, LiveView, RecordingService, RecordingView
 
 router = APIRouter(prefix="/sessions/{session_id}")
 
@@ -27,6 +27,11 @@ def _service(request: Request) -> RecordingService:
 @router.get("/recording")
 def get_recording(session_id: str, request: Request) -> RecordingView | None:
     return _service(request).get(session_id)
+
+
+@router.get("/recording/live")
+def get_live(session_id: str, request: Request) -> LiveView | None:
+    return _service(request).live(session_id)
 
 
 @router.post("/recordings")

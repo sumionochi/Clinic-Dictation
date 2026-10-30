@@ -14,6 +14,7 @@ just without speakers.
 
 import json
 import os
+import threading
 import time
 import uuid
 from dataclasses import asdict, dataclass
@@ -21,9 +22,11 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Literal
 
+from clinic_sidecar.checklist import ChecklistItem, evaluate
 from clinic_sidecar.consent import Conflict, ConsentService, NotFound
 from clinic_sidecar.db import Database
 from clinic_sidecar.diarizer import Diarizer
+from clinic_sidecar.live import next_window, transcribe_window
 from clinic_sidecar.speaker_merge import split_by_speaker
 from clinic_sidecar.transcriber import (
     SAMPLE_RATE,
@@ -80,6 +83,24 @@ class RecordingView:
     segments: list[SegmentView]
 
 
+@dataclass
+class LiveLine:
+    idx: int
+    start: float
+    end: float
+    text: str
+
+
+@dataclass
+class LiveView:
+    recording_id: str
+    status: Status
+    recorded_s: float
+    processed_s: float  # how far the live pass has got
+    lines: list[LiveLine]
+    checklist: list[ChecklistItem]
+
+
 def _now() -> str:
     return datetime.now(UTC).isoformat(timespec="seconds")
 
@@ -101,6 +122,8 @@ class RecordingService:
         self.transcriber = transcriber
         self.diarizer = diarizer
         self.worker = worker
+        self._live_busy: set[str] = set()
+        self._live_lock = threading.Lock()
         self._recover_interrupted()
 
     def audio_path(self, recording_id: str) -> Path:
@@ -141,7 +164,71 @@ class RecordingService:
             conn.execute(
                 "UPDATE recordings SET samples = samples + ? WHERE id = ?", (len(chunk) // 2, recording_id)
             )
-            return conn.execute("SELECT samples FROM recordings WHERE id = ?", (recording_id,)).fetchone()[0]
+            samples, live = conn.execute(
+                "SELECT samples, live_samples FROM recordings WHERE id = ?", (recording_id,)
+            ).fetchone()
+        self._maybe_start_live(recording_id, samples - live)
+        return samples
+
+    # ── Live pass ────────────────────────────────────────────────────────────
+
+    def _maybe_start_live(self, recording_id: str, pending_samples: int) -> None:
+        from clinic_sidecar.live import WINDOW_S
+
+        if pending_samples < WINDOW_S * SAMPLE_RATE:
+            return
+        with self._live_lock:
+            if recording_id in self._live_busy:
+                return
+            self._live_busy.add(recording_id)
+        self.worker.submit(lambda: self._run_live(recording_id))
+
+    def _run_live(self, recording_id: str) -> None:
+        """Transcribe every full window of new audio. Advisory only: a failure here
+        never touches the recording or the final transcript."""
+        try:
+            with self.db.connect() as conn:
+                row = conn.execute("SELECT * FROM recordings WHERE id = ?", (recording_id,)).fetchone()
+            if row is None or row["status"] != "recording":
+                return  # stopped meanwhile; the final pass takes over
+            audio = pcm16_to_float32(self.audio_path(recording_id).read_bytes())
+            start = row["live_samples"]
+            while (end := next_window(audio, start)) is not None:
+                segments = transcribe_window(self.transcriber, audio, start, end, row["language"])
+                with self.db.connect() as conn:
+                    first = conn.execute(
+                        "SELECT COUNT(*) FROM live_segments WHERE recording_id = ?", (recording_id,)
+                    ).fetchone()[0]
+                    conn.executemany(
+                        "INSERT INTO live_segments (recording_id, idx, start_s, end_s, text) VALUES (?, ?, ?, ?, ?)",
+                        [(recording_id, first + i, s.start, s.end, s.text) for i, s in enumerate(segments)],
+                    )
+                    conn.execute("UPDATE recordings SET live_samples = ? WHERE id = ?", (end, recording_id))
+                start = end
+        except Exception:  # noqa: BLE001 - the live preview must never break recording
+            pass
+        finally:
+            with self._live_lock:
+                self._live_busy.discard(recording_id)
+
+    def live(self, session_id: str) -> LiveView | None:
+        rec = self.get(session_id)
+        if rec is None:
+            return None
+        with self.db.connect() as conn:
+            row = conn.execute("SELECT live_samples, sample_rate FROM recordings WHERE id = ?", (rec.id,)).fetchone()
+            segs = conn.execute(
+                "SELECT * FROM live_segments WHERE recording_id = ? ORDER BY idx", (rec.id,)
+            ).fetchall()
+        lines = [LiveLine(s["idx"], s["start_s"], s["end_s"], s["text"]) for s in segs]
+        return LiveView(
+            recording_id=rec.id,
+            status=rec.status,
+            recorded_s=rec.duration_s,
+            processed_s=round(row["live_samples"] / row["sample_rate"], 1),
+            lines=lines,
+            checklist=evaluate([ln.text for ln in lines]),
+        )
 
     def stop(self, session_id: str, recording_id: str) -> RecordingView:
         row = self._require(session_id, recording_id)

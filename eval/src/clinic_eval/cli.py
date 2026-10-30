@@ -53,6 +53,7 @@ def cmd_run(args: argparse.Namespace) -> None:
 
     import numpy as np
     from clinic_sidecar.diarizer import SortformerDiarizer
+    from clinic_sidecar.live import live_transcript
     from clinic_sidecar.speaker_merge import split_by_speaker
     from clinic_sidecar.transcriber import FINAL_MODEL, TranscriptionWorker, WhisperTranscriber
 
@@ -87,6 +88,18 @@ def cmd_run(args: argparse.Namespace) -> None:
         hypothesis = " ".join(s.text for s in segments)
         reference = case.reference_text()
         score = score_case(case.name, reference, hypothesis, terms, negations)
+        live = None
+        if not args.no_live:
+            # The live pass: the same audio in ~20 s windows, as during recording.
+            live_segments = worker.submit(lambda a=audio: live_transcript(transcriber, a, language)).result()
+            live_text = " ".join(s.text for s in live_segments)
+            live_score = score_case(case.name, reference, live_text, terms, negations)
+            live = {
+                "wer": live_score.wer,
+                "term_recall": live_score.terms.recall,
+                "negation_recall": live_score.negations.recall,
+                "hypothesis": live_text,
+            }
         speakers = diarize_s = None
         if diarizer:
             start = time.monotonic()
@@ -105,6 +118,7 @@ def cmd_run(args: argparse.Namespace) -> None:
                 "audio_s": round(audio.size / 16_000, 2),
                 "transcribe_s": round(elapsed, 2),
                 "diarize_s": diarize_s,
+                "live": live,
                 "speakers": asdict(speakers) if speakers else None,
                 "reference": reference,
                 "hypothesis": hypothesis,
@@ -124,7 +138,7 @@ def _print_report(model, rows, scores, summary: Summary, audio_total, transcribe
     print(f"\nModel: {model}   (load {load_s:.1f} s)\n")
     print(
         f"{'case':28s} {'audio':>6s} {'time':>6s} {'WER':>6s} {'CER':>6s} {'terms':>7s} {'negations':>9s}"
-        f" {'speakers':>9s} {'voices':>6s}"
+        f" {'speakers':>9s} {'voices':>6s} {'liveWER':>7s}"
     )
     for row, s in zip(rows, scores):
         spk = row["speakers"]
@@ -133,6 +147,7 @@ def _print_report(model, rows, scores, summary: Summary, audio_total, transcribe
             f" {_recall(s.terms.found, s.terms.expected):>7s} {_recall(s.negations.found, s.negations.expected):>9s}"
             f" {_pct(spk['accuracy']) if spk else '   -':>9s}"
             f" {str(spk['voices_detected']) + '/' + str(spk['speakers_in_reference']) if spk else '-':>6s}"
+            f" {_pct(row['live']['wer']) if row['live'] else '    -':>7s}"
         )
     compared = [r["speakers"] for r in rows if r["speakers"] and r["speakers"]["accuracy"] is not None]
     pooled_speakers = (
@@ -143,6 +158,19 @@ def _print_report(model, rows, scores, summary: Summary, audio_total, transcribe
         f" {audio_total:5.1f}s {transcribe_total:5.1f}s {_pct(summary.wer)} {_pct(summary.cer)}"
         f" {_pct(summary.term_recall):>7s} {_pct(summary.negation_recall):>9s} {_pct(pooled_speakers):>9s}"
     )
+    live_rows = [r for r in rows if r["live"]]
+    if live_rows:
+        import jiwer
+
+        from clinic_eval.normalize import normalize
+
+        live_wer = jiwer.wer(
+            [normalize(r["reference"]) for r in live_rows], [normalize(r["live"]["hypothesis"]) for r in live_rows]
+        )
+        final_wer = jiwer.wer(
+            [normalize(r["reference"]) for r in live_rows], [normalize(r["hypothesis"]) for r in live_rows]
+        )
+        print(f"\nLive pass (20 s windows): WER {_pct(live_wer)} vs final {_pct(final_wer)}")
     diarize_total = sum(r["diarize_s"] or 0 for r in rows)
     if diarize_total:
         print(f"\nTelling speakers apart took {diarize_total:.1f} s in total.")
@@ -344,6 +372,7 @@ def main() -> None:
     run.add_argument("--language", default="de", choices=["de", "en", "auto"])
     run.add_argument("--allow-download", action="store_true", help="let the model be downloaded if missing")
     run.add_argument("--no-speakers", action="store_true", help="skip speaker diarization")
+    run.add_argument("--no-live", action="store_true", help="skip the windowed live pass")
     run.set_defaults(func=cmd_run)
 
     extract = sub.add_parser("extract", help="score the extraction agents against the one-prompt baseline")

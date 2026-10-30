@@ -1,4 +1,14 @@
-import { CircleX, LoaderCircle, Lock, Mic, Pause, Play, Square } from 'lucide-react'
+import {
+  CircleCheck,
+  CircleDashed,
+  CircleX,
+  LoaderCircle,
+  Lock,
+  Mic,
+  Pause,
+  Play,
+  Square
+} from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
@@ -21,7 +31,13 @@ import {
   stopRecording,
   useRecordingController
 } from '@/lib/recordingController'
-import { formatClock, recordingsApi, type Language, type Recording } from '@/lib/recordings'
+import {
+  formatClock,
+  recordingsApi,
+  type Language,
+  type LiveView,
+  type Recording
+} from '@/lib/recordings'
 import { sessionsApi, type Session } from '@/lib/sessions'
 
 const LANGUAGES: { value: string; title: string }[] = [
@@ -87,7 +103,7 @@ export function SessionScreen(): React.JSX.Element {
   const live = controller.phase !== 'idle' && controller.sessionId === sessionId
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 p-8">
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 p-8">
       <header className="flex flex-col gap-1">
         <h1 className="text-2xl font-semibold tracking-tight">Session</h1>
         <p className="text-sm text-muted-foreground">
@@ -110,7 +126,10 @@ export function SessionScreen(): React.JSX.Element {
           onConsent={() => goTo('consent')}
         />
       ) : !session ? null : live ? (
-        <RecorderCard />
+        <>
+          <RecorderCard />
+          <LivePanel sessionId={sessionId} />
+        </>
       ) : recording ? (
         <RecordingResult recording={recording} session={session} onChange={refresh} />
       ) : !session.recording_allowed ? (
@@ -245,6 +264,86 @@ function RecorderCard(): React.JSX.Element {
         </div>
       </CardContent>
     </Card>
+  )
+}
+
+const LIVE_POLL_MS = 3000
+
+function LivePanel({ sessionId }: { sessionId: string }): React.JSX.Element {
+  const [live, setLive] = useState<LiveView | null>(null)
+  useEffect(() => {
+    let cancelled = false
+    const load = (): void => {
+      recordingsApi.live(sessionId).then(
+        (v) => !cancelled && setLive(v),
+        () => undefined
+      )
+    }
+    load()
+    const timer = setInterval(load, LIVE_POLL_MS)
+    return () => {
+      cancelled = true
+      clearInterval(timer)
+    }
+  }, [sessionId])
+
+  const missing = live?.checklist.filter((c) => !c.covered).length ?? 0
+  return (
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <Card size="sm">
+        <CardHeader>
+          <CardTitle>Checklist</CardTitle>
+          <CardDescription>
+            {!live || live.lines.length === 0
+              ? 'Fills in as the conversation goes; the first update comes after about 20 seconds.'
+              : missing === 0
+                ? 'Every topic has come up.'
+                : `${missing} topic${missing === 1 ? '' : 's'} not mentioned yet.`}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ul className="flex flex-col gap-2">
+            {(live?.checklist ?? []).map((item) => (
+              <li key={item.id} className="flex items-start gap-2 text-sm">
+                {item.covered ? (
+                  <CircleCheck className="mt-0.5 size-4 shrink-0" />
+                ) : (
+                  <CircleDashed className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+                )}
+                <div className="flex flex-col">
+                  <span className={item.covered ? '' : 'text-muted-foreground'}>{item.label}</span>
+                  {item.covered && (
+                    <span className="text-xs text-muted-foreground">“{item.match}”</span>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </CardContent>
+      </Card>
+      <Card size="sm">
+        <CardHeader>
+          <CardTitle>Live preview</CardTitle>
+          <CardDescription>
+            A quick draft every ~20 seconds
+            {live ? ` (up to ${formatClock(live.processed_s)})` : ''}. The accurate transcript is
+            made after you stop.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ol className="flex flex-col gap-2">
+            {(live?.lines ?? []).slice(-6).map((ln) => (
+              <li key={ln.idx} className="flex gap-3 text-sm">
+                <span className="w-10 shrink-0 text-muted-foreground tabular-nums">
+                  {formatClock(ln.start)}
+                </span>
+                <span>{ln.text}</span>
+              </li>
+            ))}
+          </ol>
+        </CardContent>
+      </Card>
+    </div>
   )
 }
 

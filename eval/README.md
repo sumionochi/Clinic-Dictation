@@ -9,6 +9,7 @@ consultations. Milestone 1 reports these numbers on our own role-play recordings
 | **Term recall** | Of the medical terms in `terms/medical_de.txt` that were said, how many were recognised exactly, *at the place they were said*. |
 | **Negation recall** | The same for `kein`, `nicht`, `gegen` and similar. Losing one inverts a statement, so it is a safety metric of its own. |
 | **Speaker accuracy** | Of the words recognised in the right place, how many are attributed to the right person. Each detected voice is mapped to the person it overlaps most (several voices may map to one person, as in the app). |
+| **Live WER** | WER of the live pass: the same audio transcribed in ~20 s windows, as the app does while recording to feed the checklist. Compared with the final pass, it shows what transcribing without the rest of the conversation costs. |
 | **Speed** | Audio length ÷ transcription time on this machine (model already loaded). |
 
 Every run is saved to `results/<date>-<model>.json` with both transcripts, so

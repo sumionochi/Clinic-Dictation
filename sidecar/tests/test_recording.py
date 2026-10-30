@@ -240,3 +240,48 @@ def test_transcript_survives_diarization_failure(tmp_path) -> None:
     assert all(s["speaker"] is None for s in body["segments"])
     assert "diarizer exploded" in body["diarization_error"]
     assert body["speakers"] == []
+
+
+class WindowTranscriber(FakeTranscriber):
+    """Live windows come back as one line each, so they can be counted."""
+
+    def transcribe(self, audio: np.ndarray, language: str | None) -> list[Segment]:
+        self.calls.append((audio.size, language))
+        if audio.size < 18 * 16_000:  # not a live window: the final pass
+            return super().transcribe(audio, language)
+        return [Segment(0.0, audio.size / 16_000, "Haben Sie Allergien? Seit wann?")]
+
+
+def test_live_pass_runs_every_window_and_feeds_the_checklist(tmp_path) -> None:
+    client, fake = make_client(tmp_path, WindowTranscriber())
+    sid = consented_session(client)
+    rid = client.post(f"/sessions/{sid}/recordings", json={"language": "de"}).json()["id"]
+    assert client.get(f"/sessions/{sid}/recording/live").json()["lines"] == []
+    for _ in range(45):
+        post_audio(client, sid, rid, ONE_SECOND)
+    for _ in range(200):
+        live = client.get(f"/sessions/{sid}/recording/live").json()
+        if len(live["lines"]) >= 2:
+            break
+        time.sleep(0.02)
+    assert len(live["lines"]) == 2  # two full 20 s windows; the last 5 s wait
+    assert 36 <= live["processed_s"] <= 40
+    covered = {c["id"] for c in live["checklist"] if c["covered"]}
+    assert covered == {"allergies", "onset"}
+    assert live["lines"][1]["start"] > 18
+
+
+def test_live_failure_never_breaks_recording(tmp_path) -> None:
+    class Exploding(FakeTranscriber):
+        def transcribe(self, audio, language):
+            if 18 * 16_000 <= audio.size <= 20 * 16_000:  # live windows only
+                raise RuntimeError("live model crashed")
+            return super().transcribe(audio, language)
+
+    client, _ = make_client(tmp_path, Exploding())
+    sid = consented_session(client)
+    rid = client.post(f"/sessions/{sid}/recordings", json={"language": "de"}).json()["id"]
+    for _ in range(22):
+        assert post_audio(client, sid, rid, ONE_SECOND).status_code == 200
+    client.post(f"/sessions/{sid}/recordings/{rid}/stop")
+    assert wait_for(client, sid, "transcribed")["segments"]

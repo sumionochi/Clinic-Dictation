@@ -115,6 +115,19 @@ MIGRATIONS: list[str] = [
         fhir_bundle     TEXT    -- JSON, written once on approval
     );
     """,
+    # 6: the live preview transcript made while recording (feeds the checklist)
+    """
+    ALTER TABLE recordings ADD COLUMN live_samples INTEGER NOT NULL DEFAULT 0;
+
+    CREATE TABLE live_segments (
+        recording_id    TEXT NOT NULL REFERENCES recordings(id) ON DELETE CASCADE,
+        idx             INTEGER NOT NULL,
+        start_s         REAL NOT NULL,
+        end_s           REAL NOT NULL,
+        text            TEXT NOT NULL,
+        PRIMARY KEY (recording_id, idx)
+    );
+    """,
 ]
 
 
