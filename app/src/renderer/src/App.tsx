@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
+import { DevSettings } from '@/components/DevSettings'
 import { LanguageSelect } from '@/components/LanguageSelect'
 import { SystemStatus } from '@/components/SystemStatus'
 import { I18nContext, initialLanguage, makeI18n, rememberLanguage } from '@/i18n/i18n'
@@ -34,9 +35,12 @@ function App(): React.JSX.Element {
             {/* Leaves room for the macOS traffic-light buttons with hiddenInset title bar */}
             <div className="app-drag h-12 shrink-0" />
             <div className="flex flex-col gap-3 px-4 pb-4">
-              <div>
-                <p className="text-sm font-semibold">Clinic Dictation</p>
-                <p className="text-xs text-muted-foreground">{t('app.tagline')}</p>
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <p className="text-sm font-semibold">Clinic Dictation</p>
+                  <p className="text-xs text-muted-foreground">{t('app.tagline')}</p>
+                </div>
+                {import.meta.env.DEV && <DevSettings />}
               </div>
               <LanguageSelect />
             </div>

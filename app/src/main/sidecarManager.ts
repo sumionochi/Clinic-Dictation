@@ -87,6 +87,8 @@ export class SidecarManager {
           PATH: spawnPath,
           SIDECAR_TOKEN: this.token,
           CLINIC_DATA_DIR: path.join(app.getPath('userData'), 'data'),
+          // Enables the sidecar's /dev routes (synthetic demo data) only when run from source.
+          ...(app.isPackaged ? {} : { CLINIC_DEV: '1' }),
           // Speech models are downloaded here on first use (Hugging Face cache layout).
           HF_HOME: modelsDir,
           HF_HUB_DISABLE_TELEMETRY: '1',

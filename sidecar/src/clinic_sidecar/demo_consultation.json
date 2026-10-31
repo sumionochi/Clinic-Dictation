@@ -1,0 +1,303 @@
+{
+ "about": "Synthetic demo consultation (eval/extraction/tricky-family-contradiction). The facts are real output of the agent pipeline on qwen3:8b, saved so the demo loads instantly.",
+ "language": "de",
+ "participants": [
+  {
+   "role": "doctor",
+   "label": null
+  },
+  {
+   "role": "patient",
+   "label": null
+  },
+  {
+   "role": "companion",
+   "label": "Tochter"
+  }
+ ],
+ "speakers": {
+  "S1": "doctor",
+  "S2": "patient",
+  "S3": "companion"
+ },
+ "segments": [
+  {
+   "start": 0.0,
+   "end": 2.6,
+   "speaker": "S1",
+   "text": "Guten Morgen, was führt Sie zu uns?"
+  },
+  {
+   "start": 3.0,
+   "end": 5.6,
+   "speaker": "S2",
+   "text": "Mir ist seit gestern sehr schwindelig und ich habe Herzrasen."
+  },
+  {
+   "start": 6.0,
+   "end": 8.6,
+   "speaker": "S1",
+   "text": "Haben Sie auch Brustschmerzen?"
+  },
+  {
+   "start": 9.0,
+   "end": 11.6,
+   "speaker": "S2",
+   "text": "Nein, Brustschmerzen habe ich nicht."
+  },
+  {
+   "start": 12.0,
+   "end": 14.6,
+   "speaker": "S1",
+   "text": "Hatten Sie schon einmal einen Herzinfarkt?"
+  },
+  {
+   "start": 15.0,
+   "end": 17.6,
+   "speaker": "S2",
+   "text": "Ich nicht, aber meine Mutter hatte einen Herzinfarkt."
+  },
+  {
+   "start": 18.0,
+   "end": 20.6,
+   "speaker": "S1",
+   "text": "Welche Medikamente nehmen Sie?"
+  },
+  {
+   "start": 21.0,
+   "end": 23.6,
+   "speaker": "S2",
+   "text": "Bisoprolol morgens, und das Metoprolol habe ich letzten Monat abgesetzt."
+  },
+  {
+   "start": 24.0,
+   "end": 26.6,
+   "speaker": "S3",
+   "text": "Mama, du nimmst doch auch noch Pantoprazol."
+  },
+  {
+   "start": 27.0,
+   "end": 29.6,
+   "speaker": "S2",
+   "text": "Ach ja, Pantoprazol vierzig Milligramm."
+  },
+  {
+   "start": 30.0,
+   "end": 32.6,
+   "speaker": "S1",
+   "text": "Haben Sie Allergien?"
+  },
+  {
+   "start": 33.0,
+   "end": 35.6,
+   "speaker": "S2",
+   "text": "Nein, keine."
+  },
+  {
+   "start": 36.0,
+   "end": 38.6,
+   "speaker": "S1",
+   "text": "Rauchen Sie?"
+  },
+  {
+   "start": 39.0,
+   "end": 41.6,
+   "speaker": "S2",
+   "text": "Nein, nie geraucht."
+  },
+  {
+   "start": 42.0,
+   "end": 44.6,
+   "speaker": "S1",
+   "text": "Und das Metoprolol nehmen Sie wirklich nicht mehr?"
+  },
+  {
+   "start": 45.0,
+   "end": 47.6,
+   "speaker": "S2",
+   "text": "Doch, abends nehme ich es manchmal noch."
+  }
+ ],
+ "record": {
+  "model": "qwen3:8b",
+  "extract_seconds": 150.0,
+  "facts": [
+   {
+    "fact": {
+     "category": "complaint",
+     "name": "Schwindel",
+     "details": null,
+     "assertion": "present",
+     "evidence": [
+      {
+       "line": 2,
+       "quote": "Mir ist seit gestern sehr schwindelig"
+      }
+     ]
+    },
+    "state": "kept",
+    "origin": "agents",
+    "reason": null
+   },
+   {
+    "fact": {
+     "category": "complaint",
+     "name": "Herzrasen",
+     "details": null,
+     "assertion": "present",
+     "evidence": [
+      {
+       "line": 2,
+       "quote": "und ich habe Herzrasen"
+      }
+     ]
+    },
+    "state": "kept",
+    "origin": "agents",
+    "reason": null
+   },
+   {
+    "fact": {
+     "category": "symptom",
+     "name": "Brustschmerzen",
+     "details": null,
+     "assertion": "absent",
+     "evidence": [
+      {
+       "line": 4,
+       "quote": "Brustschmerzen habe ich nicht"
+      }
+     ]
+    },
+    "state": "kept",
+    "origin": "agents",
+    "reason": null
+   },
+   {
+    "fact": {
+     "category": "medication",
+     "name": "Bisoprolol",
+     "details": null,
+     "assertion": "present",
+     "evidence": [
+      {
+       "line": 8,
+       "quote": "Bisoprolol morgens"
+      }
+     ]
+    },
+    "state": "kept",
+    "origin": "agents",
+    "reason": null
+   },
+   {
+    "fact": {
+     "category": "medication",
+     "name": "Metoprolol",
+     "details": null,
+     "assertion": "past",
+     "evidence": [
+      {
+       "line": 8,
+       "quote": "und das Metoprolol habe ich letzten Monat abgesetzt"
+      }
+     ]
+    },
+    "state": "kept",
+    "origin": "agents",
+    "reason": null
+   },
+   {
+    "fact": {
+     "category": "medication",
+     "name": "Pantoprazol",
+     "details": null,
+     "assertion": "present",
+     "evidence": [
+      {
+       "line": 10,
+       "quote": "Pantoprazol vierzig Milligramm"
+      }
+     ]
+    },
+    "state": "kept",
+    "origin": "agents",
+    "reason": null
+   },
+   {
+    "fact": {
+     "category": "allergy",
+     "name": "weitere Allergien",
+     "details": null,
+     "assertion": "absent",
+     "evidence": [
+      {
+       "line": 12,
+       "quote": "Nein, keine"
+      }
+     ]
+    },
+    "state": "kept",
+    "origin": "agents",
+    "reason": null
+   },
+   {
+    "fact": {
+     "category": "social",
+     "name": "Rauchen",
+     "details": null,
+     "assertion": "absent",
+     "evidence": [
+      {
+       "line": 14,
+       "quote": "Nein, nie geraucht"
+      }
+     ]
+    },
+    "state": "kept",
+    "origin": "agents",
+    "reason": null
+   },
+   {
+    "fact": {
+     "category": "medication",
+     "name": "Metoprolol",
+     "details": null,
+     "assertion": "present",
+     "evidence": [
+      {
+       "line": 16,
+       "quote": "Doch, abends nehme ich es manchmal noch"
+      }
+     ]
+    },
+    "state": "kept",
+    "origin": "agents",
+    "reason": null
+   }
+  ],
+  "contradictions": [
+   {
+    "category": "medication",
+    "name": "Metoprolol",
+    "assertions": [
+     "past",
+     "present"
+    ],
+    "lines": [
+     8,
+     16
+    ]
+   }
+  ],
+  "log": [
+   "extract: 10 facts",
+   "check: 10 passed, 0 bad quotes, 1 line numbers corrected",
+   "verify: 9 supported, 1 rejected",
+   "  rejected condition 'Herzinfarkt' past (lines [6]): Verifier: wrong_assertion: The patient explicitly denies having had a Herzinfarkt ('Ich nicht'), and the claim incorrectly states they had one before. The patient's mother had a Herzinfarkt, but this is not the patient's own history. The claim also incorrectly implies the patient no longer takes Herzinfarkt, which is not part",
+   "retry 1: 1 sent back, 1 returned",
+   "check: 1 passed, 0 bad quotes, 0 line numbers corrected",
+   "verify: 1 supported, 0 rejected"
+  ]
+ }
+}

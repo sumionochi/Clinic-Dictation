@@ -22,6 +22,7 @@ from clinic_sidecar import __version__
 from clinic_sidecar.agents.llm import LLM, OllamaLLM
 from clinic_sidecar.consent import Conflict, ConsentService, NotFound
 from clinic_sidecar.db import Database
+from clinic_sidecar.demo import seed_demo_consultation
 from clinic_sidecar.diarizer import Diarizer, SortformerDiarizer
 from clinic_sidecar.fhir.validator import ValidationReport, validate
 from clinic_sidecar.record import RecordService
@@ -33,6 +34,8 @@ from clinic_sidecar.transcriber import Transcriber, TranscriptionWorker, Whisper
 
 TOKEN_ENV = "SIDECAR_TOKEN"
 DATA_DIR_ENV = "CLINIC_DATA_DIR"
+# Set by Electron only when running from source (npm run dev): enables /dev routes.
+DEV_ENV = "CLINIC_DEV"
 PARENT_CHECK_S = 2.0
 
 
@@ -61,6 +64,7 @@ def create_app(
     diarizer: Diarizer | None = None,
     llm_factory: Callable[[], LLM] | None = None,
     validator: Callable[[dict], ValidationReport] | None = None,
+    dev: bool | None = None,
 ) -> FastAPI:
     token = token if token is not None else os.environ.get(TOKEN_ENV, "")
     if not token:
@@ -69,6 +73,8 @@ def create_app(
         if not os.environ.get(DATA_DIR_ENV):
             raise RuntimeError(f"{DATA_DIR_ENV} must be set to the folder for local data")
         data_dir = Path(os.environ[DATA_DIR_ENV])
+    if dev is None:
+        dev = os.environ.get(DEV_ENV) == "1"
 
     app = FastAPI(
         title="Clinic Dictation sidecar",
@@ -95,6 +101,13 @@ def create_app(
     app.include_router(consent_router)
     app.include_router(recording_router)
     app.include_router(record_router)
+
+    if dev:
+
+        @app.post("/dev/demo-session")
+        def demo_session() -> dict[str, str]:
+            """A synthetic consultation with a drafted record, for demos and screenshots."""
+            return {"session_id": seed_demo_consultation(db, app.state.consent, app.state.records)}
 
     @app.exception_handler(NotFound)
     async def not_found(_request: Request, exc: NotFound) -> JSONResponse:

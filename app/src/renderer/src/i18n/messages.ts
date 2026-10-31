@@ -13,6 +13,10 @@ export const en = {
   // App shell
   'app.tagline': 'Local only',
   'app.language': 'Language',
+  'dev.settings': 'Developer options',
+  'dev.demo': 'Synthetic demo data',
+  'dev.demoHint':
+    'Opens a drafted synthetic consultation (no real patient) on Review. Off: the normal app.',
   'nav.consent': 'Consent',
   'nav.session': 'Session',
   'nav.review': 'Review',
@@ -238,6 +242,10 @@ export type MessageKey = keyof typeof en
 export const de: Record<MessageKey, string> = {
   'app.tagline': 'Nur lokal',
   'app.language': 'Sprache',
+  'dev.settings': 'Entwickleroptionen',
+  'dev.demo': 'Synthetische Demodaten',
+  'dev.demoHint':
+    'Öffnet ein vorbereitetes synthetisches Gespräch (keine echten Patientendaten) in der Prüfung. Aus: die normale App.',
   'nav.consent': 'Einwilligung',
   'nav.session': 'Gespräch',
   'nav.review': 'Prüfung',
